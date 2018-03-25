@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_item_add_to_playlist"
+        android:title="@string/add_to_local_playlist">
+    </item>
+
+    <item
+        android:id="@+id/menu_item_add_to_favourites"
+        android:title="@string/add_to_favourites">
+    </item>
+
+	<item
+        android:id="@+id/menu_item_share"
+        android:title="@string/share">
+    </item>
+
+    <item
+        android:id="@+id/menu_item_remove"
+        android:title="@string/remove">
+    </item>
+</menu>

@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Play Tube</string>
+    <string name="time_list">Today,This week,This month,All time</string>
+    <string name="order_by_list">Relevance,Rating,View Count</string>
+    <string name="no_item">No item</string>
+    <string name="network_error">Network Error!</string>
+    <string name="network_error_info">Network Error! Touch to reload.</string>
+    <string name="no_youtube_found">No Video found</string>
+    <string name="add_to_playlist">Add to Playlist</string>
+    <string name="add_to_other_playlist">Add to other Playlist</string>
+    <string name="add_to_local_playlist">Add to Playlist</string>
+    <string name="add_to_favourites">Add to Favourites</string>
+    <string name="remove">Remove</string>
+    <string name="share">Share</string>
+    <string name="share_video_title">Share video: %s</string>
+    <string name="share_video_content">[Play Tube] I want to share to you a great video: www.youtube.com/watch?v=%s</string>
+    <string name="quit_msg">Press back again to exit.</string>
+    <string name="exit_msg">Exit</string>
+    <string name="exit_confirm_msg">Do you want to exit?</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="comments_header">COMMENTS</string>
+    <string name="more">MORE</string>
+    <string name="related">RELATED</string>
+    <string name="info">INFO</string>
+    <string name="add_new_playlist">Add new playlist</string>
+    <string name="added">Added</string>
+</resources>

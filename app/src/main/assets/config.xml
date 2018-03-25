@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<Root>
+    <loadYoutubeVideosByAllUrl value="https://www.googleapis.com/youtube/v3/search?pageToken=%s&amp;order=%s&amp;maxResults=20&amp;type=video&amp;videoEmbeddable=true&amp;part=snippet&amp;key=AIzaSyAKaeS6n49iXZ9y0b8bH2H4ejUfkLn8gSs" />
+    <loadYoutubeVideosByCategoryUrl value="https://www.googleapis.com/youtube/v3/search?videoCategoryId=%s&amp;pageToken=%s&amp;order=%s&amp;maxResults=20&amp;type=video&amp;videoEmbeddable=true&amp;part=snippet&amp;key=AIzaSyAKaeS6n49iXZ9y0b8bH2H4ejUfkLn8gSs" />
+    <loadYoutubeVideosByCategoryAndTimeUrl value="https://www.googleapis.com/youtube/v3/search?videoCategoryId=%s&amp;pageToken=%s&amp;order=%s&amp;publishedAfter=%s&amp;maxResults=20&amp;type=video&amp;videoEmbeddable=true&amp;part=snippet&amp;key=AIzaSyAKaeS6n49iXZ9y0b8bH2H4ejUfkLn8gSs" />
+    <loadYoutubeVideosByAllCategoriesAndTimeUrl value="https://www.googleapis.com/youtube/v3/search?pageToken=%s&amp;order=%s&amp;publishedAfter=%s&amp;maxResults=20&amp;type=video&amp;videoEmbeddable=true&amp;part=snippet&amp;key=AIzaSyAKaeS6n49iXZ9y0b8bH2H4ejUfkLn8gSs" />
+    <searchVideoUrl value="https://www.googleapis.com/youtube/v3/search?q=%s&amp;pageToken=%s&amp;maxResults=20&amp;type=video&amp;videoEmbeddable=true&amp;part=snippet&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
+    <loadVideosInfoUrl value="https://www.googleapis.com/youtube/v3/videos?part=contentDetails,snippet,statistics&amp;id=%s&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
+    <youtubeDevID value="AIzaSyAKaeS6n49iXZ9y0b8bH2H4ejUfkLn8gSs" />
+    <loadCommentsOfYoutubeUrl value="https://www.googleapis.com/youtube/v3/commentThreads?key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs&amp;videoId=%s&amp;part=snippet&amp;pageToken=%s&amp;maxResults=20"/>
+    <loadRelatedOfYoutubeUrl value="https://www.googleapis.com/youtube/v3/search?part=snippet&amp;relatedToVideoId=%s&amp;pageToken=%s&amp;type=video&amp;videoEmbeddable=true&amp;maxResults=20&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs"/>
+    <loadYoutubesOfChannelUrl value="https://www.googleapis.com/youtube/v3/search?part=snippet&amp;channelId=%s&amp;pageToken=%s&amp;maxResults=20&amp;type=video&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs"/>
+</Root>

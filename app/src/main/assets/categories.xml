@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<Root>
+    <version value="1" />
+    <items>
+        <item id="0" title="All" />
+        <item id="10" title="Music" />
+        <item id="2" title="Autos &amp; Vehicles" />
+        <item id="24" title="Entertainment" />
+        <item id="23" title="Comedy" />
+        <item id="30" title="Movies" />
+        <item id="1" title="Film &amp; Animation" />
+        <item id="20" title="Gaming" />
+        <item id="26" title="Howto &amp; Style" />
+        <item id="22" title="People &amp; Blogs" />
+        <item id="15" title="Pets &amp; Animals" />
+        <item id="28" title="Science &amp; Technology" />
+        <item id="17" title="Sports" />
+        <item id="19" title="Travel &amp; Events" />
+        <item id="27" title="Education" />
+        <item id="25" title="News &amp; Politics" />
+    </items>
+</Root>
