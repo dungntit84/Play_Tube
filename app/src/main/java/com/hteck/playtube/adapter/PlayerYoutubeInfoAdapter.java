@@ -133,6 +133,17 @@ public class PlayerYoutubeInfoAdapter extends BaseAdapter {
         TextView textViewDescription = (TextView) v.findViewById(R.id.player_info_text_view_description);
         textViewDescription.setText(_videoInfo.description);
         v.setTag(Constants.CUSTOM_TAG, R.layout.player_info);
+        ImageView imageViewAction = (ImageView) v
+                .findViewById(R.id.player_info_img_action);
+
+        imageViewAction.setTag(_videoInfo);
+        imageViewAction.setOnClickListener(onClickListener);
         return v;
     }
+    View.OnClickListener onClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            ViewHelper.showYoutubeMenu(Constants.YoutubeListType.Normal, null, v);
+        }
+    };
 }

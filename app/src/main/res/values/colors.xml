@@ -4,7 +4,9 @@
     <color name="colorPrimaryDark">#5d4036</color>
     <color name="colorAccent">#FF4081</color>
     <color name="textColor">#FFFFFF</color>
+    <color name="textColorPressed">#99FFFFFF</color>
     <color name="playlistTextColor">#000000</color>
+    <color name="suggestTextColor">#000000</color>
     <color name="textColorInfo">#B3FFFFFF</color>
     <color name="textColorTabSelected">#80FFFFFF</color>
     <color name="bgMain">#7d655e</color>

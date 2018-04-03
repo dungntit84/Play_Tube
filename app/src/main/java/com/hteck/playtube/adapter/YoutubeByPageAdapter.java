@@ -10,21 +10,16 @@ import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.common.Constants;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.YoutubeInfo;
-import com.hteck.playtube.service.IYoutubeAction;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class YoutubeByPageAdapter extends YoutubeAdapter {
 	private boolean _isNetworkError;
-	public YoutubeByPageAdapter(Vector<YoutubeInfo> videoList) {
+	public YoutubeByPageAdapter(ArrayList<YoutubeInfo> videoList) {
 		super(videoList, Constants.YoutubeListType.Normal);
 	}
-	public YoutubeByPageAdapter(Vector<YoutubeInfo> videoList, Constants.YoutubeListType youtubeListType) {
+	public YoutubeByPageAdapter(ArrayList<YoutubeInfo> videoList, Constants.YoutubeListType youtubeListType) {
 		super(videoList, youtubeListType);
-	}
-
-	public YoutubeByPageAdapter(Vector<YoutubeInfo> videoList, Constants.YoutubeListType youtubeListType, IYoutubeAction youtubeAction) {
-		super(videoList, youtubeListType, youtubeAction);
 	}
 
 	public void setIsNetworkError(boolean isNetworkError) {
@@ -40,7 +35,7 @@ public class YoutubeByPageAdapter extends YoutubeAdapter {
 		LayoutInflater inflater = MainActivity.getInstance()
 				.getLayoutInflater();
 		if (position == _youtubeList.size() - 1) {
-			if (_youtubeList.lastElement() == null) {
+			if (_youtubeList.get(position) == null) {
 				
 				if (!_isNetworkError) {
 					v = inflater.inflate(R.layout.loading_view, null);

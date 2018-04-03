@@ -15,6 +15,7 @@ import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.data.YoutubeInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -141,10 +142,12 @@ public class YoutubePlayerView extends YouTubePlayerSupportFragment {
         }
     }
 
-    private List<String> getYoutubeIds(Vector<YoutubeInfo> youtubeList) {
+    private List<String> getYoutubeIds(ArrayList<YoutubeInfo> youtubeList) {
         List<String> result = new Vector<String>();
         for (YoutubeInfo youtubeInfo : youtubeList) {
-            result.add(youtubeInfo.id);
+            if (youtubeInfo != null) {
+                result.add(youtubeInfo.id);
+            }
         }
         return result;
     }

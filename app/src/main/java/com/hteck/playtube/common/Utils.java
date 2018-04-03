@@ -1,12 +1,14 @@
 package com.hteck.playtube.common;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,12 +22,14 @@ import org.w3c.dom.Document;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -131,6 +135,10 @@ public class Utils {
 
     public static String getDisplayLikes(double likesNo, boolean isMinDisplay) {
         return formatNumber(likesNo, isMinDisplay) + (likesNo > 1 ? " likes" : " like");
+    }
+
+    public static String getDisplayVideos(int count) {
+        return formatNumber(count) + (count > 1 ? " videos" : " video");
     }
 
     public static String formatNumber(double number) {
@@ -519,10 +527,39 @@ public class Utils {
                 return (float) jObject.getDouble(propName);
             if (double.class == clazz)
                 return jObject.getDouble(propName);
-            return jObject.getString(propName);
+            if (UUID.class == clazz)
+                return UUID.fromString(jObject.getString(propName));
+            return jObject.get(propName);
         } catch (Throwable e) {
             e.printStackTrace();
         }
         return "";
+    }
+
+    public static UUID buildFavouritesUUID() {
+        return new UUID(0, 0);
+    }
+
+    public static String urlEncode(String url) {
+        try {
+            return URLEncoder.encode(url, "UTF-8");
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+
+    public static void closeKeyboard() {
+        try {
+            View view = MainActivity.getInstance().getCurrentFocus();
+            if (view != null) {
+                InputMethodManager imm = (InputMethodManager) MainActivity
+                        .getInstance().getSystemService(
+                                Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 }

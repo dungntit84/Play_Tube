@@ -69,7 +69,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical|center_horizontal"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:clickable="true">
 
                 <LinearLayout
                     android:id="@+id/activity_main_layout_hot"
@@ -81,36 +82,77 @@
                     <ImageView
                         android:layout_width="@dimen/menu_icon_size"
                         android:layout_height="@dimen/menu_icon_size"
-                        android:src="@drawable/ic_hot_normal" />
+                        android:src="@drawable/ic_hot" />
 
                     <TextView
+                        android:id="@+id/main_activity_text_view_explore"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/menu_text_margin"
-                        android:text="EXPLORE"
-                        android:textColor="@color/textColor" />
+                        android:textColor="@drawable/text_button" />
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/activity_main_layout_channel"
+                    android:id="@+id/activity_main_layout_search"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/menu_margin"
-                    android:gravity="center_vertical">
+                    android:gravity="center_vertical"
+                    android:clickable="true">
 
                     <ImageView
                         android:layout_width="@dimen/menu_icon_size"
                         android:layout_height="@dimen/menu_icon_size"
-                        android:src="@drawable/ic_channel_normal" />
+                        android:src="@drawable/ic_search" />
 
                     <TextView
+                        android:id="@+id/main_activity_text_view_search"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/menu_text_margin"
-                        android:text="CHANNELS"
-                        android:textColor="@color/textColor" />
+                        android:textColor="@drawable/text_button" />
                 </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/activity_main_layout_playlists"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/menu_margin"
+                    android:gravity="center_vertical"
+                    android:clickable="true">
+
+                    <ImageView
+                        android:layout_width="@dimen/menu_icon_size"
+                        android:layout_height="@dimen/menu_icon_size"
+                        android:src="@drawable/ic_playlist" />
+
+                    <TextView
+                        android:id="@+id/main_activity_text_view_playlists"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/menu_text_margin"
+                        android:textColor="@drawable/text_button" />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/activity_main_layout_setting"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/menu_margin"
+                    android:gravity="center_vertical"
+                    android:clickable="true">
+
+                    <ImageView
+                        android:layout_width="@dimen/menu_icon_size"
+                        android:layout_height="@dimen/menu_icon_size"
+                        android:src="@drawable/ic_setting" />
+
+                    <TextView
+                        android:id="@+id/main_activity_text_view_settings"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/menu_text_margin"
+                        android:textColor="@drawable/text_button" />
+                </LinearLayout>
             </LinearLayout>
 
         </FrameLayout>

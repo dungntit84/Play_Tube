@@ -50,9 +50,9 @@ public class YoutubeHelper {
         return formatter.format(dtQuery);
     }
 
-    public static Vector<YoutubeInfo> getAvailableVideos(
-            Vector<YoutubeInfo> videoList) {
-        Vector<YoutubeInfo> result = new Vector<>();
+    public static ArrayList<YoutubeInfo> getAvailableVideos(
+            ArrayList<YoutubeInfo> videoList) {
+        ArrayList<YoutubeInfo> result = new ArrayList<>();
         for (YoutubeInfo videoInfo : videoList) {
             if (!videoInfo.isRemoved) {
                 result.add(videoInfo);
@@ -61,10 +61,10 @@ public class YoutubeHelper {
         return result;
     }
 
-    public static AbstractMap.SimpleEntry<String, Vector<YoutubeInfo>> getVideoListInfo(
+    public static AbstractMap.SimpleEntry<String, ArrayList<YoutubeInfo>> getVideoListInfo(
             String data) {
         String nextPageToken = "";
-        Vector<YoutubeInfo> videoList = new Vector<>();
+        ArrayList<YoutubeInfo> videoList = new ArrayList<>();
         try {
             JSONObject jObjectData = new JSONObject(data);
             JSONArray items = jObjectData.getJSONArray(Constants.YoutubeField.ITEMS);
@@ -89,7 +89,7 @@ public class YoutubeHelper {
                 videoList);
     }
 
-    public static void populateYoutubeListInfo(Vector<YoutubeInfo> youtubeList,
+    public static void populateYoutubeListInfo(ArrayList<YoutubeInfo> youtubeList,
                                                String data) {
         try {
             JSONObject jObjData = new JSONObject(data);
@@ -100,8 +100,8 @@ public class YoutubeHelper {
                     JSONObject jObjectItem = (JSONObject) items.get(k);
                     String id = jObjectItem.getString(Constants.YoutubeField.ID);
 
-                    if (youtubeList.elementAt(i).id.equals(id)) {
-                        if (populateVideoItem(youtubeList.elementAt(i),
+                    if (youtubeList.get(i).id.equals(id)) {
+                        if (populateVideoItem(youtubeList.get(i),
                                 jObjectItem)) {
                             isDataReturned = true;
                         }

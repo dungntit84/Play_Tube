@@ -3,12 +3,16 @@ package com.hteck.playtube.activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,6 +20,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -23,13 +28,17 @@ import com.hteck.playtube.R;
 import com.hteck.playtube.common.Constants;
 import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
-import com.hteck.playtube.common.ViewHelper;
 import com.hteck.playtube.data.YoutubeInfo;
+import com.hteck.playtube.fragment.BaseFragment;
+import com.hteck.playtube.fragment.PlaylistVideosView;
+import com.hteck.playtube.fragment.PlaylistsView;
 import com.hteck.playtube.fragment.PopularView;
 import com.hteck.playtube.fragment.YoutubePlayerBottomView;
 import com.hteck.playtube.fragment.YoutubePlayerView;
 import com.hteck.playtube.view.CustomRelativeLayout;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -49,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
     private float _oldX = 0, _oldY = 0, _dX, _dY, _posX, _posY, _prevX = 0,
             _prevY = 0;
     private boolean _isPlayerLayoutInitiated = false;
+    private boolean _isPlayerShowing, _isSmallPlayer;
+    private YoutubePlayerView _youtubePlayerApiView;
+    private YoutubePlayerBottomView _youtubePlayerBottomView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +70,15 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         TextView tvTitle = (TextView) toolbar.findViewById(R.id.toolbar_text);
+        TextView tvExplore = (TextView) findViewById(R.id.main_activity_text_view_explore);
+        TextView tvSearch = (TextView) findViewById(R.id.main_activity_text_view_search);
+        TextView tvPlaylists = (TextView) findViewById(R.id.main_activity_text_view_playlists);
+        TextView tvSettings = (TextView) findViewById(R.id.main_activity_text_view_settings);
         tvTitle.setText(getTitle());
+        tvExplore.setText(Utils.getString(R.string.explore));
+        tvSearch.setText(Utils.getString(R.string.search));
+        tvPlaylists.setText(Utils.getString(R.string.playlists));
+        tvSettings.setText(Utils.getString(R.string.settings));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
 
@@ -67,26 +87,37 @@ public class MainActivity extends AppCompatActivity {
         layoutHot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Utils.showMessage("layoutHot");
+                selectPopularView();
             }
         });
 
-        View layoutChannel = findViewById(R.id.activity_main_layout_channel);
+        View layoutSearch = findViewById(R.id.activity_main_layout_search);
+        layoutSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectSearchView();
+            }
+        });
+
+        View layoutChannel = findViewById(R.id.activity_main_layout_playlists);
         layoutChannel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Utils.showMessage("layoutChannel");
+                selectPlaylistsView();
             }
         });
-        ViewHelper.showAddPlaylist();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                View vMain1 = findViewById(R.id.activity_main_layout_main1);
-                zoomImageFromThumb(vMain1);
+                if (isRootLevel()) {
+                    View vMain1 = findViewById(R.id.activity_main_layout_main1);
+                    zoomImageFromThumb(vMain1);
+                } else {
+                    doBackStep();
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -146,6 +177,67 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void selectPopularView() {
+        try {
+            restoreMainAnimation();
+
+            initView();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void selectSearchView() {
+        try {
+            restoreMainAnimation();
+
+            com.hteck.playtube.fragment.SearchView searchView = com.hteck.playtube.fragment.SearchView.newInstance(_searchView);
+            replaceFragment(searchView);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void selectPlaylistsView() {
+        try {
+            restoreMainAnimation();
+
+            showPlaylists();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void refreshPlaylistData() {
+        try {
+            for (int i = 0; i < getSupportFragmentManager().getFragments()
+                    .size(); ++i) {
+                Fragment fragment = getSupportFragmentManager().getFragments().get(i);
+                if (fragment != null) {
+                    if (fragment instanceof PlaylistsView) {
+                        ((PlaylistsView) fragment).refreshData();
+                    } else if (fragment instanceof PlaylistVideosView) {
+                        ((PlaylistVideosView) fragment).resetData();
+                    }
+                }
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void restoreMainAnimation() {
+        final ViewGroup layoutMain1 = (ViewGroup) findViewById(R.id.activity_main_layout_main1);
+        final View vMain1Overlay = findViewById(R.id.activity_main_layout_main1_overlay);
+        layoutMain1.setVisibility(View.VISIBLE);
+        Animation animation = AnimationUtils.loadAnimation(getInstance(), R.anim.zoom_in_animation);
+        animation.setDuration(200);
+        animation.setFillAfter(true);
+        vMain1Overlay.setVisibility(View.GONE);
+
+        layoutMain1.startAnimation(animation);
+    }
+
     private static Vector<TimerTask> _timerCallback = null;
 
     public void runInNextLoopUI(final Runnable r, long delayMs) {
@@ -189,7 +281,6 @@ public class MainActivity extends AppCompatActivity {
 
         Fragment existedfragment = fragmentManager
                 .findFragmentByTag(loadingFragment);
-        Fragment currentFragment = getCurrentFrag();
         if (existedfragment == null) {
 
             FragmentTransaction fragmentTransaction = fragmentManager
@@ -215,6 +306,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void replaceFragment(Fragment fragment) {
+        Fragment currentFragment = getCurrentFrag();
+        if (currentFragment != null && currentFragment.getClass().equals(fragment.getClass())) {
+            return;
+        }
         FragmentManager fragmentManager = MainActivity.getInstance()
                 .getSupportFragmentManager();
         fragmentManager.popBackStack(null,
@@ -246,12 +341,19 @@ public class MainActivity extends AppCompatActivity {
         if (obj instanceof Fragment) {
             return (Fragment) obj;
         }
-        return _popularView;
+        return null;
     }
 
     private void initView() {
-        _popularView = PopularView.newInstance();
+        if (_popularView == null) {
+            _popularView = PopularView.newInstance();
+        }
         replaceFragment(_popularView);
+    }
+
+    private void showPlaylists() {
+        PlaylistsView playlistsView = PlaylistsView.newInstance();
+        replaceFragment(playlistsView);
     }
 
     @Override
@@ -268,29 +370,11 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         boolean result = false;
-        Fragment currentFragment = null;
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (fragmentManager.getBackStackEntryCount() > 1) {
             getSupportFragmentManager().popBackStackImmediate();
-            if (fragmentManager.getBackStackEntryCount() > 0) {
-                String name = getSupportFragmentManager()
-                        .getBackStackEntryAt(fragmentManager
-                                .getBackStackEntryCount() - 1)
-                        .getName();
-                Fragment baseFragment = (Fragment) fragmentManager
-                        .findFragmentByTag(
-                                fragmentManager
-                                        .getBackStackEntryAt(
-                                                fragmentManager
-                                                        .getBackStackEntryCount() - 1)
-                                        .getName());
-                if (baseFragment != null) {
-//                    baseFragment.resetTitle();
-                }
-                currentFragment = baseFragment;
-            }
-
             result = true;
+            updateHomeIcon();
         }
 
         return result;
@@ -348,11 +432,7 @@ public class MainActivity extends AppCompatActivity {
         alert.show();
     }
 
-    private boolean _isPlayerShowing, _isSmallPlayer;
-    private YoutubePlayerView _youtubePlayerApiView;
-    private YoutubePlayerBottomView _youtubePlayerBottomView;
-
-    public void playYoutube(YoutubeInfo youtubeInfo, Vector<YoutubeInfo> youtubeList, boolean isOutside,
+    public void playYoutube(YoutubeInfo youtubeInfo, ArrayList<YoutubeInfo> youtubeList, boolean isOutside,
                             boolean isRefreshHistory) {
         try {
             PlayTubeController.setPlayingInfo(youtubeInfo, youtubeList);
@@ -691,5 +771,99 @@ public class MainActivity extends AppCompatActivity {
         this.getWindow().setAttributes(attrs);
     }
 
+    private boolean isRootLevel() {
+        try {
+            if (getSupportFragmentManager().getFragments() == null) {
+                return true;
+            }
+            int count = 0;
+            for (int i = 0; i < getSupportFragmentManager().getFragments()
+                    .size(); ++i) {
+                if (getSupportFragmentManager().getFragments().get(i) != null && getSupportFragmentManager().getFragments().get(i) instanceof BaseFragment) {
+                    count++;
+                }
+            }
+            return count <= 1;
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
+    public void updateHomeIcon() {
+        boolean isRoot = isRootLevel();
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        if (isRoot) {
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
+        } else {
+            getSupportActionBar().setHomeAsUpIndicator(0);
+        }
+        Fragment fragment = getCurrentFrag();
+        if (fragment instanceof BaseFragment) {
+            String title = ((BaseFragment) fragment).getTitle();
+            setTitle(title);
+            if (_searchView != null) {
+                if (title.equals(Utils.getString(R.string.search))) {
+                    _isInSearchMode = true;
+                } else {
+                    _isInSearchMode = false;
+                }
+                visibleSearchView();
+            }
+        }
+    }
+
+    public void setTitle(String title) {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        TextView tvTitle = toolbar.findViewById(R.id.toolbar_text);
+        tvTitle.setText(title);
+    }
+
+    private SearchView _searchView;
+    private boolean _isInSearchMode;
+    private Menu _menu;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        _menu = menu;
+        getMenuInflater().inflate(R.menu.main_search, menu);
+        _searchView =
+                (SearchView) menu.findItem(R.id.action_search).getActionView();
+//        _searchView.setIconified(false);
+
+        try {
+    //            Field searchField = SearchView.class.getDeclaredField("mCloseButton");
+    //            searchField.setAccessible(true);
+    //            ImageView searchCloseButton = (ImageView) searchField.get(_searchView);
+    //            if (searchCloseButton != null) {
+    //                searchCloseButton.setEnabled(false);
+    //                searchCloseButton.setImageResource(0);
+    //            }
+            int searchPlateId = _searchView.getContext().getResources().getIdentifier("android:id/search_plate", null, null);
+            View searchPlate = _searchView.findViewById(searchPlateId);
+            if (searchPlate!=null) {
+                searchPlate.setBackgroundColor (Color.WHITE);
+                int searchTextId = searchPlate.getContext ().getResources ().getIdentifier ("android:id/search_src_text", null, null);
+
+            }
+//            View v = _searchView.findViewById(android.support.v7.appcompat.R.id.search_plate);
+//            v.getBackground().setColorFilter(getResources().getColor(R.color.textColorTabSelected), PorterDuff.Mode.MULTIPLY);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        visibleSearchView();
+        return true;
+    }
+
+    private void visibleSearchView() {
+        if (_isInSearchMode) {
+            _searchView.setVisibility(View.VISIBLE);
+            _menu.findItem(R.id.action_search).setVisible(true);
+        } else {
+            _searchView.setVisibility(View.INVISIBLE);
+            _menu.findItem(R.id.action_search).setVisible(false);
+        }
+    }
 }

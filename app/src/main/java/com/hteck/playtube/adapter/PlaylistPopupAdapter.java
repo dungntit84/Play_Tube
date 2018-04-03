@@ -1,5 +1,6 @@
 package com.hteck.playtube.adapter;
 
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,50 +32,24 @@ public class PlaylistPopupAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup group) {
-        View v = ViewHelper.getConvertView(convertView, R.layout.item_playlist);
-
+        LayoutInflater inflater = MainActivity.getInstance().getLayoutInflater();
+        View v = inflater.inflate(R.layout.item_popup_playlist, null);
         try {
             PlaylistInfo playlistInfo = _playlistList.get(position);
-            TextView textViewTitle = v.findViewById(R.id.item_youtube_tv_title);
+            TextView textViewTitle = v.findViewById(R.id.item_playlist_title);
             textViewTitle.setText(playlistInfo.title.toUpperCase());
-
             ImageView iv = (ImageView) v.findViewById(R.id.item_playlist_img_thumb);
-            ViewHelper.displayYoutubeThumb(iv, playlistInfo.imageUrl);
-
-            ImageView imageViewAction = (ImageView) v
-                    .findViewById(R.id.item_playlist_img_action);
-
-            imageViewAction.setTag(playlistInfo);
-            imageViewAction.setOnClickListener(onClickListener);
+            if (playlistInfo.id == null) {
+                iv.setImageResource(R.drawable.ic_playlist_add_black);
+                iv.setTag(null);
+            } else {
+                ViewHelper.displayYoutubeThumb(iv, playlistInfo.imageUrl);
+            }
         } catch (Throwable e) {
             e.printStackTrace();
         }
         return v;
     }
-    }
-
-    OnClickListener onClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-                PopupMenu popup = new PopupMenu(MainActivity.getInstance(), v);
-
-                popup.getMenuInflater().inflate(R.menu.item_video, popup.getMenu());
-                PlaylistInfo videoInfo = (PlaylistInfo) v.getTag();
-
-                popup.show();
-
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-
-                        return false;
-                    }
-                });
-
-
-        }
-    };
 
     @Override
     public int getCount() {

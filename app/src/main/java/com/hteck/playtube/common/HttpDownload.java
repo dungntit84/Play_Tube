@@ -1,8 +1,13 @@
 package com.hteck.playtube.common;
 
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.AbstractMap;
@@ -38,7 +43,7 @@ public class HttpDownload extends Thread {
             e.printStackTrace();
         }
     }
-
+    private final String USER_AGENT = "Mozilla/5.0";
     @Override
     public void run() {
         try {
@@ -50,6 +55,8 @@ public class HttpDownload extends Thread {
                             mHeaders.get(i).getValue());
                 }
             }
+            _ucon.setRequestProperty("User-Agent", USER_AGENT);
+            _ucon.setRequestProperty("Accept-Charset", "UTF-8");
             _ucon.connect();
             int responseCode = _ucon.getResponseCode();
 
@@ -58,11 +65,8 @@ public class HttpDownload extends Thread {
                         IHttplistener.ResultType.ConnectionError);
                 return;
             }
-
             InputStream stream = _ucon.getInputStream();
-
             byte[] bytes = readFully(stream);
-
             _ucon.disconnect();
             if (_isExited) {
                 return;

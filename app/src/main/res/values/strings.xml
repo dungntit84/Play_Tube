@@ -24,5 +24,14 @@
     <string name="related">RELATED</string>
     <string name="info">INFO</string>
     <string name="add_new_playlist">Add new playlist</string>
+    <string name="create_new_playlist">Create new playlist</string>
     <string name="added">Added</string>
+    <string name="remove_playlist_confirm">Delete playlist \'%s\'?</string>
+    <string name="remove_youtube_from_playlist_confirm">Remove \'%s\'?</string>
+    <string name="favourites">Favourites</string>
+    <string name="no_youtube">There is no Video.</string>
+    <string name="explore">EXPLORE</string>
+    <string name="search">SEARCH</string>
+    <string name="playlists">PLAYLISTS</string>
+    <string name="settings">SETTINGS</string>
 </resources>

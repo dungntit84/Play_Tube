@@ -2,6 +2,7 @@ package com.hteck.playtube.data;
 
 import com.hteck.playtube.common.PlayTubeController;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 /**
@@ -10,9 +11,9 @@ import java.util.Vector;
 
 public class PlayingInfo {
     private YoutubeInfo _currentYoutubeInfo;
-    private Vector<YoutubeInfo> _youtubeList;
+    private ArrayList<YoutubeInfo> _youtubeList;
 
-    public PlayingInfo(YoutubeInfo youtubeInfo, Vector<YoutubeInfo> youtubeList) {
+    public PlayingInfo(YoutubeInfo youtubeInfo, ArrayList<YoutubeInfo> youtubeList) {
         _currentYoutubeInfo = youtubeInfo;
         _youtubeList = youtubeList;
     }
@@ -24,7 +25,7 @@ public class PlayingInfo {
     public int getCurrentIndex() {
         try {
             for (int i = 0; i < _youtubeList.size(); ++i) {
-                YoutubeInfo youtubeInfo = _youtubeList.elementAt(i);
+                YoutubeInfo youtubeInfo = _youtubeList.get(i);
                 if (_currentYoutubeInfo.id.equals(youtubeInfo.id)) {
                     return i;
                 }
@@ -36,7 +37,7 @@ public class PlayingInfo {
         }
     }
 
-    public Vector<YoutubeInfo> getYoutubeList() {
+    public ArrayList<YoutubeInfo> getYoutubeList() {
         return _youtubeList;
     }
 
@@ -51,7 +52,7 @@ public class PlayingInfo {
                     && nextIndex < PlayTubeController.getPlayingInfo().getYoutubeList()
                     .size()) {
                 YoutubeInfo youtubeInfo = PlayTubeController.getPlayingInfo().getYoutubeList()
-                        .elementAt(nextIndex);
+                        .get(nextIndex);
                 PlayTubeController.getPlayingInfo().setYoutubeInfo(youtubeInfo);
             }
         } catch (Throwable e) {
@@ -64,7 +65,7 @@ public class PlayingInfo {
         if (nextIndex < PlayTubeController.getPlayingInfo().getYoutubeList()
                 .size()) {
             YoutubeInfo youtubeInfo = PlayTubeController.getPlayingInfo().getYoutubeList()
-                    .elementAt(nextIndex);
+                    .get(nextIndex);
             PlayTubeController.getPlayingInfo().setYoutubeInfo(youtubeInfo);
         }
 

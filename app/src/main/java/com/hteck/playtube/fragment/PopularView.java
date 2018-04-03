@@ -1,6 +1,7 @@
 package com.hteck.playtube.fragment;
 
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Vector;
 
 
@@ -32,12 +33,13 @@ import com.hteck.playtube.data.YoutubeInfo;
 import com.hteck.playtube.service.YoutubeHelper;
 import com.hteck.playtube.view.LoadingView;
 
-public class PopularView extends Fragment implements
+public class PopularView extends BaseFragment implements
         AdapterView.OnItemClickListener, AbsListView.OnScrollListener {
-    private ViewGroup _contentView, _mainView;
+    private static ViewGroup _mainView;
+    private ViewGroup _contentView;
     GridView _gridView;
-    private Vector<YoutubeInfo> _youtubeList = new Vector<>(),
-            _youtubeListLoading = new Vector<>();
+    private ArrayList<YoutubeInfo> _youtubeList = new ArrayList<>(),
+            _youtubeListLoading = new ArrayList<>();
     private Vector<CategoryInfo> _categoryList;
     YoutubeByPageAdapter _adapter;
     private LoadingView _busyView;
@@ -62,10 +64,14 @@ public class PopularView extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        MainActivity.getInstance().updateHomeIcon();
+        if (_mainView != null) {
+            return _mainView;
+        }
         if (_categoryList == null) {
             _categoryList = CategoryService.getGenreListInfo().getValue();
         }
+
         return createView();
     }
 
@@ -85,7 +91,7 @@ public class PopularView extends Fragment implements
 
         _gridView = (GridView) _mainView.findViewById(R.id.popular_gridview);
         _contentView = (ViewGroup) _mainView.findViewById(R.id.popular_layout_content);
-        _adapter = new YoutubeByPageAdapter(_youtubeList);
+        _adapter = new YoutubeByPageAdapter(_youtubeList, Constants.YoutubeListType.Popular);
         _gridView.setAdapter(_adapter);
         _gridView.setColumnWidth(Utils.getYoutubeWidth());
         _gridView.setOnItemClickListener(this);
@@ -160,7 +166,7 @@ public class PopularView extends Fragment implements
         _spinnerOrderBy.setSelection(_selectedIndexOrderBy);
     }
 
-    public void setDataSource(Vector<YoutubeInfo> videoList, boolean isClearAction) {
+    public void setDataSource(ArrayList<YoutubeInfo> videoList, boolean isClearAction) {
         if (!isClearAction && videoList.size() == 0) {
             if (_viewNoItem == null) {
                 _viewNoItem = Utils.createNoItemView(MainActivity.getInstance(), MainActivity.getInstance().getString(R.string.no_youtube_found));
@@ -182,7 +188,7 @@ public class PopularView extends Fragment implements
 
         _isLoading = true;
         _nextPageToken = "";
-        _youtubeList = new Vector<>();
+        _youtubeList = new ArrayList<>();
         setDataSource(_youtubeList, true);
         loadVideoData();
         showProgressBar();
@@ -244,12 +250,12 @@ public class PopularView extends Fragment implements
                             try {
                                 String s = new String(data);
 
-                                AbstractMap.SimpleEntry<String, Vector<YoutubeInfo>> searchResult = YoutubeHelper.getVideoListInfo(s);
+                                AbstractMap.SimpleEntry<String, ArrayList<YoutubeInfo>> searchResult = YoutubeHelper.getVideoListInfo(s);
                                 _youtubeListLoading = searchResult.getValue();
                                 _nextPageToken = searchResult.getKey();
                                 if (_youtubeListLoading.size() == 0) {
                                     if (_youtubeList.size() > 0
-                                            && _youtubeList.elementAt(_youtubeList
+                                            && _youtubeList.get(_youtubeList
                                             .size() - 1) == null) {
                                         _youtubeList.remove(_youtubeList.size() - 1);
                                     }
@@ -325,7 +331,7 @@ public class PopularView extends Fragment implements
                                     _youtubeListLoading, s);
 
                             if (_youtubeList.size() > 0
-                                    && _youtubeList.lastElement() == null) {
+                                    && _youtubeList.get(_youtubeList.size() - 1) == null) {
                                 _youtubeList.remove(_youtubeList.size() - 1);
                             }
 
@@ -392,21 +398,21 @@ public class PopularView extends Fragment implements
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int index, long arg3) {
         try {
-            if (index == _youtubeList.size() - 1 && _youtubeList.lastElement() == null) {
+            if (index == _youtubeList.size() - 1 && _youtubeList.get(index) == null) {
                 if (_adapter.getIsNetworkError()) {
                     _adapter.setIsNetworkError(false);
                     _adapter.notifyDataSetChanged();
                     loadMore();
                 }
             } else {
-                Vector<YoutubeInfo> youtubeList = new Vector<>();
+                ArrayList<YoutubeInfo> youtubeList = new ArrayList<>();
                 for (YoutubeInfo youtubeInfo : _youtubeList) {
                     if (youtubeInfo != null) {
                         youtubeList.add(youtubeInfo);
                     }
                 }
 
-                MainActivity.getInstance().playYoutube(_youtubeList.elementAt(index), youtubeList, true, false);
+                MainActivity.getInstance().playYoutube(_youtubeList.get(index), youtubeList, true, false);
             }
         } catch (Throwable e) {
             e.printStackTrace();
@@ -426,7 +432,7 @@ public class PopularView extends Fragment implements
             if (_gridView.getLastVisiblePosition() == _gridView.getAdapter()
                     .getCount() - 1) {
                 if (_youtubeList.size() > 0
-                        && _youtubeList.elementAt(_youtubeList.size() - 1) == null) {
+                        && _youtubeList.get(_youtubeList.size() - 1) == null) {
                     if (!_adapter.getIsNetworkError()) {
                         loadMore();
                     }
@@ -498,4 +504,9 @@ public class PopularView extends Fragment implements
 //
 //            dialog.show();
 //        }
+
+    @Override
+    public String getTitle() {
+        return Utils.getString(R.string.explore);
+    }
 }

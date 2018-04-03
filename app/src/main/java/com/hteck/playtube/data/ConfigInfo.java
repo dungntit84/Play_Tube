@@ -12,4 +12,5 @@ public class ConfigInfo {
     public String loadCommentsOfYoutubeUrl;
     public String loadRelatedOfYoutubeUrl;
     public String loadYoutubesOfChannelUrl;
+    public String loadSuggestionsUrl;
 }

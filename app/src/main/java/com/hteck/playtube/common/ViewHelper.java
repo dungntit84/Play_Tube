@@ -1,8 +1,8 @@
 package com.hteck.playtube.common;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
-import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -10,7 +10,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -18,8 +17,9 @@ import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.data.PlaylistInfo;
 import com.hteck.playtube.data.YoutubeInfo;
-import com.hteck.playtube.service.IYoutubeAction;
+import com.hteck.playtube.fragment.PlaylistsView;
 import com.hteck.playtube.service.PlaylistService;
+import com.hteck.playtube.view.PlaylistsDialogView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.UUID;
@@ -27,9 +27,6 @@ import java.util.UUID;
 public class ViewHelper {
     public static View getYoutubeView(View convertView, YoutubeInfo youtubeInfo,
                                       Constants.YoutubeListType videoListType, View.OnClickListener onClickListener) {
-        LayoutInflater inflater = MainActivity.getInstance()
-                .getLayoutInflater();
-
         View v = getConvertView(convertView, R.layout.item_youtube_view);
 
         try {
@@ -99,12 +96,12 @@ public class ViewHelper {
     }
 
     public static PopupMenu showYoutubeMenu(Constants.YoutubeListType youtubeListType,
-                                            final IYoutubeAction eventListener, boolean isOnPlayer, final View vDock) {
+                                            final Object dataContext, final View vDock) {
         PopupMenu popup = new PopupMenu(MainActivity.getInstance(), vDock);
 
         popup.getMenuInflater().inflate(R.menu.item_video, popup.getMenu());
-        YoutubeInfo videoInfo = (YoutubeInfo) vDock.getTag();
-        if (youtubeListType == Constants.YoutubeListType.Normal) {
+        final YoutubeInfo videoInfo = (YoutubeInfo) vDock.getTag();
+        if (youtubeListType != Constants.YoutubeListType.Playlist) {
             popup.getMenu().removeItem(R.id.menu_item_remove);
         }
 
@@ -114,25 +111,38 @@ public class ViewHelper {
 
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                YoutubeInfo videoInfo = (YoutubeInfo) vDock.getTag();
-//                if (item.getItemId() == R.id.menu_item_add_to_playlist) {
-//                    addVideoToPlaylist(videoInfo, PlaylistType.Online);
-//                } else if (item.getItemId() == R.id.menu_item_download_to_playlist) {
+                try {
+                    if (item.getItemId() == R.id.menu_item_add_to_playlist) {
+                        showPlaylistsToAdd(videoInfo);
+                    } else if (item.getItemId() == R.id.menu_item_add_to_favourites) {
+                        PlaylistService.addYoutubeToFavouritePlaylist(videoInfo);
+                        Utils.showMessage(Utils.getString(R.string.added));
+                        MainActivity.getInstance().refreshPlaylistData();
+                    } else if (item.getItemId() == R.id.menu_item_share) {
+                        Utils.shareVideo(videoInfo);
+                    } else if (item.getItemId() == R.id.menu_item_remove) {
+                        if (dataContext != null && dataContext instanceof PlaylistInfo) {
+                            removeYoutubeFromPlaylist((PlaylistInfo) dataContext, videoInfo);
+                        }
+                    }
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+// else if (item.getItemId() == R.id.menu_item_download_to_playlist) {
 //                    addVideoToPlaylist(videoInfo, PlaylistType.Offline);
 //                } else if (item.getItemId() == R.id.menu_item_add_to_account_playlist) {
 //                    selectedVideoInfo = videoInfo;
 //                    addToMyPlaylist(true);
-//                } else if (item.getItemId() == R.id.menu_item_add_to_favourites) {
-//                    MainActivity.getInstance().addVideoToFavourite(videoInfo);
-//                } else if (item.getItemId() == R.id.menu_item_remove) {
+//                }
+
+// else if (item.getItemId() == R.id.menu_item_remove) {
 //                    if (eventListener != null) {
 //                        eventListener.onEvent(videoInfo, Action.REMOVE);
 //                    }
 //                } else if (item.getItemId() == R.id.menu_item_download_ringtone) {
 //                    Utils.initRingtoneEvent(videoInfo);
-//                } else if (item.getItemId() == R.id.menu_item_share) {
-                Utils.shareVideo(videoInfo);
 //                }
+
                 return false;
             }
         });
@@ -146,10 +156,11 @@ public class ViewHelper {
             v = inflater.inflate(resId, null);
             v.setTag(Constants.CUSTOM_TAG, resId);
         } else {
-            v = convertView;
-            if (v.getTag(Constants.CUSTOM_TAG) == null || !(v.getTag(Constants.CUSTOM_TAG) instanceof Integer) || (int) v.getTag(Constants.CUSTOM_TAG) != resId) {
+            if (convertView.getTag(Constants.CUSTOM_TAG) == null || !(convertView.getTag(Constants.CUSTOM_TAG) instanceof Integer) || (int) convertView.getTag(Constants.CUSTOM_TAG) != resId) {
                 v = inflater.inflate(resId, null);
                 v.setTag(Constants.CUSTOM_TAG, resId);
+            } else {
+                v = convertView;
             }
         }
         return v;
@@ -161,12 +172,14 @@ public class ViewHelper {
                 .equalsIgnoreCase(url)) {
             imageView.setTag(url);
             imageView.setImageResource(R.drawable.ic_thumb);
-            ImageLoader.getInstance().displayImage(
-                    url, imageView);
+            if (!Utils.stringIsNullOrEmpty(url)) {
+                ImageLoader.getInstance().displayImage(
+                        url, imageView);
+            }
         }
     }
 
-    public static void showAddPlaylist() {
+    public static void showAddNewPlaylist(final YoutubeInfo youtubeInfo, final Dialog parent) {
         final View v = MainActivity.getInstance().getLayoutInflater().inflate(R.layout.edit_playlist, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(
                 MainActivity.getInstance());
@@ -195,9 +208,11 @@ public class ViewHelper {
                             playlistInfo.id = UUID.randomUUID();
 
                             playlistInfo.title = title;
-                            PlaylistService.addPlaylist(playlistInfo);
+                            PlaylistService.addPlaylist(playlistInfo, youtubeInfo);
                             Utils.showMessage(Utils.getString(R.string.added));
                             dialog.dismiss();
+                            parent.dismiss();
+                            MainActivity.getInstance().refreshPlaylistData();
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
@@ -206,5 +221,96 @@ public class ViewHelper {
             }
         });
         mAlertDialog.show();
+    }
+
+    public static void showAddNewPlaylist(final PlaylistInfo playlistInfo) {
+        final View v = MainActivity.getInstance().getLayoutInflater().inflate(R.layout.edit_playlist, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(
+                MainActivity.getInstance());
+        builder.setPositiveButton(android.R.string.yes, null);
+        builder.setNegativeButton(android.R.string.no, null);
+        builder.setTitle(Utils.getString(R.string.add_new_playlist));
+        if (playlistInfo != null) {
+            EditText editText = v.findViewById(R.id.edit_playlist_edit_text);
+            editText.setText(playlistInfo.title);
+        }
+        builder.setView(v);
+        final AlertDialog mAlertDialog = builder.create();
+        mAlertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+
+            @Override
+            public void onShow(final DialogInterface dialog) {
+
+                Button b = mAlertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                b.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+                        try {
+                            EditText editText = v.findViewById(R.id.edit_playlist_edit_text);
+                            String title = editText.getText().toString().trim();
+                            if (Utils.stringIsNullOrEmpty(title)) {
+                                return;
+                            }
+                            PlaylistInfo playlistInfoNew = new PlaylistInfo();
+                            if (playlistInfo == null) {
+                                playlistInfoNew.id = UUID.randomUUID();
+                            } else {
+                                playlistInfoNew = playlistInfo;
+                            }
+                            playlistInfoNew.title = title;
+                            if (playlistInfo == null) {
+                                PlaylistService.addPlaylist(playlistInfoNew);
+                            } else {
+                                PlaylistService.updatePlaylist(playlistInfoNew);
+                            }
+                            Utils.showMessage(Utils.getString(R.string.added));
+                            dialog.dismiss();
+                            MainActivity.getInstance().refreshPlaylistData();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                });
+            }
+        });
+        mAlertDialog.show();
+    }
+
+    public static void showPlaylistsToAdd(YoutubeInfo youtubeInfo) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(
+                MainActivity.getInstance());
+        builder.setNegativeButton(android.R.string.no, null);
+
+        final PlaylistsDialogView v = new PlaylistsDialogView(MainActivity.getInstance(), youtubeInfo);
+        builder.setView(v);
+        AlertDialog mAlertDialog = builder.create();
+        v.mDialogParent = mAlertDialog;
+        mAlertDialog.show();
+    }
+
+    private static void removeYoutubeFromPlaylist(final PlaylistInfo playlistInfo, final YoutubeInfo youtubeInfo) {
+        final AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.getInstance(),
+                AlertDialog.THEME_HOLO_LIGHT);
+        String msg = String.format(Utils.getString(R.string.remove_youtube_from_playlist_confirm), youtubeInfo.title);
+        alert.setMessage(msg);
+
+        alert.setPositiveButton(Utils.getString(R.string.ok), new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                PlaylistService.removeYoutube(playlistInfo, youtubeInfo);
+                MainActivity.getInstance().refreshPlaylistData();
+            }
+        });
+
+        alert.setNeutralButton(Utils.getString(R.string.cancel),
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+        alert.show();
     }
 }

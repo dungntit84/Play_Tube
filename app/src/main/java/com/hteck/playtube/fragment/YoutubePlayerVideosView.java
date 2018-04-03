@@ -25,13 +25,14 @@ import com.hteck.playtube.service.YoutubeHelper;
 import com.hteck.playtube.view.LoadingView;
 
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Vector;
 
 public class YoutubePlayerVideosView extends Fragment implements
         AdapterView.OnItemClickListener, OnScrollListener {
     private String pageToken = "";
     private boolean isLoading = false;
-    Vector<YoutubeInfo> youtubeListTemp = new Vector<>(), youtubeList = new Vector<>();
+    ArrayList<YoutubeInfo> youtubeListTemp = new ArrayList<>(), youtubeList = new ArrayList<>();
     YoutubeByPageAdapter youtubeByPageAdapter;
     ListView listView;
     private LoadingView loadingView;
@@ -68,7 +69,7 @@ public class YoutubePlayerVideosView extends Fragment implements
     public void resetData(String uploaderId) {
         try {
             this.uploaderId = uploaderId;
-            youtubeList = new Vector<>();
+            youtubeList = new ArrayList<>();
 
             pageToken = "";
             isLoading = false;
@@ -123,7 +124,7 @@ public class YoutubePlayerVideosView extends Fragment implements
                             try {
                                 if (listView != null) {
                                     String s = new String(data);
-                                    AbstractMap.SimpleEntry<String, Vector<YoutubeInfo>> searchResult = YoutubeHelper
+                                    AbstractMap.SimpleEntry<String, ArrayList<YoutubeInfo>> searchResult = YoutubeHelper
                                             .getVideoListInfo(s);
                                     youtubeListTemp = searchResult.getValue();
                                     pageToken = searchResult.getKey();
@@ -217,7 +218,7 @@ public class YoutubePlayerVideosView extends Fragment implements
                                         youtubeListTemp, s);
 
                                 if (youtubeList.size() > 0
-                                        && youtubeList.elementAt(youtubeList.size() - 1) == null) {
+                                        && youtubeList.get(youtubeList.size() - 1) == null) {
                                     youtubeList.remove(youtubeList.size() - 1);
                                 }
 
@@ -272,11 +273,10 @@ public class YoutubePlayerVideosView extends Fragment implements
     }
 
     @Override
-    public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+    public void onItemClick(AdapterView<?> arg0, View arg1, int index, long arg3) {
         try {
-            int index = (int) arg3;
             if (index == youtubeList.size() - 1
-                    && youtubeList.lastElement() == null) {
+                    && youtubeList.get(index) == null) {
                 if (youtubeByPageAdapter.getIsNetworkError()) {
                     youtubeByPageAdapter.setIsNetworkError(false);
                     youtubeByPageAdapter.notifyDataSetChanged();
@@ -284,7 +284,7 @@ public class YoutubePlayerVideosView extends Fragment implements
 
                 }
             } else {
-                MainActivity.getInstance().playYoutube(youtubeList.elementAt(index),
+                MainActivity.getInstance().playYoutube(youtubeList.get(index),
                         youtubeList, true, true);
             }
         } catch (Throwable e) {

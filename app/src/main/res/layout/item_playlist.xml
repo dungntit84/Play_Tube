@@ -2,27 +2,55 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/row_playlist_height">
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_vertical"
+    android:gravity="center_vertical">
 
-    <ImageView
-        android:id="@+id/item_playlist_img_thumb"
-        android:layout_width="@dimen/row_playlist_width"
-        android:layout_height="@dimen/row_playlist_height"
-        android:src="@drawable/ic_thumb" />
-
-    <TextView
-        android:id="@+id/item_playlist_title"
-        android:layout_width="0dip"
-        android:layout_weight="1"
+    <FrameLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/playlistTextColor"
-        android:textSize="@dimen/text_title_size" />
+        android:padding="@dimen/row_padding">
+
+        <ImageView
+            android:id="@+id/item_playlist_img_thumb"
+            android:layout_width="@dimen/row_thumb_width"
+            android:layout_height="@dimen/row_thumb_height"
+            android:src="@drawable/ic_thumb" />
+
+        <ImageView
+            android:layout_width="24dip"
+            android:layout_height="24dip"
+            android:layout_gravity="right|bottom"
+            android:src="@drawable/ic_playlist_thumb"
+            android:layout_margin="@dimen/row_padding_topbottom"/>
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/item_playlist_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:textColor="@color/textColor"
+            android:textSize="@dimen/text_title_size" />
+
+        <TextView
+            android:id="@+id/item_playlist_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/textColorInfo"
+            android:textSize="@dimen/text_info_size" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:gravity="center_horizontal"
         android:orientation="vertical">
 
         <ImageView

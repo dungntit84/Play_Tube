@@ -16,6 +16,7 @@ import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Vector;
 
 public class PlayTubeController {
@@ -74,7 +75,7 @@ public class PlayTubeController {
         _configInfo = configInfo;
     }
 
-    public static void setPlayingInfo(YoutubeInfo youtubeInfo, Vector<YoutubeInfo> youtubeList) {
+    public static void setPlayingInfo(YoutubeInfo youtubeInfo, ArrayList<YoutubeInfo> youtubeList) {
         _playingInfo = new PlayingInfo(youtubeInfo, youtubeList);
     }
 
