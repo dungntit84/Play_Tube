@@ -10,9 +10,10 @@
     <color name="textColorInfo">#B3FFFFFF</color>
     <color name="textColorTabSelected">#80FFFFFF</color>
     <color name="bgMain">#7d655e</color>
+    <color name="bgMainPressed">#8d655e</color>
     <color name="bgHeaderCategory">#f1f1f1</color>
     <color name="bgTime">#b32f2f2f</color>
     <color name="bgDropdown">#604d48</color>
     <color name="lightRed">#fe8f8f</color>
-    <color name="header_player_bg">#B32a2a2a</color>
+    <color name="header_player_bg">#CC5d4036</color>
 </resources>

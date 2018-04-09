@@ -209,7 +209,7 @@
             </LinearLayout>
         </FrameLayout>
 
-        <RelativeLayout
+        <FrameLayout
             android:id="@+id/layout_player_video"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -225,14 +225,7 @@
                     android:layout_height="wrap_content"
                     android:background="@color/header_player_bg"
                     android:gravity="center_vertical"
-                    android:padding="@dimen/row_padding_grid"
                     android:visibility="gone">
-
-
-                    <ImageView
-                        android:layout_width="@dimen/header_player_icon_size"
-                        android:layout_height="@dimen/header_player_icon_size"
-                        android:src="@drawable/ic_move_player" />
 
                     <LinearLayout
                         android:layout_width="0dip"
@@ -242,17 +235,17 @@
                         android:gravity="right">
 
                         <Button
-                            android:id="@+id/button_player_expand"
+                            android:id="@+id/button_player_maximize"
                             android:layout_width="@dimen/header_player_icon_size"
                             android:layout_height="@dimen/header_player_icon_size"
-                            android:background="@drawable/ic_mini_player_maximize" />
+                            android:background="@drawable/ic_maximize" />
 
                         <Button
                             android:id="@+id/button_player_close"
                             android:layout_width="@dimen/header_player_icon_size"
                             android:layout_height="@dimen/header_player_icon_size"
                             android:layout_marginLeft="@dimen/normal_padding"
-                            android:background="@drawable/ic_mini_player_close" />
+                            android:background="@drawable/ic_close" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -262,6 +255,6 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"></LinearLayout>
             </LinearLayout>
-        </RelativeLayout>
+        </FrameLayout>
     </com.hteck.playtube.view.CustomRelativeLayout>
 </FrameLayout>

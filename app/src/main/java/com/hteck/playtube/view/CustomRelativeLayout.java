@@ -4,9 +4,10 @@ package com.hteck.playtube.view;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.AbsoluteLayout;
+import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
-public class CustomRelativeLayout extends RelativeLayout {
+public class CustomRelativeLayout extends FrameLayout {
 	public interface ISizeChangedListener {
 		void onLayoutChanged(int xNew, int yNew, int xOld, int yOld);
 	}

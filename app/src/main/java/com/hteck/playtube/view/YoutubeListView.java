@@ -53,7 +53,7 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
         _listView = _contentView.findViewById(R.id.list_view);
         _textViewMsg = _contentView.findViewById(R.id.text_view_msg);
         _textViewMsg.setText(Utils.getString(R.string.no_youtube));
-        _listView.setEmptyView(_textViewMsg);
+
         _adapter = new YoutubeByPageAdapter(_videoList);
         _listView.setAdapter(_adapter);
         _listView.setOnScrollListener(this);
@@ -86,7 +86,7 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
     }
 
     private void setDataSource(ArrayList<YoutubeInfo> videoList) {
-
+        _listView.setEmptyView(_textViewMsg);
         if (videoList.size() > 0) {
             _textViewMsg.setVisibility(View.GONE);
         } else {
@@ -99,9 +99,10 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
 
     private void resetDataSource() {
         _listView.setSelectionFromTop(0, 0);
-        _textViewMsg.setVisibility(View.GONE);
+
         _videoList = new ArrayList<>();
         _adapter.setDataSource(_videoList);
+        _textViewMsg.setVisibility(View.GONE);
         _nextPageToken = "";
     }
 

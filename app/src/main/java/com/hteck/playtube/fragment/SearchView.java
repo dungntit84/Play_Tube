@@ -19,14 +19,14 @@ import com.hteck.playtube.view.YoutubeListView;
 import org.json.JSONArray;
 
 public class SearchView extends BaseFragment {
-    private android.support.v7.widget.SearchView _editTextSearch;
+    private android.widget.SearchView _editTextSearch;
     private static String _query = "";
     private static YoutubeListView _youtubeListView;
     private String[] _suggestions = new String[]{};
     private MatrixCursor mSearchCursor;
     SearchCursorAdapter _adapter;
     public static SearchView newInstance(
-            android.support.v7.widget.SearchView editTextSearch) {
+            android.widget.SearchView editTextSearch) {
         SearchView v = new SearchView();
         v._editTextSearch = editTextSearch;
         return v;
@@ -50,7 +50,7 @@ public class SearchView extends BaseFragment {
     }
 
     private void initView() {
-        _editTextSearch.setOnQueryTextListener(new android.support.v7.widget.SearchView.OnQueryTextListener() {
+        _editTextSearch.setOnQueryTextListener(new OnQueryTextListener() {
 
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -84,7 +84,7 @@ public class SearchView extends BaseFragment {
             }
         });
 
-        _editTextSearch.setOnSuggestionListener(new android.support.v7.widget.SearchView.OnSuggestionListener() {
+        _editTextSearch.setOnSuggestionListener(new android.widget.SearchView.OnSuggestionListener() {
 
             @Override
             public boolean onSuggestionSelect(int position) {
@@ -107,7 +107,7 @@ public class SearchView extends BaseFragment {
                 return false;
             }
         });
-        _editTextSearch.setOnCloseListener(new android.support.v7.widget.SearchView.OnCloseListener() {
+        _editTextSearch.setOnCloseListener(new android.widget.SearchView.OnCloseListener() {
 
             @Override
             public boolean onClose() {

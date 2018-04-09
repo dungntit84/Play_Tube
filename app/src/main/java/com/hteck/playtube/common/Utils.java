@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
@@ -557,6 +558,66 @@ public class Utils {
                         .getInstance().getSystemService(
                                 Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void shareApp() {
+        try {
+            Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+            String title = String.format("Check out \"%s\"", getString(R.string.app_name));
+            String content = String.format("https://play.google.com/store/apps/developer?id=%s", MainActivity.getInstance().getPackageName());
+            sharingIntent.setType("text/plain");
+            sharingIntent.putExtra(Intent.EXTRA_SUBJECT, title);
+            sharingIntent.putExtra(Intent.EXTRA_TEXT, content);
+            MainActivity.getInstance().startActivity(
+                    Intent.createChooser(sharingIntent, getString(R.string.app_name)));
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void rateApp() {
+        try {
+            MainActivity.getInstance().startActivity(
+                    new Intent("android.intent.action.VIEW", Uri
+                            .parse("market://details?id="
+                                    + MainActivity.getInstance()
+                                    .getApplicationContext()
+                                    .getPackageName())));
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void contactUs() {
+        try {
+            Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+
+            sharingIntent.setType("message/rfc822");
+            sharingIntent.putExtra(Intent.EXTRA_SUBJECT, Utils.getString(R.string.contact_us_subject));
+            sharingIntent.putExtra(Intent.EXTRA_TEXT, "\n write feedback here");
+            sharingIntent.putExtra(Intent.EXTRA_EMAIL,
+                    new String[]{Utils.getString(R.string.contact_us_email)});
+            MainActivity.getInstance().startActivity(
+                    Intent.createChooser(sharingIntent, MainActivity
+                            .getInstance().getString(R.string.app_name)));
+
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void hideKeyboard() {
+        try {
+            View v = MainActivity.getInstance().getCurrentFocus();
+            if (v != null) {
+                InputMethodManager imm = (InputMethodManager) MainActivity
+                        .getInstance().getSystemService(
+                                Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
         } catch (Throwable e) {
             e.printStackTrace();

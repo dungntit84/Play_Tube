@@ -131,6 +131,9 @@ public class PlaylistService {
                             break;
                         }
                     }
+                    if (playlists.get(i).youtubeList.size() == 0) {
+                        playlists.get(i).imageUrl = "";
+                    }
                 }
                 if (isExit) {
                     break;

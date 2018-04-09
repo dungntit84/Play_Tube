@@ -21,13 +21,15 @@
             android:overlapAnchor="false"
             android:dropDownWidth="@dimen/spinner_dropdown_width"
             android:layout_gravity="center_horizontal"
-            android:gravity="center_horizontal"/>
+            android:gravity="center_horizontal"
+            android:theme="@android:style/ThemeOverlay.Material.Dark"/>
 
         <TextView
             android:id="@+id/popular_tv_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/popular_header_padding"
+            android:textColor="@color/textColor"
             android:text="by" />
 
         <Spinner
@@ -37,7 +39,8 @@
             android:overlapAnchor="false"
             android:dropDownWidth="@dimen/spinner_dropdown_width"
             android:layout_gravity="center_horizontal"
-            android:gravity="center_horizontal"/>
+            android:gravity="center_horizontal"
+            android:theme="@android:style/ThemeOverlay.Material.Dark"/>
     </LinearLayout>
 
     <View

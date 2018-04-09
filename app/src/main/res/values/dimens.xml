@@ -11,6 +11,7 @@
     <dimen name="menu_margin">16dp</dimen>
     <dimen name="popular_header_size">50dp</dimen>
     <dimen name="popular_header_padding">16dp</dimen>
+    <dimen name="row_padding_large">16dp</dimen>
     <dimen name="row_padding">8dp</dimen>
     <dimen name="row_padding_topbottom">4dp</dimen>
     <dimen name="row_padding_grid">3dp</dimen>
@@ -31,7 +32,7 @@
     <dimen name="spinner_item_height">44dp</dimen>
     <dimen name="spinner_spinner_width">150dp</dimen>
     <dimen name="spinner_dropdown_width">120dp</dimen>
-    <dimen name="header_player_icon_size">24dp</dimen>
+    <dimen name="header_player_icon_size">32dp</dimen>
     <dimen name="mini_player_width">256dp</dimen>
     <dimen name="mini_player_height">144dp</dimen>
     <dimen name="separator_height">1dp</dimen>

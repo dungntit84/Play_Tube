@@ -104,7 +104,6 @@ public class ViewHelper {
         if (youtubeListType != Constants.YoutubeListType.Playlist) {
             popup.getMenu().removeItem(R.id.menu_item_remove);
         }
-
         popup.show();
 
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -128,21 +127,6 @@ public class ViewHelper {
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }
-// else if (item.getItemId() == R.id.menu_item_download_to_playlist) {
-//                    addVideoToPlaylist(videoInfo, PlaylistType.Offline);
-//                } else if (item.getItemId() == R.id.menu_item_add_to_account_playlist) {
-//                    selectedVideoInfo = videoInfo;
-//                    addToMyPlaylist(true);
-//                }
-
-// else if (item.getItemId() == R.id.menu_item_remove) {
-//                    if (eventListener != null) {
-//                        eventListener.onEvent(videoInfo, Action.REMOVE);
-//                    }
-//                } else if (item.getItemId() == R.id.menu_item_download_ringtone) {
-//                    Utils.initRingtoneEvent(videoInfo);
-//                }
-
                 return false;
             }
         });

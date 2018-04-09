@@ -62,6 +62,11 @@ public class PlaylistAdapter extends BaseAdapter {
             if (imageViewAction != null) {
                 imageViewAction.setTag(playlistInfo);
                 imageViewAction.setOnClickListener(onClickListener);
+                if (playlistInfo.id.equals(Utils.buildFavouritesUUID())) {
+                    imageViewAction.setVisibility(View.GONE);
+                } else {
+                    imageViewAction.setVisibility(View.VISIBLE);
+                }
             }
             v.setTag(playlistInfo);
         } catch (Throwable e) {
