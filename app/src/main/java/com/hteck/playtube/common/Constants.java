@@ -13,6 +13,7 @@ public class Constants {
     public final static String POPULAR_SORT_BY = "popular_sort_by";
     public final static String MAIN_VIEW_ID = "main_view_id";
     public final static String PLAYLIST_DATA = "playlist_data";
+    public final static String HISTORY_DATA = "history_data";
     public final static String NO_USES_SETTING = "no_uses_setting";
     public class ItemConstants {
         public final static String VERSION = "version";

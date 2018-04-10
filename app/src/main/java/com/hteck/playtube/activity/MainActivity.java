@@ -36,6 +36,7 @@ import com.hteck.playtube.fragment.PopularView;
 import com.hteck.playtube.fragment.SettingsView;
 import com.hteck.playtube.fragment.YoutubePlayerBottomView;
 import com.hteck.playtube.fragment.YoutubePlayerView;
+import com.hteck.playtube.service.HistoryService;
 import com.hteck.playtube.view.CustomRelativeLayout;
 
 import java.util.ArrayList;
@@ -268,38 +269,6 @@ public class MainActivity extends AppCompatActivity {
         layoutMain1.startAnimation(animation);
     }
 
-    private Vector<TimerTask> _timerCallback = null;
-
-    public void runInNextLoopUI(final Runnable r, long delayMs) {
-        Timer t = new Timer();
-        TimerTask tt = new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    runOnUiThread(r);
-
-                    removeTimerTask(this);
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-
-        if (_timerCallback == null) {
-            _timerCallback = new Vector<>(3);
-        }
-        synchronized (_timerCallback) {
-            _timerCallback.add(tt);
-        }
-        t.schedule(tt, delayMs);
-    }
-
-    void removeTimerTask(TimerTask tt) {
-        synchronized (_timerCallback) {
-            _timerCallback.remove(tt);
-        }
-    }
-
     public Fragment addFragment(Fragment fragment) {
         String loadingFragment = fragment.getClass().getName();
         if (fragment.getArguments() != null
@@ -324,15 +293,8 @@ public class MainActivity extends AppCompatActivity {
             fragmentTransaction.commit();
         } else {
             fragmentManager.popBackStack(loadingFragment, 0);
-//            updateHomeTitle(fragment);
         }
 
-//        if (!(fragment instanceof SearchView)) {
-//            collapseSearchView();
-//            if (currentFragment instanceof SearchView) {
-//                ((SearchView) currentFragment).setIsNotInEditMode();
-//            }
-//        }
         return existedfragment;
     }
 
@@ -369,7 +331,7 @@ public class MainActivity extends AppCompatActivity {
     private Fragment getCurrentFrag() {
         Object obj = getSupportFragmentManager().findFragmentById(
                 R.id.activity_main_layout_content);
-        if (obj instanceof Fragment) {
+        if (obj != null) {
             return (Fragment) obj;
         }
         return null;
@@ -418,11 +380,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void exit() {
         try {
-//        if (_isPlayerShowing && mPlayerYoutubeView != null
-//                && mPlayerYoutubeView.isPlaying()) {
-//            exitForBackgroundPlaying();
-//            return;
-//        }
             boolean isOKToQuit = (new Date().getTime() - _timeExitPressed) <= 3000;
             if (isOKToQuit) {
                 finish();
@@ -435,34 +392,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Throwable e) {
             e.printStackTrace();
         }
-    }
-
-    private void exitForBackgroundPlaying() {
-        final AlertDialog.Builder alert = new AlertDialog.Builder(this,
-                AlertDialog.THEME_HOLO_LIGHT);
-        alert.setTitle(Utils.getString(R.string.exit_msg));
-        alert.setMessage(Utils.getString(R.string.exit_confirm_msg));
-
-        alert.setPositiveButton(Utils.getString(R.string.ok), new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    finish();
-                    System.exit(1);
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        alert.setNeutralButton(Utils.getString(R.string.cancel),
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                    }
-                });
-        alert.show();
     }
 
     public void playYoutube(YoutubeInfo youtubeInfo, ArrayList<YoutubeInfo> youtubeList, boolean isOutside,
@@ -495,8 +424,7 @@ public class MainActivity extends AppCompatActivity {
             if (isOutside) {
                 switchPlayerLayout(false);
             }
-//            MainContext.increaseNumOfPlays();
-//            RecentHelper.addVideoToHistory(youtubeInfo);
+            HistoryService.addYoutubeToHistory(youtubeInfo);
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -656,7 +584,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             switchPlayerLayout(_isSmallPlayer);
-//            visibleBannerAds(newConfig.orientation != Configuration.ORIENTATION_LANDSCAPE);
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -751,6 +678,7 @@ public class MainActivity extends AppCompatActivity {
 
     View.OnTouchListener _ontouchListener = new View.OnTouchListener() {
 
+        @SuppressLint("ClickableViewAccessibility")
         @Override
         public boolean onTouch(View v, MotionEvent event) {
 
@@ -879,11 +807,7 @@ public class MainActivity extends AppCompatActivity {
             String title = ((BaseFragment) fragment).getTitle();
             setTitle(title);
             if (_searchView != null) {
-                if (title.equals(Utils.getString(R.string.search))) {
-                    _isInSearchMode = true;
-                } else {
-                    _isInSearchMode = false;
-                }
+                _isInSearchMode = title.equals(Utils.getString(R.string.search));
                 visibleSearchView();
             }
         }

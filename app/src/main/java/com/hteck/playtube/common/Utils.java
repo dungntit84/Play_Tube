@@ -222,6 +222,17 @@ public class Utils {
         prefsEditor.commit();
     }
 
+    public static void removePref(String key) {
+        SharedPreferences pref = MainActivity.getInstance()
+                .getSharedPreferences(Constants.PLAYTUBE_PREF,
+                        MainActivity.MODE_PRIVATE);
+        SharedPreferences.Editor prefsEditor = pref.edit();
+
+        prefsEditor.remove(key);
+
+        prefsEditor.commit();
+    }
+
     public static View createNoItemView(Activity activity, String msg) {
         ViewGroup layout = (ViewGroup) activity.getLayoutInflater().inflate(
                 R.layout.no_item_view, null);

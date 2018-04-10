@@ -41,4 +41,5 @@
     <string name="contact_us_email">venusstudio.mobi@gmail.com</string>
     <string name="rate_app_title">Rate App?</string>
     <string name="rate_app_content">Please rate this App on the Store.</string>
+    <string name="history">History</string>
 </resources>

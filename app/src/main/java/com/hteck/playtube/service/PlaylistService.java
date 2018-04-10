@@ -146,7 +146,7 @@ public class PlaylistService {
         }
     }
 
-    public static PlaylistInfo getPlaylistInfo(JSONObject jObject) {
+    private static PlaylistInfo getPlaylistInfo(JSONObject jObject) {
         PlaylistInfo playlistInfo = new PlaylistInfo();
 
         Class<?> clazz = playlistInfo.getClass();
@@ -188,10 +188,10 @@ public class PlaylistService {
                 for (int i = 0; i < jItems.length(); ++i) {
                     JSONObject jObject = jItems.getJSONObject(i);
                     PlaylistInfo playlistInfo = getPlaylistInfo(jObject);
-                    if (playlistInfo.id.equals(Utils.buildFavouritesUUID())) {
+                    if (playlistInfo != null && playlistInfo.id.equals(Utils.buildFavouritesUUID())) {
                         isFavouritesExisted = true;
+                        result.add(playlistInfo);
                     }
-                    result.add(playlistInfo);
                 }
             }
             if (!isFavouritesExisted) {
@@ -215,7 +215,7 @@ public class PlaylistService {
                 for (int i = 0; i < jItems.length(); ++i) {
                     JSONObject jObject = jItems.getJSONObject(i);
                     PlaylistInfo playlistInfo = getPlaylistInfo(jObject);
-                    if (playlistInfo.id.equals(id)) {
+                    if (playlistInfo != null && playlistInfo.id.equals(id)) {
                         return playlistInfo;
                     }
                 }
