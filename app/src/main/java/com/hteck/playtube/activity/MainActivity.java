@@ -30,6 +30,7 @@ import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.YoutubeInfo;
 import com.hteck.playtube.fragment.BaseFragment;
+import com.hteck.playtube.fragment.HistoryView;
 import com.hteck.playtube.fragment.PlaylistVideosView;
 import com.hteck.playtube.fragment.PlaylistsView;
 import com.hteck.playtube.fragment.PopularView;
@@ -84,11 +85,13 @@ public class MainActivity extends AppCompatActivity {
         TextView tvExplore = findViewById(R.id.main_activity_text_view_explore);
         TextView tvSearch = findViewById(R.id.main_activity_text_view_search);
         TextView tvPlaylists = findViewById(R.id.main_activity_text_view_playlists);
+        TextView tvHistory = findViewById(R.id.main_activity_text_view_history);
         TextView tvSettings = findViewById(R.id.main_activity_text_view_settings);
         tvTitle.setText(getTitle());
         tvExplore.setText(Utils.getString(R.string.explore));
         tvSearch.setText(Utils.getString(R.string.search));
         tvPlaylists.setText(Utils.getString(R.string.playlists));
+        tvHistory.setText(Utils.getString(R.string.history));
         tvSettings.setText(Utils.getString(R.string.settings));
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -116,6 +119,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 selectPlaylistsView();
+            }
+        });
+
+        View layoutHistory = findViewById(R.id.activity_main_layout_history);
+        layoutHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectHistoryView();
             }
         });
 
@@ -224,6 +235,16 @@ public class MainActivity extends AppCompatActivity {
             restoreMainAnimation();
 
             showPlaylists();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void selectHistoryView() {
+        try {
+            restoreMainAnimation();
+
+            showHistory();
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -347,6 +368,11 @@ public class MainActivity extends AppCompatActivity {
     private void showPlaylists() {
         PlaylistsView playlistsView = PlaylistsView.newInstance();
         replaceFragment(playlistsView);
+    }
+
+    private void showHistory() {
+        HistoryView historyView = HistoryView.newInstance();
+        replaceFragment(historyView);
     }
 
     private void showSettings() {
@@ -793,7 +819,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateHomeIcon() {
         boolean isRoot = isRootLevel();
-        if(getSupportActionBar() != null) {
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }

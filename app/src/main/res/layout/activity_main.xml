@@ -133,6 +133,27 @@
                         android:layout_marginLeft="@dimen/menu_text_margin"
                         android:textColor="@drawable/text_button" />
                 </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/activity_main_layout_history"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/menu_margin"
+                    android:gravity="center_vertical"
+                    android:clickable="true">
+
+                    <ImageView
+                        android:layout_width="@dimen/menu_icon_size"
+                        android:layout_height="@dimen/menu_icon_size"
+                        android:src="@drawable/ic_recent" />
+
+                    <TextView
+                        android:id="@+id/main_activity_text_view_history"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/menu_text_margin"
+                        android:textColor="@drawable/text_button" />
+                </LinearLayout>
                 <LinearLayout
                     android:id="@+id/activity_main_layout_setting"
                     android:layout_width="wrap_content"
