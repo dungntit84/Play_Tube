@@ -30,6 +30,7 @@ import com.hteck.playtube.common.Constants;
 import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.YoutubeInfo;
+import com.hteck.playtube.databinding.ActivityMainBinding;
 import com.hteck.playtube.fragment.BaseFragment;
 import com.hteck.playtube.fragment.HistoryView;
 import com.hteck.playtube.fragment.PlaylistVideosView;
@@ -49,7 +50,7 @@ import java.util.Vector;
 
 import static com.hteck.playtube.common.PlayTubeController.showRateAndReview;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static MainActivity _this;
 
@@ -74,73 +75,53 @@ public class MainActivity extends AppCompatActivity {
     private CustomRelativeLayout _layoutPlayerVideo;
     private FrameLayout _layoutPlayerVideoContent;
     private boolean _isOrientationChanged = false;
-
+    private ActivityMainBinding _binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        MainActivityBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        _binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         _this = this;
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        TextView tvTitle = toolbar.findViewById(R.id.toolbar_text);
-        TextView tvExplore = findViewById(R.id.main_activity_text_view_explore);
-        TextView tvSearch = findViewById(R.id.main_activity_text_view_search);
-        TextView tvPlaylists = findViewById(R.id.main_activity_text_view_playlists);
-        TextView tvHistory = findViewById(R.id.main_activity_text_view_history);
-        TextView tvSettings = findViewById(R.id.main_activity_text_view_settings);
-        tvTitle.setText(getTitle());
-        tvExplore.setText(Utils.getString(R.string.explore));
-        tvSearch.setText(Utils.getString(R.string.search));
-        tvPlaylists.setText(Utils.getString(R.string.playlists));
-        tvHistory.setText(Utils.getString(R.string.history));
-        tvSettings.setText(Utils.getString(R.string.settings));
+        setSupportActionBar(_binding.toolbar);
+        _binding.toolbarText.setText(getTitle());
+        _binding.mainActivityTextViewExplore.setText(Utils.getString(R.string.explore));
+        _binding.mainActivityTextViewSearch.setText(Utils.getString(R.string.search));
+        _binding.mainActivityTextViewPlaylists.setText(Utils.getString(R.string.playlists));
+        _binding.mainActivityTextViewHistory.setText(Utils.getString(R.string.history));
+        _binding.mainActivityTextViewSettings.setText(Utils.getString(R.string.settings));
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_home);
         }
         init();
-        View layoutHot = findViewById(R.id.activity_main_layout_hot);
-        layoutHot.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                selectPopularView();
-            }
-        });
-
-        View layoutSearch = findViewById(R.id.activity_main_layout_search);
-        layoutSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                selectSearchView();
-            }
-        });
-
-        View layoutPlaylists = findViewById(R.id.activity_main_layout_playlists);
-        layoutPlaylists.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                selectPlaylistsView();
-            }
-        });
-
-        View layoutHistory = findViewById(R.id.activity_main_layout_history);
-        layoutHistory.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                selectHistoryView();
-            }
-        });
-
-        View layoutSettings = findViewById(R.id.activity_main_layout_setting);
-        layoutSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                selectSettingsView();
-            }
-        });
 
         showRateAndReview();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.activity_main_layout_hot: {
+                selectPopularView();
+                break;
+            }
+            case R.id.activity_main_layout_search: {
+                selectSearchView();
+                break;
+            }
+            case R.id.activity_main_layout_playlists: {
+                selectPlaylistsView();
+                break;
+            }
+            case R.id.activity_main_layout_history: {
+                selectHistoryView();
+                break;
+            }
+            case R.id.activity_main_layout_setting: {
+                selectSettingsView();
+                break;
+            }
+        }
     }
 
     @Override
@@ -164,6 +145,13 @@ public class MainActivity extends AppCompatActivity {
             PlayTubeController.initImageLoader();
 
             initView();
+
+            _binding.activityMainLayoutHot.setOnClickListener(this);
+            _binding.activityMainLayoutSearch.setOnClickListener(this);
+            _binding.activityMainLayoutPlaylists.setOnClickListener(this);
+            _binding.activityMainLayoutHistory.setOnClickListener(this);
+            _binding.activityMainLayoutSetting.setOnClickListener(this);
+            _binding.activityMainLayoutSearch.setOnClickListener(this);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

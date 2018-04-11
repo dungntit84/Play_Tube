@@ -1,6 +1,9 @@
 apply plugin: 'com.android.application'
 
 android {
+    dataBinding {
+        enabled = true
+    }
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.hteck.playtube"
@@ -23,9 +26,7 @@ android {
             }
         }
     }
-    dataBinding {
-        enabled = true
-    }
+
 }
 
 dependencies {
