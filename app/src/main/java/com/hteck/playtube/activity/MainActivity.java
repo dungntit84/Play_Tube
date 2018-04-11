@@ -1,8 +1,6 @@
 package com.hteck.playtube.activity;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -10,7 +8,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -19,11 +16,8 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.SearchView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.hteck.playtube.R;
 import com.hteck.playtube.common.Constants;
@@ -44,9 +38,6 @@ import com.hteck.playtube.view.CustomRelativeLayout;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Vector;
 
 import static com.hteck.playtube.common.PlayTubeController.showRateAndReview;
 
@@ -72,10 +63,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SearchView _searchView;
     private boolean _isInSearchMode;
     private Menu _menu;
-    private CustomRelativeLayout _layoutPlayerVideo;
-    private FrameLayout _layoutPlayerVideoContent;
+
     private boolean _isOrientationChanged = false;
     private ActivityMainBinding _binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -158,10 +149,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void zoomImageFromThumb() {
-        final ViewGroup layoutMain1 = findViewById(R.id.activity_main_layout_main1);
-        final View vMain1Overlay = findViewById(R.id.activity_main_layout_main1_overlay);
-        final View vMain10Overlay = findViewById(R.id.activity_main_layout_main10_overlay);
-
         Animation animation = AnimationUtils.loadAnimation(getInstance(), R.anim.zoom_out_animation);
         animation.setRepeatMode(0);
         animation.setFillEnabled(true);
@@ -175,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                vMain1Overlay.setVisibility(View.VISIBLE);
+                _binding.activityMainLayoutMain1Overlay.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -184,17 +171,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        layoutMain1.startAnimation(animation);
-        vMain10Overlay.setOnClickListener(new View.OnClickListener() {
+        _binding.activityMainLayoutMain1.startAnimation(animation);
+        _binding.activityMainLayoutMain10Overlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                layoutMain1.setVisibility(View.VISIBLE);
+                _binding.activityMainLayoutMain1.setVisibility(View.VISIBLE);
                 Animation animation = AnimationUtils.loadAnimation(getInstance(), R.anim.zoom_in_animation);
                 animation.setDuration(200);
                 animation.setFillAfter(true);
-                vMain1Overlay.setVisibility(View.GONE);
+                _binding.activityMainLayoutMain1Overlay.setVisibility(View.GONE);
 
-                layoutMain1.startAnimation(animation);
+                _binding.activityMainLayoutMain1.startAnimation(animation);
             }
         });
     }
@@ -269,15 +256,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void restoreMainAnimation() {
-        final ViewGroup layoutMain1 = findViewById(R.id.activity_main_layout_main1);
-        final View vMain1Overlay = findViewById(R.id.activity_main_layout_main1_overlay);
-        layoutMain1.setVisibility(View.VISIBLE);
+        _binding.activityMainLayoutMain1.setVisibility(View.VISIBLE);
         Animation animation = AnimationUtils.loadAnimation(getInstance(), R.anim.zoom_in_animation);
         animation.setDuration(200);
         animation.setFillAfter(true);
-        vMain1Overlay.setVisibility(View.GONE);
+        _binding.activityMainLayoutMain1Overlay.setVisibility(View.GONE);
 
-        layoutMain1.startAnimation(animation);
+        _binding.activityMainLayoutMain1.startAnimation(animation);
     }
 
     public Fragment addFragment(Fragment fragment) {
@@ -449,18 +434,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void switchPlayerLayout(boolean isMiniPlayer) {
         _isSmallPlayer = isMiniPlayer;
         try {
-            ViewGroup layoutPlayerVideoContent = findViewById(R.id.activity_main_player_video);
-            View layoutPlayerBottom = findViewById(R.id.layout_player_bottom);
-            View layoutPlayerAction = findViewById(R.id.main_activity_player_header);
-            _layoutPlayerVideoContent = getLayoutPlayerContent();
-            FrameLayout.LayoutParams layoutParamsBody = (FrameLayout.LayoutParams) _layoutPlayerVideoContent
+            FrameLayout.LayoutParams layoutParamsBody = (FrameLayout.LayoutParams) _binding.layoutPlayerVideo
                     .getLayoutParams();
-            ViewGroup.LayoutParams layoutParams = layoutPlayerVideoContent
-                    .getLayoutParams();
+            ViewGroup.LayoutParams layoutParams = _binding.activityMainPlayerVideo.getLayoutParams();
             boolean isLandscapeScreen = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
             if (isMiniPlayer) {
-                layoutPlayerBottom.setVisibility(View.GONE);
-                layoutPlayerAction.setVisibility(View.VISIBLE);
+                _binding.layoutPlayerBottom.setVisibility(View.GONE);
+                _binding.mainActivityPlayerHeader.setVisibility(View.VISIBLE);
 
                 layoutParams.height = (int) getResources().getDimension(R.dimen.mini_player_height);
                 layoutParams.width = (int) getResources().getDimension(R.dimen.mini_player_width);
@@ -471,28 +451,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     layoutParamsBody.leftMargin = (int) _prevX;
                     layoutParamsBody.topMargin = (int) _prevY;
                 }
-                _layoutPlayerVideoContent.setLayoutParams(layoutParamsBody);
+                _binding.layoutPlayerVideo.setLayoutParams(layoutParamsBody);
 
-                getLayoutPlayer().setSizeChangedListener(onSizeChangedListener);
-                getLayoutPlayer().setVisibility(View.VISIBLE);
+                _binding.layoutPlayer.setSizeChangedListener(onSizeChangedListener);
+                _binding.layoutPlayer.setVisibility(View.VISIBLE);
 
-                _layoutPlayerVideoContent.setClickable(true);
-                _layoutPlayerVideoContent
+                _binding.layoutPlayerVideo.setClickable(true);
+                _binding.layoutPlayerVideo
                         .setOnTouchListener(_ontouchListener);
 
                 initPlayerEvents();
 
                 if (!_isPlayerLayoutInitiated) {
-                    initPlayerLayout(getLayoutPlayer().getMeasuredWidth(),
-                            getLayoutPlayer().getMeasuredHeight(),
-                            getLayoutPlayer().getMeasuredWidth(),
-                            getLayoutPlayer().getMeasuredHeight());
+                    initPlayerLayout(_binding.layoutPlayer.getMeasuredWidth(),
+                            _binding.layoutPlayer.getMeasuredHeight(),
+                            _binding.layoutPlayer.getMeasuredWidth(),
+                            _binding.layoutPlayer.getMeasuredHeight());
                 }
                 _youtubePlayerApiView.setFullScreen(false);
-                layoutPlayerBottom.setPadding(0, 0, 0, 0);
+                _binding.layoutPlayerBottom.setPadding(0, 0, 0, 0);
             } else {
-                layoutPlayerBottom.setVisibility(View.VISIBLE);
-                layoutPlayerAction.setVisibility(View.GONE);
+                _binding.layoutPlayerBottom.setVisibility(View.VISIBLE);
+                _binding.mainActivityPlayerHeader.setVisibility(View.GONE);
 
                 if (isLandscapeScreen) {
                     _youtubePlayerApiView.setFullScreen(true);
@@ -510,10 +490,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         : Utils.getScreenWidth();
                 layoutParamsBody.height = isLandscapeScreen ? ViewGroup.LayoutParams.MATCH_PARENT
                         : Utils.getPlayerHeightPortrait();
-                layoutPlayerBottom.setPadding(0,
+                _binding.layoutPlayerBottom.setPadding(0,
                         Utils.getPlayerHeightPortrait(), 0, 0);
-//                getLayoutPlayer().mEventListener = null;
-                _layoutPlayerVideoContent.setOnTouchListener(null);
+//                _binding.layoutPlayer.mEventListener = null;
+                _binding.layoutPlayerVideo.setOnTouchListener(null);
                 layoutParamsBody.leftMargin = 0;
                 layoutParamsBody.topMargin = 0;
                 if (isLandscapeScreen) {
@@ -524,17 +504,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
             _youtubePlayerApiView.visibleFullScreenButton(!isMiniPlayer);
-            getLayoutPlayer().setVisibility(View.VISIBLE);
-            layoutPlayerVideoContent.setLayoutParams(layoutParams);
-            _layoutPlayerVideoContent.setLayoutParams(layoutParamsBody);
+            _binding.layoutPlayer.setVisibility(View.VISIBLE);
+            _binding.activityMainPlayerVideo.setLayoutParams(layoutParams);
+            _binding.layoutPlayerVideo.setLayoutParams(layoutParamsBody);
         } catch (Throwable e) {
             e.printStackTrace();
         }
     }
 
     private void initPlayerEvents() {
-        Button buttonExpandPlayer = (Button) findViewById(R.id.button_player_maximize);
-        buttonExpandPlayer.setOnClickListener(new View.OnClickListener() {
+        _binding.buttonPlayerMaximize.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -543,8 +522,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        Button buttonClosePlayer = findViewById(R.id.button_player_close);
-        buttonClosePlayer.setOnClickListener(new View.OnClickListener() {
+        _binding.buttonPlayerClose.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -559,12 +537,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             _isSmallPlayer = false;
             _isPlayerShowing = false;
 
-            getLayoutPlayer().setVisibility(View.GONE);
+            _binding.layoutPlayer.setVisibility(View.GONE);
             if (_youtubePlayerApiView != null) {
                 _youtubePlayerApiView.stop();
                 _youtubePlayerApiView = null;
-                ViewGroup v = findViewById(R.id.activity_main_player_video);
-                v.removeAllViews();
+                _binding.activityMainPlayerVideo.removeAllViews();
             }
 
             handleLockScreenEvent();
@@ -587,8 +564,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public void onYoutubeApiOrientationChanged(Configuration newConfig,
-                                               boolean isFromPlay) {
+    public void onYoutubeApiOrientationChanged(Configuration newConfig) {
         try {
             if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 if (_youtubePlayerApiView != null && !_isSmallPlayer) {
@@ -605,17 +581,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private CustomRelativeLayout getLayoutPlayer() {
-        if (_layoutPlayerVideo == null) {
-            _layoutPlayerVideo = findViewById(R.id.layout_player);
-        }
-        return _layoutPlayerVideo;
-    }
-
-    private FrameLayout getLayoutPlayerContent() {
-        return (FrameLayout) findViewById(R.id.layout_player_video);
-    }
-
     CustomRelativeLayout.ISizeChangedListener onSizeChangedListener = new CustomRelativeLayout.ISizeChangedListener() {
 
         @Override
@@ -630,18 +595,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
         try {
-            FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) _layoutPlayerVideoContent
+            FrameLayout.LayoutParams layout = (FrameLayout.LayoutParams) _binding.layoutPlayerVideo
                     .getLayoutParams();
             if (!_isPlayerLayoutInitiated) {
-                _oldX = getLayoutPlayer().getMeasuredWidth()
+                _oldX = _binding.layoutPlayer.getMeasuredWidth()
                         - getResources().getDimensionPixelSize(R.dimen.mini_player_width) - Utils.convertPointToPixels(24);
-                _oldY = getLayoutPlayer().getMeasuredHeight()
+                _oldY = _binding.layoutPlayer.getMeasuredHeight()
                         - getResources().getDimensionPixelSize(R.dimen.mini_player_height) - Utils.convertPointToPixels(36)
                         - Utils.convertPointToPixels(112);
 
                 layout.leftMargin = (int) _oldX;
                 layout.topMargin = (int) _oldY;
-                _layoutPlayerVideoContent.setLayoutParams(layout);
+                _binding.layoutPlayerVideo.setLayoutParams(layout);
                 return;
             }
 
@@ -653,38 +618,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 layout.topMargin = (int) _prevY;
             } else {
                 if (_isOrientationChanged) {
-                    layout.leftMargin = (x + _layoutPlayerVideoContent.getWidth() / 2)
+                    layout.leftMargin = (x + _binding.layoutPlayerVideo.getWidth() / 2)
                             * xNew / xOld
-                            - _layoutPlayerVideoContent.getWidth() / 2;
-                    layout.topMargin = (y + _layoutPlayerVideoContent.getHeight() / 2)
+                            - _binding.layoutPlayerVideo.getWidth() / 2;
+                    layout.topMargin = (y + _binding.layoutPlayerVideo.getHeight() / 2)
                             * yNew / yOld
-                            - _layoutPlayerVideoContent.getHeight() / 2;
+                            - _binding.layoutPlayerVideo.getHeight() / 2;
                 }
                 _isOrientationChanged = false;
             }
-            if (_layoutPlayerVideoContent.getWidth() + layout.leftMargin > getLayoutPlayer()
+            if (_binding.layoutPlayerVideo.getWidth() + layout.leftMargin > _binding.layoutPlayer
                     .getMeasuredWidth()
-                    && _layoutPlayerVideoContent.getWidth() < getLayoutPlayer()
+                    && _binding.layoutPlayerVideo.getWidth() < _binding.layoutPlayer
                     .getMeasuredWidth()) {
-                layout.leftMargin = getLayoutPlayer().getMeasuredWidth()
-                        - _layoutPlayerVideoContent.getWidth();
+                layout.leftMargin = _binding.layoutPlayer.getMeasuredWidth()
+                        - _binding.layoutPlayerVideo.getWidth();
             }
             if (layout.leftMargin < 0) {
                 layout.leftMargin = 0;
             }
 
-            if (_layoutPlayerVideoContent.getHeight() + layout.topMargin > getLayoutPlayer()
+            if (_binding.layoutPlayerVideo.getHeight() + layout.topMargin > _binding.layoutPlayer
                     .getMeasuredHeight()
-                    && getLayoutPlayer().getMeasuredHeight() > _layoutPlayerVideoContent
+                    && _binding.layoutPlayer.getMeasuredHeight() > _binding.layoutPlayerVideo
                     .getHeight()) {
-                layout.topMargin = getLayoutPlayer().getMeasuredHeight()
-                        - _layoutPlayerVideoContent.getHeight();
+                layout.topMargin = _binding.layoutPlayer.getMeasuredHeight()
+                        - _binding.layoutPlayerVideo.getHeight();
             }
             if (layout.topMargin < 0) {
                 layout.topMargin = 0;
             }
 
-            _layoutPlayerVideoContent.setLayoutParams(layout);
+            _binding.layoutPlayerVideo.setLayoutParams(layout);
             _prevX = layout.leftMargin;
             _prevY = layout.topMargin;
         } catch (Throwable e) {
@@ -722,11 +687,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if (_posY < 0) {
                         _posY = 0;
                     }
-                    if ((_posX + v.getWidth()) > getLayoutPlayer().getWidth()) {
-                        _posX = getLayoutPlayer().getWidth() - v.getWidth();
+                    if ((_posX + v.getWidth()) > _binding.layoutPlayer.getWidth()) {
+                        _posX = _binding.layoutPlayer.getWidth() - v.getWidth();
                     }
-                    if ((_posY + v.getHeight()) > getLayoutPlayer().getHeight()) {
-                        _posY = getLayoutPlayer().getHeight() - v.getHeight();
+                    if ((_posY + v.getHeight()) > _binding.layoutPlayer.getHeight()) {
+                        _posY = _binding.layoutPlayer.getHeight() - v.getHeight();
                     }
 
                     FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) v
@@ -775,7 +740,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         _isOrientationChanged = true;
 
-        onYoutubeApiOrientationChanged(newConfig, false);
+        onYoutubeApiOrientationChanged(newConfig);
     }
 
     public void setNavVisibility(boolean visible) {
@@ -830,9 +795,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void setTitle(String title) {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        TextView tvTitle = toolbar.findViewById(R.id.toolbar_text);
-        tvTitle.setText(title);
+        _binding.toolbarText.setText(title);
     }
 
     @Override
