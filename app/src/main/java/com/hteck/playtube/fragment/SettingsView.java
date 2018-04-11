@@ -22,6 +22,7 @@ import java.util.ArrayList;
 
 public class SettingsView extends BaseFragment implements View.OnClickListener {
 
+    private SettingsBinding _binding ;
     public static SettingsView newInstance() {
         SettingsView settingsView = new SettingsView();
         return settingsView;

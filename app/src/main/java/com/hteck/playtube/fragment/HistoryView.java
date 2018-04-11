@@ -1,5 +1,6 @@
 package com.hteck.playtube.fragment;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import com.hteck.playtube.common.Constants;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.PlaylistInfo;
 import com.hteck.playtube.data.YoutubeInfo;
+import com.hteck.playtube.databinding.ListViewBinding;
 import com.hteck.playtube.service.HistoryService;
 import com.hteck.playtube.service.PlaylistService;
 
@@ -25,9 +27,8 @@ public class HistoryView extends BaseFragment implements
         AdapterView.OnItemClickListener {
     private ArrayList<YoutubeInfo> _youtubeList = new ArrayList<>();
     private YoutubeAdapter _adapter;
-    private ViewGroup _mainView;
-    private ListView _listView;
-    private TextView _textViewMsg;
+
+    private ListViewBinding _binding;
 
     public static HistoryView newInstance() {
         HistoryView historyView = new HistoryView();
@@ -38,27 +39,23 @@ public class HistoryView extends BaseFragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        _binding = DataBindingUtil.inflate(inflater, R.layout.list_view, container, false);
 
-        _mainView = (FrameLayout) inflater.inflate(
-                R.layout.list_view, null);
-
-        _listView = _mainView.findViewById(R.id.list_view);
-        _textViewMsg = _mainView.findViewById(R.id.text_view_msg);
-        _textViewMsg.setText(Utils.getString(R.string.no_youtube));
-        _listView.setOnItemClickListener(this);
+        _binding.textViewMsg.setText(Utils.getString(R.string.no_youtube));
+        _binding.listView.setOnItemClickListener(this);
         _youtubeList = HistoryService.getAllHistory();
         _adapter = new YoutubeAdapter(_youtubeList, Constants.YoutubeListType.Recent);
-        _listView.setAdapter(_adapter);
-        _textViewMsg.setVisibility(_youtubeList.size() == 0 ? View.VISIBLE : View.GONE);
+        _binding.listView.setAdapter(_adapter);
+        _binding.textViewMsg.setVisibility(_youtubeList.size() == 0 ? View.VISIBLE : View.GONE);
         MainActivity.getInstance().updateHomeIcon();
-        return _mainView;
+        return _binding.getRoot();
     }
 
     public void resetData() {
         try {
             _youtubeList = HistoryService.getAllHistory();
             _adapter.setDataSource(_youtubeList);
-            _textViewMsg.setVisibility(_youtubeList.size() == 0 ? View.VISIBLE : View.GONE);
+            _binding.textViewMsg.setVisibility(_youtubeList.size() == 0 ? View.VISIBLE : View.GONE);
 
         } catch (Throwable e) {
             e.printStackTrace();

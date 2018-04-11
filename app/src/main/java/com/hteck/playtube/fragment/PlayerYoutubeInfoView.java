@@ -1,5 +1,6 @@
 package com.hteck.playtube.fragment;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -21,6 +22,8 @@ import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.CommentInfo;
 import com.hteck.playtube.data.YoutubeInfo;
+import com.hteck.playtube.databinding.FrameLayoutViewBinding;
+import com.hteck.playtube.databinding.ListViewBinding;
 import com.hteck.playtube.service.YoutubeHelper;
 import com.hteck.playtube.view.LoadingView;
 
@@ -36,8 +39,8 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
     private String _nextPageToken = "";
     private boolean _isLoadingComments = false;
     private View _viewReload;
-    private ViewGroup _mainView;
     private ListView _listView;
+    private FrameLayoutViewBinding _binding;
 
     public static PlayerYoutubeInfoView newInstance(YoutubeInfo videoInfo) {
         PlayerYoutubeInfoView playerBottomInfoTab = new PlayerYoutubeInfoView();
@@ -50,9 +53,9 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        _mainView = (ViewGroup) inflater.inflate(R.layout.frame_layout_view, null);
+
+        _binding = DataBindingUtil.inflate(inflater, R.layout.frame_layout_view, container, false);
         _listView = new ListView(MainActivity.getInstance());
-        Vector<CommentInfo> commentList = new Vector<>();
         _adapterVideoInfo = new PlayerYoutubeInfoAdapter(
                 _videoInfo);
         _listView.setAdapter(_adapterVideoInfo);
@@ -75,10 +78,10 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
                 }
             }
         });
-        _mainView.addView(_listView);
+        ((ViewGroup) _binding.getRoot()).addView(_listView);
 
         loadData();
-        return _mainView;
+        return  _binding.getRoot();
     }
 
     public void loadData() {
@@ -96,7 +99,7 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
         try {
             _listView.setVisibility(View.VISIBLE);
             if (_viewReload != null) {
-                _mainView.removeView(_viewReload);
+                ((ViewGroup) _binding.getRoot()).removeView(_viewReload);
                 _viewReload = null;
             }
             _videoInfo = PlayTubeController.getPlayingInfo().getCurrentYoutubeInfo();
@@ -136,11 +139,11 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
     }
 
     private void hideProgressBar() {
-        Utils.hideProgressBar(_mainView, _busyView);
+        Utils.hideProgressBar(((ViewGroup) _binding.getRoot()), _busyView);
     }
 
     private void showProgressBar() {
-        _busyView = Utils.showProgressBar(_mainView, _busyView);
+        _busyView = Utils.showProgressBar(((ViewGroup) _binding.getRoot()), _busyView);
     }
 
     private void loadComments() {
@@ -209,12 +212,12 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
             LayoutInflater inflater = MainActivity.getInstance()
                     .getLayoutInflater();
             if (_viewReload != null) {
-                _mainView.removeView(_viewReload);
+                ((ViewGroup) _binding.getRoot()).removeView(_viewReload);
             }
             _listView.setVisibility(View.GONE);
             _viewReload = (ViewGroup) inflater.inflate(R.layout.retry_view,
                     null);
-            _mainView.addView(_viewReload);
+            ((ViewGroup) _binding.getRoot()).addView(_viewReload);
             _viewReload.setOnTouchListener(new OnTouchListener() {
 
                 @Override

@@ -1,6 +1,7 @@
 package com.hteck.playtube.view;
 
 import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -19,6 +20,7 @@ import com.hteck.playtube.common.IHttplistener;
 import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.YoutubeInfo;
+import com.hteck.playtube.databinding.ListViewBinding;
 import com.hteck.playtube.service.YoutubeHelper;
 
 import java.util.AbstractMap;
@@ -34,10 +36,8 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
     private boolean _isLoading = false;
     private LoadingView _busyView;
     private HttpDownload _httpDownload;
-    private ListView _listView;
-    private TextView _textViewMsg;
     private String _query;
-    private ViewGroup _contentView;
+    private ListViewBinding _binding;
 
     public YoutubeListView(Context context) {
         super(context);
@@ -47,17 +47,14 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
     }
 
     private View createView() {
-        _contentView = (ViewGroup) MainActivity.getInstance()
-                .getLayoutInflater().inflate(R.layout.list_view, null);
-
-        _listView = _contentView.findViewById(R.id.list_view);
-        _textViewMsg = _contentView.findViewById(R.id.text_view_msg);
-        _textViewMsg.setText(Utils.getString(R.string.no_youtube));
+        _binding = DataBindingUtil.inflate(MainActivity.getInstance()
+                .getLayoutInflater(), R.layout.list_view, null, false);
+        _binding.textViewMsg.setText(Utils.getString(R.string.no_youtube));
 
         _adapter = new YoutubeByPageAdapter(_videoList);
-        _listView.setAdapter(_adapter);
-        _listView.setOnScrollListener(this);
-        _listView.setOnItemClickListener(new OnItemClickListener() {
+        _binding.listView.setAdapter(_adapter);
+        _binding.listView.setOnScrollListener(this);
+        _binding.listView.setOnItemClickListener(new OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int index,
@@ -82,15 +79,15 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
                 }
             }
         });
-        return _contentView;
+        return _binding.getRoot();
     }
 
     private void setDataSource(ArrayList<YoutubeInfo> videoList) {
-        _listView.setEmptyView(_textViewMsg);
+        _binding.listView.setEmptyView(_binding.textViewMsg);
         if (videoList.size() > 0) {
-            _textViewMsg.setVisibility(View.GONE);
+            _binding.textViewMsg.setVisibility(View.GONE);
         } else {
-            _textViewMsg.setVisibility(View.VISIBLE);
+            _binding.textViewMsg.setVisibility(View.VISIBLE);
         }
 
         _videoList = videoList;
@@ -98,11 +95,11 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
     }
 
     private void resetDataSource() {
-        _listView.setSelectionFromTop(0, 0);
+        _binding.listView.setSelectionFromTop(0, 0);
 
         _videoList = new ArrayList<>();
         _adapter.setDataSource(_videoList);
-        _textViewMsg.setVisibility(View.GONE);
+        _binding.textViewMsg.setVisibility(View.GONE);
         _nextPageToken = "";
     }
 
@@ -263,11 +260,11 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
     }
 
     private void hideProgressBar() {
-        Utils.hideProgressBar(_contentView, _busyView);
+        Utils.hideProgressBar((ViewGroup) _binding.getRoot(), _busyView);
     }
 
     private void showProgressBar() {
-        _busyView = Utils.showProgressBar(_contentView, _busyView);
+        _busyView = Utils.showProgressBar((ViewGroup) _binding.getRoot(), _busyView);
     }
 
     @Override
@@ -279,7 +276,7 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
         if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
-            if (_listView.getLastVisiblePosition() == _listView.getAdapter()
+            if (_binding.listView.getLastVisiblePosition() == _binding.listView.getAdapter()
                     .getCount() - 1) {
                 if (_videoList.size() > 0
                         && _videoList.get(_videoList.size() - 1) == null) {
