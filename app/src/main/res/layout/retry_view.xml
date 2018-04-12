@@ -9,7 +9,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:layout_gravity="center" 
-        android:text="Network error! \nTouch to reload"/>
+        android:layout_gravity="center"
+        android:textColor="@color/textColor"
+        android:text="@string/network_error_reload"/>
 
 </FrameLayout>

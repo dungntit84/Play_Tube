@@ -77,7 +77,7 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
                 }
             }
         });
-        ((ViewGroup) _binding.getRoot()).addView(_listView);
+        _binding.layoutContainer.addView(_listView);
 
         loadData();
         return  _binding.getRoot();
@@ -98,7 +98,7 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
         try {
             _listView.setVisibility(View.VISIBLE);
             if (_viewReload != null) {
-                ((ViewGroup) _binding.getRoot()).removeView(_viewReload);
+                _binding.layoutContainer.removeView(_viewReload);
                 _viewReload = null;
             }
             _youtubeInfo = PlayTubeController.getPlayingInfo().getCurrentYoutubeInfo();
@@ -138,11 +138,11 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
     }
 
     private void hideProgressBar() {
-        Utils.hideProgressBar(((ViewGroup) _binding.getRoot()), _busyView);
+        Utils.hideProgressBar( _binding.layoutContainer, _busyView);
     }
 
     private void showProgressBar() {
-        _busyView = Utils.showProgressBar(((ViewGroup) _binding.getRoot()), _busyView);
+        _busyView = Utils.showProgressBar( _binding.layoutContainer, _busyView);
     }
 
     private void loadComments() {
@@ -211,12 +211,12 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
             LayoutInflater inflater = MainActivity.getInstance()
                     .getLayoutInflater();
             if (_viewReload != null) {
-                ((ViewGroup) _binding.getRoot()).removeView(_viewReload);
+                _binding.layoutContainer.removeView(_viewReload);
             }
             _listView.setVisibility(View.GONE);
             _viewReload = inflater.inflate(R.layout.retry_view,
                     null);
-            ((ViewGroup) _binding.getRoot()).addView(_viewReload);
+            _binding.layoutContainer.addView(_viewReload);
             _viewReload.setOnTouchListener(new OnTouchListener() {
 
                 @Override

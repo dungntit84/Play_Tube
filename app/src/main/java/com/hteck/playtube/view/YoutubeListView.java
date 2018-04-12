@@ -260,11 +260,11 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
     }
 
     private void hideProgressBar() {
-        Utils.hideProgressBar((ViewGroup) _binding.getRoot(), _busyView);
+        Utils.hideProgressBar(_binding.layoutMain, _busyView);
     }
 
     private void showProgressBar() {
-        _busyView = Utils.showProgressBar((ViewGroup) _binding.getRoot(), _busyView);
+        _busyView = Utils.showProgressBar(_binding.layoutMain, _busyView);
     }
 
     @Override

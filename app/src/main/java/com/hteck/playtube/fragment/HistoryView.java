@@ -55,6 +55,7 @@ public class HistoryView extends BaseFragment implements
         try {
             _youtubeList = HistoryService.getAllHistory();
             _adapter.setDataSource(_youtubeList);
+            _binding.listView.setEmptyView(_binding.textViewMsg);
             _binding.textViewMsg.setVisibility(_youtubeList.size() == 0 ? View.VISIBLE : View.GONE);
 
         } catch (Throwable e) {

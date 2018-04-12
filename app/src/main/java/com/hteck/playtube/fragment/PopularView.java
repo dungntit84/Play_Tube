@@ -1,10 +1,9 @@
 package com.hteck.playtube.fragment;
 
+import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Vector;
-
-
 import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -20,8 +19,7 @@ import com.hteck.playtube.R;
 import com.hteck.playtube.adapter.CustomArrayAdapter;
 import com.hteck.playtube.adapter.YoutubeByPageAdapter;
 import com.hteck.playtube.common.Constants;
-import com.hteck.playtube.common.HttpDownload;
-import com.hteck.playtube.common.IHttplistener;
+import com.hteck.playtube.common.CustomHttpOk;
 import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.databinding.PopularViewBinding;
 import com.hteck.playtube.service.CategoryService;
@@ -31,6 +29,9 @@ import com.hteck.playtube.data.CategoryInfo;
 import com.hteck.playtube.data.YoutubeInfo;
 import com.hteck.playtube.service.YoutubeHelper;
 import com.hteck.playtube.view.LoadingView;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
 public class PopularView extends BaseFragment implements
         AdapterView.OnItemClickListener, AbsListView.OnScrollListener {
@@ -47,7 +48,7 @@ public class PopularView extends BaseFragment implements
     private final String[] ORDERBYLIST = Utils.getString(R.string.order_by_list).split("[,]");
     private int _selectedIndexOrderBy;
     private int _selectedIndexTime;
-    private HttpDownload _httpGetFile;
+    private CustomHttpOk _httpOk;
     private int _selectedCategoryIndex = 0;
     private PopularViewBinding _binding;
 
@@ -222,59 +223,61 @@ public class PopularView extends BaseFragment implements
             }
         }
 
-        IHttplistener eventHandler = new IHttplistener() {
-
+        _httpOk = new CustomHttpOk(url, new Callback() {
             @Override
-            public void returnResult(Object sender,
-                                     final byte[] data, final ResultType resultType) {
+            public void onFailure(Request request, IOException e) {
                 MainActivity.getInstance().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (resultType == IHttplistener.ResultType.Done) {
-                            try {
-                                String s = new String(data);
-
-                                AbstractMap.SimpleEntry<String, ArrayList<YoutubeInfo>> searchResult = YoutubeHelper.getVideoListInfo(s);
-                                _youtubeListLoading = searchResult.getValue();
-                                _nextPageToken = searchResult.getKey();
-                                if (_youtubeListLoading.size() == 0) {
-                                    if (_youtubeList.size() > 0
-                                            && _youtubeList.get(_youtubeList
-                                            .size() - 1) == null) {
-                                        _youtubeList.remove(_youtubeList.size() - 1);
-                                    }
-
-                                    setDataSource(_youtubeList, false);
-                                    hideProgressBar();
-                                    _isLoading = false;
-                                } else {
-                                    loadVideosInfo();
-                                }
-
-                            } catch (Throwable e) {
-                                e.printStackTrace();
-                                hideProgressBar();
-                                _isLoading = false;
-                            }
-                        }
-
-                        if (resultType != ResultType.Done) {
-                            Utils.showMessage(Utils.getString(R.string.network_error));
-                            hideProgressBar();
-                            _isLoading = false;
-                            if (_youtubeList.size() == 0) {
-                                handleNetworkError();
-                            } else {
-                                _adapter.setIsNetworkError(true);
-                                _adapter.notifyDataSetChanged();
-                            }
+                        Utils.showMessage(Utils.getString(R.string.network_error));
+                        hideProgressBar();
+                        _isLoading = false;
+                        if (_youtubeList.size() == 0) {
+                            handleNetworkError();
+                        } else {
+                            _adapter.setIsNetworkError(true);
+                            _adapter.notifyDataSetChanged();
                         }
                     }
                 });
+
             }
-        };
-        _httpGetFile = new HttpDownload(url, eventHandler);
-        _httpGetFile.start();
+
+            @Override
+            public void onResponse(final Response response) {
+                MainActivity.getInstance().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            String s = response.body().string();
+
+                            AbstractMap.SimpleEntry<String, ArrayList<YoutubeInfo>> searchResult = YoutubeHelper.getVideoListInfo(s);
+                            _youtubeListLoading = searchResult.getValue();
+                            _nextPageToken = searchResult.getKey();
+                            if (_youtubeListLoading.size() == 0) {
+                                if (_youtubeList.size() > 0
+                                        && _youtubeList.get(_youtubeList
+                                        .size() - 1) == null) {
+                                    _youtubeList.remove(_youtubeList.size() - 1);
+                                }
+
+                                setDataSource(_youtubeList, false);
+                                hideProgressBar();
+                                _isLoading = false;
+                            } else {
+                                loadVideosInfo();
+                            }
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                            hideProgressBar();
+                            _isLoading = false;
+                        }
+                    }
+                });
+
+            }
+        });
+        _httpOk.start();
     }
 
     private void loadVideosInfo() {
@@ -288,28 +291,35 @@ public class PopularView extends BaseFragment implements
         }
         String url = String.format(PlayTubeController.getConfigInfo().loadVideosInfoUrl,
                 videoIds);
-        _httpGetFile = new HttpDownload(url,
-                eventListenerDownloadVideosInfoCompleted);
-        _httpGetFile.start();
 
-    }
+        _httpOk = new CustomHttpOk(url, new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+                MainActivity.getInstance().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Utils.showMessage(Utils
+                                .getString(R.string.network_error));
+                        hideProgressBar();
+                        _isLoading = false;
+                        if (_youtubeList.size() == 0) {
+                            handleNetworkError();
+                        } else {
+                            _adapter.setIsNetworkError(true);
+                            _adapter.notifyDataSetChanged();
+                        }
+                    }
+                });
 
-    private void cancelAllRequests() {
-        if (_httpGetFile != null) {
-            _httpGetFile.exit();
-        }
-    }
+            }
 
-    IHttplistener eventListenerDownloadVideosInfoCompleted = new IHttplistener() {
-
-        @Override
-        public void returnResult(Object sender, final byte[] data, final ResultType resultType) {
-            MainActivity.getInstance().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (resultType == ResultType.Done) {
+            @Override
+            public void onResponse(final Response response) {
+                MainActivity.getInstance().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
                         try {
-                            String s = new String(data);
+                            String s = response.body().string();
 
                             YoutubeHelper.populateYoutubeListInfo(
                                     _youtubeListLoading, s);
@@ -332,30 +342,25 @@ public class PopularView extends BaseFragment implements
                         hideProgressBar();
                         _isLoading = false;
                     }
+                });
 
-                    if (resultType == ResultType.ConnectionError) {
-                        Utils.showMessage(Utils
-                                .getString(R.string.network_error));
-                        hideProgressBar();
-                        _isLoading = false;
-                        if (_youtubeList.size() == 0) {
-                            handleNetworkError();
-                        } else {
-                            _adapter.setIsNetworkError(true);
-                            _adapter.notifyDataSetChanged();
-                        }
-                    }
-                }
-            });
+            }
+        });
+        _httpOk.start();
+    }
+
+    private void cancelAllRequests() {
+        if (_httpOk != null) {
+            _httpOk.cancel();
         }
-    };
+    }
 
     private void hideProgressBar() {
-        Utils.hideProgressBar(((ViewGroup)_binding.getRoot()), _busyView);
+        Utils.hideProgressBar(_binding.popularLayoutContent, _busyView);
     }
 
     private void showProgressBar() {
-        _busyView = Utils.showProgressBar(((ViewGroup)_binding.getRoot()), _busyView);
+        _busyView = Utils.showProgressBar(_binding.popularLayoutContent, _busyView);
     }
 
     private void handleNetworkError() {
@@ -363,14 +368,14 @@ public class PopularView extends BaseFragment implements
                 .getLayoutInflater();
         if (_viewReload == null) {
             _viewReload = (ViewGroup) inflater.inflate(R.layout.retry_view, null);
-            ((ViewGroup)_binding.getRoot()).addView(_viewReload);
+            _binding.popularLayoutContent.addView(_viewReload);
         }
         _viewReload.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (_viewReload != null) {
-                    ((ViewGroup)_binding.getRoot()).removeView(_viewReload);
+                    _binding.popularLayoutContent.removeView(_viewReload);
                     _viewReload = null;
                 }
                 loadData();
