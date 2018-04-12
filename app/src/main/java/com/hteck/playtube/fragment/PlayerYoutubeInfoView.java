@@ -214,7 +214,7 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
                 ((ViewGroup) _binding.getRoot()).removeView(_viewReload);
             }
             _listView.setVisibility(View.GONE);
-            _viewReload = (ViewGroup) inflater.inflate(R.layout.retry_view,
+            _viewReload = inflater.inflate(R.layout.retry_view,
                     null);
             ((ViewGroup) _binding.getRoot()).addView(_viewReload);
             _viewReload.setOnTouchListener(new OnTouchListener() {

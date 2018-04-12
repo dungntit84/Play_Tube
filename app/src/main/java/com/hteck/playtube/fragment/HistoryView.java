@@ -25,9 +25,9 @@ import java.util.ArrayList;
 
 public class HistoryView extends BaseFragment implements
         AdapterView.OnItemClickListener {
+
     private ArrayList<YoutubeInfo> _youtubeList = new ArrayList<>();
     private YoutubeAdapter _adapter;
-
     private ListViewBinding _binding;
 
     public static HistoryView newInstance() {
