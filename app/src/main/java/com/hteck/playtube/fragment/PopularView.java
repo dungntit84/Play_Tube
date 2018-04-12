@@ -6,8 +6,8 @@ import java.util.Vector;
 
 
 import android.content.res.Configuration;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,8 +16,6 @@ import android.widget.AdapterView;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
-import android.widget.Spinner;
-
 import com.hteck.playtube.R;
 import com.hteck.playtube.adapter.CustomArrayAdapter;
 import com.hteck.playtube.adapter.YoutubeByPageAdapter;
@@ -25,6 +23,7 @@ import com.hteck.playtube.common.Constants;
 import com.hteck.playtube.common.HttpDownload;
 import com.hteck.playtube.common.IHttplistener;
 import com.hteck.playtube.common.PlayTubeController;
+import com.hteck.playtube.databinding.PopularViewBinding;
 import com.hteck.playtube.service.CategoryService;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.common.Utils;
@@ -35,9 +34,6 @@ import com.hteck.playtube.view.LoadingView;
 
 public class PopularView extends BaseFragment implements
         AdapterView.OnItemClickListener, AbsListView.OnScrollListener {
-    private static ViewGroup _mainView;
-    private ViewGroup _contentView;
-    GridView _gridView;
     private ArrayList<YoutubeInfo> _youtubeList = new ArrayList<>(),
             _youtubeListLoading = new ArrayList<>();
     private Vector<CategoryInfo> _categoryList;
@@ -49,12 +45,11 @@ public class PopularView extends BaseFragment implements
     private View _viewReload;
     private final String[] TIMELIST = Utils.getString(R.string.time_list).split("[,]");
     private final String[] ORDERBYLIST = Utils.getString(R.string.order_by_list).split("[,]");
-    private Spinner _spinnerOrderBy;
-    private Spinner _spinnerTimeList;
     private int _selectedIndexOrderBy;
     private int _selectedIndexTime;
     private HttpDownload _httpGetFile;
     private int _selectedCategoryIndex = 0;
+    private PopularViewBinding _binding;
 
     public static PopularView newInstance() {
         PopularView popularView = new PopularView();
@@ -65,54 +60,46 @@ public class PopularView extends BaseFragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         MainActivity.getInstance().updateHomeIcon();
-        if (_mainView != null) {
-            return _mainView;
-        }
+
         if (_categoryList == null) {
             _categoryList = CategoryService.getGenreListInfo().getValue();
         }
 
-        return createView();
+        return createView(container);
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        _gridView.setColumnWidth(Utils.getYoutubeWidth());
+        _binding.popularGridview.setColumnWidth(Utils.getYoutubeWidth());
     }
 
-    private View createView() {
+    private View createView(ViewGroup container) {
         LayoutInflater inflater = MainActivity.getInstance()
                 .getLayoutInflater();
-        _mainView = (ViewGroup) inflater.inflate(R.layout.polular_view, null);
-
+        _binding = DataBindingUtil.inflate(inflater, R.layout.popular_view, container, false);
         setupSpinner();
 
-        _gridView = (GridView) _mainView.findViewById(R.id.popular_gridview);
-        _contentView = (ViewGroup) _mainView.findViewById(R.id.popular_layout_content);
         _adapter = new YoutubeByPageAdapter(_youtubeList, Constants.YoutubeListType.Popular);
-        _gridView.setAdapter(_adapter);
-        _gridView.setColumnWidth(Utils.getYoutubeWidth());
-        _gridView.setOnItemClickListener(this);
-        _gridView.setOnScrollListener(this);
+        _binding.popularGridview.setAdapter(_adapter);
+        _binding.popularGridview.setColumnWidth(Utils.getYoutubeWidth());
+        _binding.popularGridview.setOnItemClickListener(this);
+        _binding.popularGridview.setOnScrollListener(this);
 
         loadData();
-        return _mainView;
+        return _binding.getRoot();
     }
 
     void setupSpinner() {
-        _spinnerTimeList = (Spinner) _mainView
-                .findViewById(R.id.popular_spn_time);
-
         ArrayAdapter<String> adapter = new CustomArrayAdapter(
                 MainActivity.getInstance(), TIMELIST);
 
         _selectedIndexTime = Utils.getPrefValue(Constants.POPULAR_TIME_LIST,
                 TIMELIST.length - 1);
 
-        _spinnerTimeList.setAdapter(adapter);
-        _spinnerTimeList
+        _binding.popularSpnTime.setAdapter(adapter);
+        _binding.popularSpnTime
                 .setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
                     @Override
@@ -132,16 +119,13 @@ public class PopularView extends BaseFragment implements
 
                     }
                 });
-        _spinnerTimeList.setSelection(_selectedIndexTime);
-
-        _spinnerOrderBy = (Spinner) _mainView
-                .findViewById(R.id.popular_spn_sortBy);
+        _binding.popularSpnTime.setSelection(_selectedIndexTime);
 
         ArrayAdapter<String> adapterOrderBy = new CustomArrayAdapter(
                 MainActivity.getInstance(), ORDERBYLIST);
 
-        _spinnerOrderBy.setAdapter(adapterOrderBy);
-        _spinnerOrderBy.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        _binding.popularSpnSortBy.setAdapter(adapterOrderBy);
+        _binding.popularSpnSortBy.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
             @Override
             public void onItemSelected(AdapterView<?> arg0, View view,
@@ -163,7 +147,7 @@ public class PopularView extends BaseFragment implements
         });
         _selectedIndexOrderBy = Utils.getPrefValue(
                 Constants.POPULAR_SORT_BY, 0);
-        _spinnerOrderBy.setSelection(_selectedIndexOrderBy);
+        _binding.popularSpnSortBy.setSelection(_selectedIndexOrderBy);
     }
 
     public void setDataSource(ArrayList<YoutubeInfo> videoList, boolean isClearAction) {
@@ -171,10 +155,10 @@ public class PopularView extends BaseFragment implements
             if (_viewNoItem == null) {
                 _viewNoItem = Utils.createNoItemView(MainActivity.getInstance(), MainActivity.getInstance().getString(R.string.no_youtube_found));
             }
-            _contentView.addView(_viewNoItem);
+            ((ViewGroup)_binding.getRoot()).addView(_viewNoItem);
         } else {
             if (_viewNoItem != null) {
-                _contentView.removeView(_viewNoItem);
+                ((ViewGroup)_binding.getRoot()).removeView(_viewNoItem);
             }
         }
         _youtubeList = videoList;
@@ -205,17 +189,17 @@ public class PopularView extends BaseFragment implements
 
     private void loadVideoData() {
         String url;
-        if (_spinnerTimeList.getSelectedItemPosition() == _spinnerTimeList
+        if (_binding.popularSpnTime.getSelectedItemPosition() == _binding.popularSpnTime
                 .getCount() - 1) {
             if (_selectedCategoryIndex == 0) {
                 url = String
                         .format(PlayTubeController.getConfigInfo().loadYoutubeVideosByAllUrl,
-                                _nextPageToken, YoutubeHelper.getSortByValue(_spinnerOrderBy
+                                _nextPageToken, YoutubeHelper.getSortByValue(_binding.popularSpnSortBy
                                         .getSelectedItemPosition()));
             } else {
                 url = String
                         .format(PlayTubeController.getConfigInfo().loadYoutubeVideosByCategoryUrl,
-                                _categoryList.elementAt(_selectedCategoryIndex).id, _nextPageToken, YoutubeHelper.getSortByValue(_spinnerOrderBy
+                                _categoryList.elementAt(_selectedCategoryIndex).id, _nextPageToken, YoutubeHelper.getSortByValue(_binding.popularSpnSortBy
                                         .getSelectedItemPosition()));
             }
         } else {
@@ -223,17 +207,17 @@ public class PopularView extends BaseFragment implements
                 url = String
                         .format(PlayTubeController.getConfigInfo().loadYoutubeVideosByAllCategoriesAndTimeUrl,
                                 _nextPageToken, YoutubeHelper
-                                        .getSortByValue(_spinnerOrderBy
+                                        .getSortByValue(_binding.popularSpnSortBy
                                                 .getSelectedItemPosition()),
-                                YoutubeHelper.getDateQuery(_spinnerTimeList
+                                YoutubeHelper.getDateQuery(_binding.popularSpnTime
                                         .getSelectedItemPosition()));
             } else {
                 url = String
                         .format(PlayTubeController.getConfigInfo().loadYoutubeVideosByCategoryAndTimeUrl,
                                 _categoryList.elementAt(_selectedCategoryIndex).id, _nextPageToken, YoutubeHelper
-                                        .getSortByValue(_spinnerOrderBy
+                                        .getSortByValue(_binding.popularSpnSortBy
                                                 .getSelectedItemPosition()),
-                                YoutubeHelper.getDateQuery(_spinnerTimeList
+                                YoutubeHelper.getDateQuery(_binding.popularSpnTime
                                         .getSelectedItemPosition()));
             }
         }
@@ -295,11 +279,11 @@ public class PopularView extends BaseFragment implements
 
     private void loadVideosInfo() {
         String videoIds = "";
-        for (YoutubeInfo videoInfo : _youtubeListLoading) {
+        for (YoutubeInfo y : _youtubeListLoading) {
             if (videoIds == "") {
-                videoIds = videoInfo.id;
+                videoIds = y.id;
             } else {
-                videoIds = videoIds + "," + videoInfo.id;
+                videoIds = videoIds + "," + y.id;
             }
         }
         String url = String.format(PlayTubeController.getConfigInfo().loadVideosInfoUrl,
@@ -367,11 +351,11 @@ public class PopularView extends BaseFragment implements
     };
 
     private void hideProgressBar() {
-        Utils.hideProgressBar(_contentView, _busyView);
+        Utils.hideProgressBar(((ViewGroup)_binding.getRoot()), _busyView);
     }
 
     private void showProgressBar() {
-        _busyView = Utils.showProgressBar(_contentView, _busyView);
+        _busyView = Utils.showProgressBar(((ViewGroup)_binding.getRoot()), _busyView);
     }
 
     private void handleNetworkError() {
@@ -379,14 +363,14 @@ public class PopularView extends BaseFragment implements
                 .getLayoutInflater();
         if (_viewReload == null) {
             _viewReload = (ViewGroup) inflater.inflate(R.layout.retry_view, null);
-            _contentView.addView(_viewReload);
+            ((ViewGroup)_binding.getRoot()).addView(_viewReload);
         }
         _viewReload.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (_viewReload != null) {
-                    _contentView.removeView(_viewReload);
+                    ((ViewGroup)_binding.getRoot()).removeView(_viewReload);
                     _viewReload = null;
                 }
                 loadData();
@@ -412,7 +396,7 @@ public class PopularView extends BaseFragment implements
                     }
                 }
 
-                MainActivity.getInstance().playYoutube(_youtubeList.get(index), youtubeList, true, false);
+                MainActivity.getInstance().playYoutube(_youtubeList.get(index), youtubeList, true);
             }
         } catch (Throwable e) {
             e.printStackTrace();
@@ -429,7 +413,7 @@ public class PopularView extends BaseFragment implements
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
         if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
-            if (_gridView.getLastVisiblePosition() == _gridView.getAdapter()
+            if (_binding.popularGridview.getLastVisiblePosition() == _binding.popularGridview.getAdapter()
                     .getCount() - 1) {
                 if (_youtubeList.size() > 0
                         && _youtubeList.get(_youtubeList.size() - 1) == null) {
@@ -441,69 +425,6 @@ public class PopularView extends BaseFragment implements
         }
 
     }
-
-//        @Override
-//        public View.OnClickListener getOnClickListener() {
-//            return new View.OnClickListener() {
-//
-//                @Override
-//                public void onClick(View v) {
-//                    selectCategory();
-//                }
-//            };
-//        }
-//
-//        @Override
-//        public String getLeftTitle() {
-//            try {
-//                if (_categoryList == null) {
-//                    _categoryList = CategoryHelper.getGenreInfos().getValue();
-//                }
-//                return _categoryList.elementAt(_selectedCategoryIndex).title;
-//            } catch (Throwable e) {
-//                e.printStackTrace();
-//            }
-//            return "";
-//        }
-//
-//        @Override
-//        public String getTitle() {
-//            return MainActivity.getInstance().getString(R.string.popular);
-//        }
-//
-//        @Override
-//        public LeftHomeTitleType getLeftTitleType() {
-//            return LeftHomeTitleType.Text;
-//        }
-
-//        public void selectCategory() {
-//            final CategoryListView v = new CategoryListView(
-//                    MainActivity.getInstance(), _selectedCategoryIndex);
-//            AlertDialog.Builder builder = new AlertDialog.Builder(
-//                    MainActivity.getInstance());
-//            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int whichButton) {
-//                    _selectedCategoryIndex = v.getSelectedIndex();
-//                    MainActivity.getInstance().updateHomeTitle(null);
-//                    loadData();
-//                }
-//            });
-//
-//            builder.setNegativeButton("Cancel",
-//                    new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int whichButton) {
-//                            dialog.cancel();
-//                        }
-//                    });
-//            builder.setTitle(MainActivity.getInstance().getString(
-//                    R.string.select_category));
-//
-//            builder.setView(v);
-//            final AlertDialog dialog = builder.create();
-//
-//            dialog.show();
-//        }
 
     @Override
     public String getTitle() {

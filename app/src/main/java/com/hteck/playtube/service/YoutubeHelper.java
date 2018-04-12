@@ -54,9 +54,9 @@ public class YoutubeHelper {
     public static ArrayList<YoutubeInfo> getAvailableVideos(
             ArrayList<YoutubeInfo> videoList) {
         ArrayList<YoutubeInfo> result = new ArrayList<>();
-        for (YoutubeInfo videoInfo : videoList) {
-            if (!videoInfo.isRemoved) {
-                result.add(videoInfo);
+        for (YoutubeInfo y : videoList) {
+            if (!y.isRemoved) {
+                result.add(y);
             }
         }
         return result;
@@ -72,11 +72,11 @@ public class YoutubeHelper {
             for (int i = 0; i < items.length(); ++i) {
                 JSONObject jObjectItem = (JSONObject) items.get(i);
 
-                YoutubeInfo videoInfo = new YoutubeInfo();
-                videoInfo.id = Utils.getString(jObjectItem, Constants.YoutubeField.ID,
+                YoutubeInfo youtubeInfo = new YoutubeInfo();
+                youtubeInfo.id = Utils.getString(jObjectItem, Constants.YoutubeField.ID,
                         Constants.YoutubeField.VIDEOID);
-                if (!Utils.stringIsNullOrEmpty(videoInfo.id)) {
-                    videoList.add(videoInfo);
+                if (!Utils.stringIsNullOrEmpty(youtubeInfo.id)) {
+                    videoList.add(youtubeInfo);
                 }
             }
             final String NEXTPAGETOKEN = Constants.YoutubeField.NEXTPAGETOKEN;
@@ -118,47 +118,47 @@ public class YoutubeHelper {
         }
     }
 
-    private static boolean populateVideoItem(YoutubeInfo videoInfo,
+    private static boolean populateVideoItem(YoutubeInfo youtubeInfo,
                                              JSONObject jObjectItem) {
         try {
             JSONObject jObjectSnippet = jObjectItem
                     .getJSONObject(Constants.YoutubeField.SNIPPET);
-            videoInfo.title = jObjectSnippet.getString(Constants.YoutubeField.TITLE);
-            if (Utils.stringIsNullOrEmpty(videoInfo.title)) {
+            youtubeInfo.title = jObjectSnippet.getString(Constants.YoutubeField.TITLE);
+            if (Utils.stringIsNullOrEmpty(youtubeInfo.title)) {
                 return false;
             }
 
-            videoInfo.id = jObjectItem.getString(Constants.YoutubeField.ID);
-            videoInfo.duration = Utils.getTimeInSeconds(Utils.getString(jObjectItem,
+            youtubeInfo.id = jObjectItem.getString(Constants.YoutubeField.ID);
+            youtubeInfo.duration = Utils.getTimeInSeconds(Utils.getString(jObjectItem,
                     Constants.YoutubeField.CONTENTDETAILS, Constants.YoutubeField.DURATION));
 
             if (jObjectItem.has(Constants.YoutubeField.STATISTICS)) {
                 JSONObject jobjStatistics = jObjectItem
                         .getJSONObject(Constants.YoutubeField.STATISTICS);
-                videoInfo.viewsNo = jobjStatistics
+                youtubeInfo.viewsNo = jobjStatistics
                         .getInt(Constants.YoutubeField.VIEWCOUNT);
                 if (jobjStatistics.has(Constants.YoutubeField.LIKECOUNT)) {
-                    videoInfo.likesNo = jobjStatistics
+                    youtubeInfo.likesNo = jobjStatistics
                             .getInt(Constants.YoutubeField.LIKECOUNT);
                 }
                 if (jobjStatistics.has(Constants.YoutubeField.DISLIKECOUNT)) {
-                    videoInfo.dislikesNo = jobjStatistics
+                    youtubeInfo.dislikesNo = jobjStatistics
                             .getInt(Constants.YoutubeField.DISLIKECOUNT);
                 }
             }
-            videoInfo.imageUrl = String.format(
-                    "http://i.ytimg.com/vi/%s/mqdefault.jpg", videoInfo.id);
-            videoInfo.uploaderId = jObjectSnippet
+            youtubeInfo.imageUrl = String.format(
+                    "http://i.ytimg.com/vi/%s/mqdefault.jpg", youtubeInfo.id);
+            youtubeInfo.uploaderId = jObjectSnippet
                     .getString(Constants.YoutubeField.CHANNELID);
-            videoInfo.uploaderName = jObjectSnippet
+            youtubeInfo.uploaderName = jObjectSnippet
                     .getString(Constants.YoutubeField.CHANNELTITLE);
             String time = jObjectSnippet.getString(Constants.YoutubeField.PUBLISHEDAT);
-            videoInfo.uploadedDate = Utils.getDisplayTime(time);
-            videoInfo.isLive = "live".equalsIgnoreCase(jObjectSnippet
+            youtubeInfo.uploadedDate = Utils.getDisplayTime(time);
+            youtubeInfo.isLive = "live".equalsIgnoreCase(jObjectSnippet
                     .getString(Constants.YoutubeField.LIVEBROADCASTCONTENT));
-            videoInfo.description = jObjectSnippet
+            youtubeInfo.description = jObjectSnippet
                     .getString(Constants.YoutubeField.DESCRIPTION);
-            videoInfo.isRemoved = false;
+            youtubeInfo.isRemoved = false;
             return true;
         } catch (Throwable e) {
             e.printStackTrace();

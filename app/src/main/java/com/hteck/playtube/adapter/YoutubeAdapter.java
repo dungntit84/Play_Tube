@@ -12,7 +12,7 @@ import com.hteck.playtube.data.YoutubeInfo;
 import java.util.ArrayList;
 
 public class YoutubeAdapter extends BaseAdapter {
-    public ArrayList<YoutubeInfo> _youtubeList;
+    ArrayList<YoutubeInfo> _youtubeList;
     private Constants.YoutubeListType _youtubeListType = Constants.YoutubeListType.Normal;
     private Object _dataContext;
 
@@ -34,12 +34,12 @@ public class YoutubeAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup group) {
         if (_youtubeListType == Constants.YoutubeListType.Popular) {
-            return ViewHelper.getGridYoutubeView(convertView, _youtubeList.get(position), _youtubeListType, onClickListener);
+            return ViewHelper.getGridYoutubeView(convertView, _youtubeList.get(position), onClickListener);
         }
-        return ViewHelper.getYoutubeView(convertView, _youtubeList.get(position), _youtubeListType, onClickListener);
+        return ViewHelper.getYoutubeView(convertView, _youtubeList.get(position), onClickListener);
     }
 
-    OnClickListener onClickListener = new OnClickListener() {
+    private OnClickListener onClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             ViewHelper.showYoutubeMenu(_youtubeListType, _dataContext, v);

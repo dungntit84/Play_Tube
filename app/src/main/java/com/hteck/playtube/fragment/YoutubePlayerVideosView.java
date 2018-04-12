@@ -192,11 +192,11 @@ public class YoutubePlayerVideosView extends Fragment implements
 
     private void loadVideosInfo() {
         String ids = "";
-        for (YoutubeInfo videoInfo : youtubeListTemp) {
+        for (YoutubeInfo y : youtubeListTemp) {
             if (ids == "") {
-                ids = videoInfo.id;
+                ids = y.id;
             } else {
-                ids = ids + "," + videoInfo.id;
+                ids = ids + "," + y.id;
             }
         }
         String url = String
@@ -285,7 +285,7 @@ public class YoutubePlayerVideosView extends Fragment implements
                 }
             } else {
                 MainActivity.getInstance().playYoutube(youtubeList.get(index),
-                        youtubeList, true, true);
+                        youtubeList, true);
             }
         } catch (Throwable e) {
             e.printStackTrace();

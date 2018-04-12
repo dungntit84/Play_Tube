@@ -8,7 +8,6 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
@@ -37,9 +36,9 @@ public class YoutubePlayerBottomView extends Fragment {
         return createView();
     }
 
-    public void resetData() {
+    public void refreshData() {
         if (playerYoutubeInfoView != null) {
-            playerYoutubeInfoView.resetData();
+            playerYoutubeInfoView.refreshData();
         }
         if (youtubePlayerVideosRelatedView != null) {
             youtubePlayerVideosRelatedView.resetData("");

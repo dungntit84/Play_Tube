@@ -246,7 +246,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if (fragment instanceof PlaylistsView) {
                         ((PlaylistsView) fragment).refreshData();
                     } else if (fragment instanceof PlaylistVideosView) {
-                        ((PlaylistVideosView) fragment).resetData();
+                        ((PlaylistVideosView) fragment).refreshData();
+                    }
+                }
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void refreshHistoryData() {
+        try {
+            for (int i = 0; i < getSupportFragmentManager().getFragments()
+                    .size(); ++i) {
+                Fragment fragment = getSupportFragmentManager().getFragments().get(i);
+                if (fragment != null) {
+                    if (fragment instanceof HistoryView) {
+                        ((HistoryView) fragment).refreshData();
                     }
                 }
             }
@@ -395,8 +411,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public void playYoutube(YoutubeInfo youtubeInfo, ArrayList<YoutubeInfo> youtubeList, boolean isOutside,
-                            boolean isRefreshHistory) {
+    public void playYoutube(YoutubeInfo youtubeInfo, ArrayList<YoutubeInfo> youtubeList, boolean isOutside) {
         try {
             PlayTubeController.setPlayingInfo(youtubeInfo, youtubeList);
             _isPlayerShowing = true;
@@ -418,7 +433,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (_youtubePlayerBottomView == null) {
                     _youtubePlayerBottomView = YoutubePlayerBottomView.newInstance();
                 } else {
-                    _youtubePlayerBottomView.resetData();
+                    _youtubePlayerBottomView.refreshData();
                 }
 
             }
@@ -426,6 +441,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 switchPlayerLayout(false);
             }
             HistoryService.addYoutubeToHistory(youtubeInfo);
+            refreshHistoryData();
         } catch (Throwable e) {
             e.printStackTrace();
         }

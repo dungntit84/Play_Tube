@@ -51,7 +51,7 @@ public class HistoryView extends BaseFragment implements
         return _binding.getRoot();
     }
 
-    public void resetData() {
+    public void refreshData() {
         try {
             _youtubeList = HistoryService.getAllHistory();
             _adapter.setDataSource(_youtubeList);
@@ -66,7 +66,7 @@ public class HistoryView extends BaseFragment implements
     public void onItemClick(AdapterView<?> arg0, View arg1, int index, long arg3) {
 
         MainActivity.getInstance().playYoutube(_youtubeList.get(index),
-                _youtubeList, true, true);
+                _youtubeList, true);
     }
 
     @Override

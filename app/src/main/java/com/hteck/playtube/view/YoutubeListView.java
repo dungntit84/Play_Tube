@@ -68,14 +68,14 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
                         searchMore();
                     }
                 } else {
-                    YoutubeInfo videoInfo = _videoList.get(index);
+                    YoutubeInfo youtubeInfo = _videoList.get(index);
                     ArrayList<YoutubeInfo> youtubeList = new ArrayList<>();
-                    for (YoutubeInfo youtubeInfo : _videoList) {
-                        if (youtubeInfo != null) {
-                            youtubeList.add(youtubeInfo);
+                    for (YoutubeInfo y : _videoList) {
+                        if (y != null) {
+                            youtubeList.add(y);
                         }
                     }
-                    MainActivity.getInstance().playYoutube(videoInfo, youtubeList, true, true);
+                    MainActivity.getInstance().playYoutube(youtubeInfo, youtubeList, true);
                 }
             }
         });
@@ -193,11 +193,11 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
 
     private void loadVideosInfo() {
         String videoIds = "";
-        for (YoutubeInfo videoInfo : _videoListLoading) {
+        for (YoutubeInfo y : _videoListLoading) {
             if (videoIds == "") {
-                videoIds = videoInfo.id;
+                videoIds = y.id;
             } else {
-                videoIds = videoIds + "," + videoInfo.id;
+                videoIds = videoIds + "," + y.id;
             }
         }
         String url = String

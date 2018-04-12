@@ -4,14 +4,14 @@ android {
     dataBinding {
         enabled = true
     }
-    compileSdkVersion 27
+    compileSdkVersion 26
     defaultConfig {
         applicationId "com.hteck.playtube"
-        minSdkVersion 14
+        minSdkVersion 21
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.polular_view.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "android.support.popular_view.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -30,7 +30,7 @@ android {
 }
 
 dependencies {
-    def supportVersion = '27.1.0'
+    def supportVersion = '26.0.2'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     implementation "com.android.support:appcompat-v7:$supportVersion"

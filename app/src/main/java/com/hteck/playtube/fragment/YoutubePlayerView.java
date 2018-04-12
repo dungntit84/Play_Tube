@@ -288,7 +288,7 @@ public class YoutubePlayerView extends YouTubePlayerSupportFragment {
     public void updateNewVideoOnPlayer(YoutubeInfo youtubeInfo) {
         if (_youtubePlayerBottomView != null) {
 //            RecentHelper.addVideoToHistory(youtubeInfo);
-//            _youtubePlayerBottomView.resetData(youtubeInfo, true);
+//            _youtubePlayerBottomView.refreshData(youtubeInfo, true);
         }
     }
 

@@ -23,7 +23,6 @@ import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.CommentInfo;
 import com.hteck.playtube.data.YoutubeInfo;
 import com.hteck.playtube.databinding.FrameLayoutViewBinding;
-import com.hteck.playtube.databinding.ListViewBinding;
 import com.hteck.playtube.service.YoutubeHelper;
 import com.hteck.playtube.view.LoadingView;
 
@@ -32,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener {
-    public YoutubeInfo _videoInfo;
+    public YoutubeInfo _youtubeInfo;
 
     PlayerYoutubeInfoAdapter _adapterVideoInfo;
     private LoadingView _busyView;
@@ -42,10 +41,10 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
     private ListView _listView;
     private FrameLayoutViewBinding _binding;
 
-    public static PlayerYoutubeInfoView newInstance(YoutubeInfo videoInfo) {
+    public static PlayerYoutubeInfoView newInstance(YoutubeInfo youtubeInfo) {
         PlayerYoutubeInfoView playerBottomInfoTab = new PlayerYoutubeInfoView();
 
-        playerBottomInfoTab._videoInfo = videoInfo;
+        playerBottomInfoTab._youtubeInfo = youtubeInfo;
 
         return playerBottomInfoTab;
     }
@@ -57,7 +56,7 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
         _binding = DataBindingUtil.inflate(inflater, R.layout.frame_layout_view, container, false);
         _listView = new ListView(MainActivity.getInstance());
         _adapterVideoInfo = new PlayerYoutubeInfoAdapter(
-                _videoInfo);
+                _youtubeInfo);
         _listView.setAdapter(_adapterVideoInfo);
         _listView.setSmoothScrollbarEnabled(false);
         _listView.setDividerHeight(0);
@@ -95,20 +94,20 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
     }
 
 
-    public void resetData() {
+    public void refreshData() {
         try {
             _listView.setVisibility(View.VISIBLE);
             if (_viewReload != null) {
                 ((ViewGroup) _binding.getRoot()).removeView(_viewReload);
                 _viewReload = null;
             }
-            _videoInfo = PlayTubeController.getPlayingInfo().getCurrentYoutubeInfo();
+            _youtubeInfo = PlayTubeController.getPlayingInfo().getCurrentYoutubeInfo();
             _nextPageToken = "";
             Vector<CommentInfo> commentList = new Vector<>();
             if (_adapterVideoInfo == null) {
                 return;
             }
-            _adapterVideoInfo.setDataSource(_videoInfo, commentList);
+            _adapterVideoInfo.setDataSource(_youtubeInfo, commentList);
             _adapterVideoInfo.notifyDataSetChanged();
 
             loadData();
@@ -153,7 +152,7 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
         _isLoadingComments = true;
         String url = String
                 .format(PlayTubeController.getConfigInfo().loadCommentsOfYoutubeUrl,
-                        _videoInfo.id, _nextPageToken);
+                        _youtubeInfo.id, _nextPageToken);
         HttpDownload _httpGetFile = new HttpDownload(url, new IHttplistener() {
 
             @Override
@@ -222,7 +221,7 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
 
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-                    resetData();
+                    refreshData();
                     return false;
                 }
             });

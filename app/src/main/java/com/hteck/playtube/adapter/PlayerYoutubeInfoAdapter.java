@@ -15,20 +15,19 @@ import com.hteck.playtube.common.ViewHelper;
 import com.hteck.playtube.data.CommentInfo;
 import com.hteck.playtube.data.YoutubeInfo;
 
-import java.util.ArrayList;
 import java.util.Vector;
 
 public class PlayerYoutubeInfoAdapter extends BaseAdapter {
     public Vector<CommentInfo> _commentList = new Vector<>();
-    private YoutubeInfo _videoInfo;
+    private YoutubeInfo _youtubeInfo;
     private boolean _isNetworkError;
-    public PlayerYoutubeInfoAdapter(YoutubeInfo videoInfo) {
+    public PlayerYoutubeInfoAdapter(YoutubeInfo youtubeInfo) {
         super();
-        _videoInfo = videoInfo;
+        _youtubeInfo = youtubeInfo;
     }
 
-    public void setDataSource(YoutubeInfo videoInfo, Vector<CommentInfo> commentList) {
-        _videoInfo = videoInfo;
+    public void setDataSource(YoutubeInfo youtubeInfo, Vector<CommentInfo> commentList) {
+        _youtubeInfo = youtubeInfo;
         _commentList = commentList;
     }
 
@@ -36,8 +35,8 @@ public class PlayerYoutubeInfoAdapter extends BaseAdapter {
         return _commentList;
     }
 
-    public void setDataSource(YoutubeInfo videoInfo) {
-        _videoInfo = videoInfo;
+    public void setDataSource(YoutubeInfo youtubeInfo) {
+        _youtubeInfo = youtubeInfo;
         notifyDataSetChanged();
     }
 
@@ -112,31 +111,31 @@ public class PlayerYoutubeInfoAdapter extends BaseAdapter {
     private View getYoutubeInfoView(View convertView) {
         View v = ViewHelper.getConvertView(convertView, R.layout.player_info);
         TextView textViewTitle = v.findViewById(R.id.player_info_tv_title);
-        textViewTitle.setText(_videoInfo.title.toUpperCase());
+        textViewTitle.setText(_youtubeInfo.title.toUpperCase());
 
         ImageView iv = (ImageView) v.findViewById(R.id.player_info_img_thumb);
-        ViewHelper.displayYoutubeThumb(iv, _videoInfo.imageUrl);
+        ViewHelper.displayYoutubeThumb(iv, _youtubeInfo.imageUrl);
 
         TextView textViewUploadedDate = (TextView) v.findViewById(R.id.player_info_tv_uploaded_date);
-        textViewUploadedDate.setText(_videoInfo.uploadedDate);
+        textViewUploadedDate.setText(_youtubeInfo.uploadedDate);
         TextView textViewPlaysNo = (TextView) v.findViewById(R.id.player_info_tv_plays_no);
-        textViewPlaysNo.setText(Utils.getDisplayViews(_videoInfo.viewsNo, false));
+        textViewPlaysNo.setText(Utils.getDisplayViews(_youtubeInfo.viewsNo, false));
 
         TextView textViewLikesNo = (TextView) v.findViewById(R.id.player_info_tv_likes_no);
-        textViewLikesNo.setText(Utils.getDisplayLikes(_videoInfo.likesNo, false));
+        textViewLikesNo.setText(Utils.getDisplayLikes(_youtubeInfo.likesNo, false));
         TextView textViewDislikesNo = (TextView) v.findViewById(R.id.player_info_tv_dislikes_no);
-        textViewDislikesNo.setText(Utils.getDisplayLikes(_videoInfo.dislikesNo, false));
+        textViewDislikesNo.setText(Utils.getDisplayLikes(_youtubeInfo.dislikesNo, false));
         TextView textViewTime = (TextView) v.findViewById(R.id.player_info_tv_time);
-        textViewTime.setText(Utils.getDisplayTime((int) _videoInfo.duration));
+        textViewTime.setText(Utils.getDisplayTime((int) _youtubeInfo.duration));
         TextView textViewUploader = (TextView) v.findViewById(R.id.player_info_tv_uploader);
-        textViewUploader.setText(_videoInfo.uploaderName);
+        textViewUploader.setText(_youtubeInfo.uploaderName);
         TextView textViewDescription = (TextView) v.findViewById(R.id.player_info_text_view_description);
-        textViewDescription.setText(_videoInfo.description);
+        textViewDescription.setText(_youtubeInfo.description);
         v.setTag(Constants.CUSTOM_TAG, R.layout.player_info);
         ImageView imageViewAction = (ImageView) v
                 .findViewById(R.id.player_info_img_action);
 
-        imageViewAction.setTag(_videoInfo);
+        imageViewAction.setTag(_youtubeInfo);
         imageViewAction.setOnClickListener(onClickListener);
         return v;
     }

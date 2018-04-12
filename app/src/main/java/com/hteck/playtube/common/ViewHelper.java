@@ -17,7 +17,7 @@ import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.data.PlaylistInfo;
 import com.hteck.playtube.data.YoutubeInfo;
-import com.hteck.playtube.fragment.PlaylistsView;
+import com.hteck.playtube.service.HistoryService;
 import com.hteck.playtube.service.PlaylistService;
 import com.hteck.playtube.view.PlaylistsDialogView;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -25,30 +25,29 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import java.util.UUID;
 
 public class ViewHelper {
-    public static View getYoutubeView(View convertView, YoutubeInfo youtubeInfo,
-                                      Constants.YoutubeListType videoListType, View.OnClickListener onClickListener) {
+    public static View getYoutubeView(View convertView, YoutubeInfo youtubeInfo, View.OnClickListener onClickListener) {
         View v = getConvertView(convertView, R.layout.item_youtube_view);
 
         try {
             TextView textViewTitle = v.findViewById(R.id.item_youtube_tv_title);
             textViewTitle.setText(youtubeInfo.title.toUpperCase());
 
-            ImageView iv = (ImageView) v.findViewById(R.id.item_youtube_img_thumb);
+            ImageView iv = v.findViewById(R.id.item_youtube_img_thumb);
             displayYoutubeThumb(iv, youtubeInfo.imageUrl);
 
-            TextView textViewUploadedDate = (TextView) v.findViewById(R.id.item_youtube_tv_uploaded_date);
+            TextView textViewUploadedDate = v.findViewById(R.id.item_youtube_tv_uploaded_date);
             textViewUploadedDate.setText(youtubeInfo.uploadedDate);
-            TextView textViewPlaysNo = (TextView) v.findViewById(R.id.item_youtube_tv_plays_no);
+            TextView textViewPlaysNo = v.findViewById(R.id.item_youtube_tv_plays_no);
             textViewPlaysNo.setText(Utils.getDisplayViews(youtubeInfo.viewsNo, false));
 
-            TextView textViewLikesNo = (TextView) v.findViewById(R.id.item_youtube_tv_likes_no);
+            TextView textViewLikesNo = v.findViewById(R.id.item_youtube_tv_likes_no);
             textViewLikesNo.setText(Utils.getDisplayLikes(youtubeInfo.likesNo, false));
-            TextView textViewTime = (TextView) v.findViewById(R.id.item_youtube_tv_time);
+            TextView textViewTime = v.findViewById(R.id.item_youtube_tv_time);
             textViewTime.setText(Utils.getDisplayTime((int) youtubeInfo.duration));
-            TextView textViewUploader = (TextView) v.findViewById(R.id.item_youtube_tv_uploader);
+            TextView textViewUploader = v.findViewById(R.id.item_youtube_tv_uploader);
             textViewUploader.setText(youtubeInfo.uploaderName);
 
-            ImageView imageViewAction = (ImageView) v
+            ImageView imageViewAction = v
                     .findViewById(R.id.item_youtube_img_action);
 
             imageViewAction.setTag(youtubeInfo);
@@ -59,32 +58,31 @@ public class ViewHelper {
         return v;
     }
 
-    public static View getGridYoutubeView(View convertView, YoutubeInfo youtubeInfo,
-                                          Constants.YoutubeListType videoListType, View.OnClickListener onClickListener) {
+    public static View getGridYoutubeView(View convertView, YoutubeInfo youtubeInfo, View.OnClickListener onClickListener) {
         View v = getConvertView(convertView, R.layout.grid_item_youtube_view);
 
         try {
             TextView textViewTitle = v.findViewById(R.id.item_youtube_tv_title);
             textViewTitle.setText(youtubeInfo.title.toUpperCase());
 
-            ImageView iv = (ImageView) v.findViewById(R.id.item_youtube_img_thumb);
+            ImageView iv = v.findViewById(R.id.item_youtube_img_thumb);
             displayYoutubeThumb(iv, youtubeInfo.imageUrl);
             if (iv.getWidth() == 0) {
                 int width = Utils.getYoutubeWidth();
                 int height = width * 18 / 32;
                 iv.setLayoutParams(new FrameLayout.LayoutParams(width, height));
             }
-            TextView textViewUploadedDate = (TextView) v.findViewById(R.id.item_youtube_tv_uploaded_date);
+            TextView textViewUploadedDate = v.findViewById(R.id.item_youtube_tv_uploaded_date);
             textViewUploadedDate.setText(youtubeInfo.uploadedDate);
-            TextView textViewPlaysNo = (TextView) v.findViewById(R.id.item_youtube_tv_plays_no);
+            TextView textViewPlaysNo = v.findViewById(R.id.item_youtube_tv_plays_no);
             textViewPlaysNo.setText(Utils.getDisplayViews(youtubeInfo.viewsNo, true));
 
-            TextView textViewTime = (TextView) v.findViewById(R.id.item_youtube_tv_time);
+            TextView textViewTime = v.findViewById(R.id.item_youtube_tv_time);
             textViewTime.setText(Utils.getDisplayTime((int) youtubeInfo.duration));
-            TextView textViewUploader = (TextView) v.findViewById(R.id.item_youtube_tv_uploader);
+            TextView textViewUploader = v.findViewById(R.id.item_youtube_tv_uploader);
             textViewUploader.setText(youtubeInfo.uploaderName);
 
-            ImageView imageViewAction = (ImageView) v
+            ImageView imageViewAction = v
                     .findViewById(R.id.item_youtube_img_action);
 
             imageViewAction.setTag(youtubeInfo);
@@ -100,8 +98,8 @@ public class ViewHelper {
         PopupMenu popup = new PopupMenu(MainActivity.getInstance(), vDock);
 
         popup.getMenuInflater().inflate(R.menu.item_video, popup.getMenu());
-        final YoutubeInfo videoInfo = (YoutubeInfo) vDock.getTag();
-        if (youtubeListType != Constants.YoutubeListType.Playlist) {
+        final YoutubeInfo youtubeInfo = (YoutubeInfo) vDock.getTag();
+        if (youtubeListType != Constants.YoutubeListType.Playlist && youtubeListType != Constants.YoutubeListType.Recent) {
             popup.getMenu().removeItem(R.id.menu_item_remove);
         }
         popup.show();
@@ -112,16 +110,18 @@ public class ViewHelper {
             public boolean onMenuItemClick(MenuItem item) {
                 try {
                     if (item.getItemId() == R.id.menu_item_add_to_playlist) {
-                        showPlaylistsToAdd(videoInfo);
+                        showPlaylistsToAdd(youtubeInfo);
                     } else if (item.getItemId() == R.id.menu_item_add_to_favourites) {
-                        PlaylistService.addYoutubeToFavouritePlaylist(videoInfo);
+                        PlaylistService.addYoutubeToFavouritePlaylist(youtubeInfo);
                         Utils.showMessage(Utils.getString(R.string.added));
                         MainActivity.getInstance().refreshPlaylistData();
                     } else if (item.getItemId() == R.id.menu_item_share) {
-                        Utils.shareVideo(videoInfo);
+                        Utils.shareVideo(youtubeInfo);
                     } else if (item.getItemId() == R.id.menu_item_remove) {
                         if (dataContext != null && dataContext instanceof PlaylistInfo) {
-                            removeYoutubeFromPlaylist((PlaylistInfo) dataContext, videoInfo);
+                            removeYoutubeFromPlaylist((PlaylistInfo) dataContext, youtubeInfo);
+                        } else {
+                            removeYoutubeFromHistory(youtubeInfo);
                         }
                     }
                 } catch (Throwable e) {
@@ -277,7 +277,7 @@ public class ViewHelper {
     private static void removeYoutubeFromPlaylist(final PlaylistInfo playlistInfo, final YoutubeInfo youtubeInfo) {
         final AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.getInstance(),
                 AlertDialog.THEME_HOLO_LIGHT);
-        String msg = String.format(Utils.getString(R.string.remove_youtube_from_playlist_confirm), youtubeInfo.title);
+        String msg = String.format(Utils.getString(R.string.remove_youtube_confirm), youtubeInfo.title);
         alert.setMessage(msg);
 
         alert.setPositiveButton(Utils.getString(R.string.ok), new DialogInterface.OnClickListener() {
@@ -286,6 +286,30 @@ public class ViewHelper {
             public void onClick(DialogInterface dialog, int which) {
                 PlaylistService.removeYoutube(playlistInfo, youtubeInfo);
                 MainActivity.getInstance().refreshPlaylistData();
+            }
+        });
+
+        alert.setNeutralButton(Utils.getString(R.string.cancel),
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+        alert.show();
+    }
+
+    private static void removeYoutubeFromHistory(final YoutubeInfo youtubeInfo) {
+        final AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.getInstance(),
+                AlertDialog.THEME_HOLO_LIGHT);
+        String msg = String.format(Utils.getString(R.string.remove_youtube_confirm), youtubeInfo.title);
+        alert.setMessage(msg);
+
+        alert.setPositiveButton(Utils.getString(R.string.ok), new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                HistoryService.removeYoutubeHistory(youtubeInfo.id);
+                MainActivity.getInstance().refreshHistoryData();
             }
         });
 

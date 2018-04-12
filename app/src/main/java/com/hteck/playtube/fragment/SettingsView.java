@@ -1,28 +1,20 @@
 package com.hteck.playtube.fragment;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.GridView;
-import android.widget.ListView;
 
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
-import com.hteck.playtube.adapter.PlaylistAdapter;
-import com.hteck.playtube.adapter.YoutubeByPageAdapter;
-import com.hteck.playtube.common.Constants;
 import com.hteck.playtube.common.Utils;
-import com.hteck.playtube.common.ViewHelper;
-import com.hteck.playtube.data.PlaylistInfo;
-import com.hteck.playtube.service.PlaylistService;
-
-import java.util.ArrayList;
+import com.hteck.playtube.databinding.SettingsBinding;
 
 public class SettingsView extends BaseFragment implements View.OnClickListener {
 
-    private SettingsBinding _binding ;
+    private SettingsBinding _binding;
+
     public static SettingsView newInstance() {
         SettingsView settingsView = new SettingsView();
         return settingsView;
@@ -33,20 +25,18 @@ public class SettingsView extends BaseFragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
 
         MainActivity.getInstance().updateHomeIcon();
-        return createView();
+        return createView(container);
     }
 
-    private View createView() {
+    private View createView(ViewGroup container) {
         LayoutInflater inflater = MainActivity.getInstance()
                 .getLayoutInflater();
-        View _mainView = inflater.inflate(R.layout.settings, null);
-        View layoutShare = _mainView.findViewById(R.id.settings_layout_share);
-        layoutShare.setOnClickListener(this);
-        View layoutRate = _mainView.findViewById(R.id.settings_layout_rate);
-        layoutRate.setOnClickListener(this);
-        View layoutEmail = _mainView.findViewById(R.id.settings_layout_email);
-        layoutEmail.setOnClickListener(this);
-        return _mainView;
+        _binding = DataBindingUtil.inflate(inflater, R.layout.list_view, container, false);
+
+        _binding.settingsLayoutShare.setOnClickListener(this);
+        _binding.settingsLayoutRate.setOnClickListener(this);
+        _binding.settingsLayoutEmail.setOnClickListener(this);
+        return _binding.getRoot();
     }
 
     @Override

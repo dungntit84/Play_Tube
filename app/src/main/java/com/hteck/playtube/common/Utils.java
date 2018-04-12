@@ -418,14 +418,14 @@ public class Utils {
         return loadingView;
     }
 
-    public static void shareVideo(YoutubeInfo videoInfo) {
+    public static void shareVideo(YoutubeInfo youtubeInfo) {
         try {
 
             Intent sharingIntent = new Intent(Intent.ACTION_SEND);
             String title = String.format(getString(R.string.share_video_title),
-                    videoInfo.title);
+                    youtubeInfo.title);
             String content = String.format(
-                    getString(R.string.share_video_content), videoInfo.id);
+                    getString(R.string.share_video_content), youtubeInfo.id);
             sharingIntent.setType("text/plain");
             sharingIntent.putExtra(Intent.EXTRA_SUBJECT, title);
             sharingIntent.putExtra(Intent.EXTRA_TEXT, content);
