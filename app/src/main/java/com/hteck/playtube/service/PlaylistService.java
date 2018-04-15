@@ -188,8 +188,10 @@ public class PlaylistService {
                 for (int i = 0; i < jItems.length(); ++i) {
                     JSONObject jObject = jItems.getJSONObject(i);
                     PlaylistInfo playlistInfo = getPlaylistInfo(jObject);
-                    if (playlistInfo != null && playlistInfo.id.equals(Utils.buildFavouritesUUID())) {
-                        isFavouritesExisted = true;
+                    if (playlistInfo != null) {
+                        if (playlistInfo.id.equals(Utils.buildFavouritesUUID())) {
+                            isFavouritesExisted = true;
+                        }
                         result.add(playlistInfo);
                     }
                 }

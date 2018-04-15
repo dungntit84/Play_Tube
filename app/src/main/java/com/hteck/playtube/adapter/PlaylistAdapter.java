@@ -49,7 +49,7 @@ public class PlaylistAdapter extends BaseAdapter {
             if (textViewCount != null) {
                 textViewCount.setText(Utils.getDisplayVideos(playlistInfo.youtubeList.size()));
             }
-            ImageView iv = (ImageView) v.findViewById(R.id.item_playlist_img_thumb);
+            ImageView iv = v.findViewById(R.id.item_playlist_img_thumb);
 
             if (playlistInfo.id == null) {
                 iv.setImageResource(R.drawable.ic_playlist_add);

@@ -5,15 +5,17 @@
     <color name="colorAccent">#FF4081</color>
     <color name="textColor">#FFFFFF</color>
     <color name="textColorPressed">#99FFFFFF</color>
+    <color name="textColorPressed1">#E6FFFFFF</color>
     <color name="playlistTextColor">#000000</color>
     <color name="suggestTextColor">#000000</color>
     <color name="textColorInfo">#B3FFFFFF</color>
     <color name="textColorTabSelected">#80FFFFFF</color>
     <color name="bgMain">#7d655e</color>
-    <color name="bgMainPressed">#8d655e</color>
+    <color name="bgMainPressed">#91766e</color>
     <color name="bgHeaderCategory">#f1f1f1</color>
     <color name="bgTime">#b32f2f2f</color>
     <color name="bgDropdown">#604d48</color>
     <color name="lightRed">#fe8f8f</color>
-    <color name="header_player_bg">#CC5d4036</color>
+    <color name="headerPlayerBg">#CC5d4036</color>
+    <color name="linkColor">#1E90FF</color>
 </resources>

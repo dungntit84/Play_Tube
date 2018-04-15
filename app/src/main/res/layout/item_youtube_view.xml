@@ -4,7 +4,8 @@
     android:layout_height="wrap_content"
     android:paddingBottom="@dimen/row_padding"
     android:paddingLeft="@dimen/row_padding"
-    android:paddingTop="@dimen/row_padding">
+    android:paddingTop="@dimen/row_padding"
+    android:background="@drawable/selector_setting">
 
     <FrameLayout
         android:layout_width="@dimen/row_thumb_width"

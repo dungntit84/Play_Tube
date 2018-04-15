@@ -1,24 +1,18 @@
 package com.hteck.playtube.fragment;
 
-import android.app.AlertDialog;
-import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.FrameLayout;
 import android.widget.ListView;
 
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.adapter.PlaylistAdapter;
-import com.hteck.playtube.adapter.PlaylistPopupAdapter;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.common.ViewHelper;
 import com.hteck.playtube.data.PlaylistInfo;
-import com.hteck.playtube.data.YoutubeInfo;
 import com.hteck.playtube.service.PlaylistService;
 
 import java.util.ArrayList;
@@ -46,7 +40,7 @@ public class PlaylistsView extends BaseFragment implements AdapterView.OnItemCli
         listView.setAdapter(_adapter);
         listView.setOnItemClickListener(this);
 
-        MainActivity.getInstance().updateHomeIcon();
+        MainActivity.getInstance().setHeader();
         return listView;
     }
 

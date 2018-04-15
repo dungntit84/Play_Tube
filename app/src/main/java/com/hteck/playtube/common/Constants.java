@@ -27,6 +27,9 @@ public class Constants {
         Normal, Popular, Playlist, Recent
     }
 
+    public enum RightTitleType {
+        None, Category
+    }
     public class YoutubeField {
         public final static String TITLE = "title";
         public final static String ID = "id";

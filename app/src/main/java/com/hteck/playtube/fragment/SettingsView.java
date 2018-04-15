@@ -24,14 +24,14 @@ public class SettingsView extends BaseFragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        MainActivity.getInstance().updateHomeIcon();
+        MainActivity.getInstance().setHeader();
         return createView(container);
     }
 
     private View createView(ViewGroup container) {
         LayoutInflater inflater = MainActivity.getInstance()
                 .getLayoutInflater();
-        _binding = DataBindingUtil.inflate(inflater, R.layout.list_view, container, false);
+        _binding = DataBindingUtil.inflate(inflater, R.layout.settings, container, false);
 
         _binding.settingsLayoutShare.setOnClickListener(this);
         _binding.settingsLayoutRate.setOnClickListener(this);

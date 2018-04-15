@@ -16,8 +16,7 @@ import android.widget.ListView;
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.adapter.PlayerYoutubeInfoAdapter;
-import com.hteck.playtube.common.HttpDownload;
-import com.hteck.playtube.common.IHttplistener;
+import com.hteck.playtube.common.CustomHttpOk;
 import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.CommentInfo;
@@ -25,7 +24,11 @@ import com.hteck.playtube.data.YoutubeInfo;
 import com.hteck.playtube.databinding.FrameLayoutViewBinding;
 import com.hteck.playtube.service.YoutubeHelper;
 import com.hteck.playtube.view.LoadingView;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
+import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -80,7 +83,7 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
         _binding.layoutContainer.addView(_listView);
 
         loadData();
-        return  _binding.getRoot();
+        return _binding.getRoot();
     }
 
     public void loadData() {
@@ -138,11 +141,11 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
     }
 
     private void hideProgressBar() {
-        Utils.hideProgressBar( _binding.layoutContainer, _busyView);
+        Utils.hideProgressBar(_binding.layoutContainer, _busyView);
     }
 
     private void showProgressBar() {
-        _busyView = Utils.showProgressBar( _binding.layoutContainer, _busyView);
+        _busyView = Utils.showProgressBar(_binding.layoutContainer, _busyView);
     }
 
     private void loadComments() {
@@ -153,57 +156,66 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
         String url = String
                 .format(PlayTubeController.getConfigInfo().loadCommentsOfYoutubeUrl,
                         _youtubeInfo.id, _nextPageToken);
-        HttpDownload _httpGetFile = new HttpDownload(url, new IHttplistener() {
 
+        CustomHttpOk httpOk = new CustomHttpOk(url, new Callback() {
             @Override
-            public void returnResult(Object sender,
-                                     final byte[] data, final ResultType resultType) {
+            public void onFailure(Request request, IOException e) {
                 MainActivity.getInstance().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         if (_adapterVideoInfo.getCommentList().size() == 0) {
                             hideProgressBar();
                         }
-                        if (resultType == ResultType.Done) {
-                            try {
-                                String s = new String(data);
-
-                                AbstractMap.SimpleEntry<String, ArrayList<CommentInfo>> commentListInfo = YoutubeHelper
-                                        .getCommentList(s);
-                                ArrayList<CommentInfo> commentList = commentListInfo
-                                        .getValue();
-                                if (_adapterVideoInfo.getCommentList().size() > 0
-                                        && _adapterVideoInfo.getCommentList().lastElement() == null) {
-                                    _adapterVideoInfo.getCommentList()
-                                            .remove(_adapterVideoInfo.getCommentList()
-                                                    .size() - 1);
-                                }
-                                _nextPageToken = commentListInfo.getKey();
-                                if (!Utils.stringIsNullOrEmpty(_nextPageToken)) {
-                                    commentList.add(null);
-                                }
-                                _adapterVideoInfo.getCommentList().addAll(commentList);
-                                _adapterVideoInfo.notifyDataSetChanged();
-
-                            } catch (Throwable e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        if (resultType == ResultType.ConnectionError) {
-                            _isLoadingComments = false;
-                            if (_adapterVideoInfo.getCommentList().size() == 0) {
-                                initReloadEvent();
-                            } else {
-                                _adapterVideoInfo.setIsNetworkError(true);
-                                _adapterVideoInfo.notifyDataSetChanged();
-                            }
-                        }
                         _isLoadingComments = false;
+                        if (_adapterVideoInfo.getCommentList().size() == 0) {
+                            initReloadEvent();
+                        } else {
+                            _adapterVideoInfo.setIsNetworkError(true);
+                            _adapterVideoInfo.notifyDataSetChanged();
+                        }
                     }
                 });
             }
+
+            @Override
+            public void onResponse(final Response response) {
+                MainActivity.getInstance().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            if (_adapterVideoInfo.getCommentList().size() == 0) {
+                                hideProgressBar();
+                            }
+                            _isLoadingComments = false;
+
+                            String s = response.body().string();
+
+                            AbstractMap.SimpleEntry<String, ArrayList<CommentInfo>> commentListInfo = YoutubeHelper
+                                    .getCommentList(s);
+                            ArrayList<CommentInfo> commentList = commentListInfo
+                                    .getValue();
+                            if (_adapterVideoInfo.getCommentList().size() > 0
+                                    && _adapterVideoInfo.getCommentList().lastElement() == null) {
+                                _adapterVideoInfo.getCommentList()
+                                        .remove(_adapterVideoInfo.getCommentList()
+                                                .size() - 1);
+                            }
+                            _nextPageToken = commentListInfo.getKey();
+                            if (!Utils.stringIsNullOrEmpty(_nextPageToken)) {
+                                commentList.add(null);
+                            }
+                            _adapterVideoInfo.getCommentList().addAll(commentList);
+                            _adapterVideoInfo.notifyDataSetChanged();
+
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+            }
         });
-        _httpGetFile.start();
+        httpOk.start();
     }
 
     private void initReloadEvent() {
@@ -217,12 +229,10 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
             _viewReload = inflater.inflate(R.layout.retry_view,
                     null);
             _binding.layoutContainer.addView(_viewReload);
-            _viewReload.setOnTouchListener(new OnTouchListener() {
-
+            _viewReload.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public boolean onTouch(View v, MotionEvent event) {
+                public void onClick(View view) {
                     refreshData();
-                    return false;
                 }
             });
         } catch (Throwable e) {

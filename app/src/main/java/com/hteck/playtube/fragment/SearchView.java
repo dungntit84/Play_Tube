@@ -10,13 +10,17 @@ import android.widget.SearchView.OnQueryTextListener;
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.adapter.SearchCursorAdapter;
-import com.hteck.playtube.common.HttpDownload;
-import com.hteck.playtube.common.IHttplistener;
+import com.hteck.playtube.common.CustomHttpOk;
 import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.view.YoutubeListView;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
 import org.json.JSONArray;
+
+import java.io.IOException;
 
 public class SearchView extends BaseFragment {
     private android.widget.SearchView _editTextSearch;
@@ -24,7 +28,8 @@ public class SearchView extends BaseFragment {
     private static YoutubeListView _youtubeListView;
     private String[] _suggestions = new String[]{};
     private MatrixCursor mSearchCursor;
-    SearchCursorAdapter _adapter;
+    private SearchCursorAdapter _adapter;
+    private CustomHttpOk _httpOk;
     public static SearchView newInstance(
             android.widget.SearchView editTextSearch) {
         SearchView v = new SearchView();
@@ -36,7 +41,7 @@ public class SearchView extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        MainActivity.getInstance().updateHomeIcon();
+        MainActivity.getInstance().setHeader();
         if (_youtubeListView == null) {
             _youtubeListView = new YoutubeListView(getContext());
         } else {
@@ -138,8 +143,8 @@ public class SearchView extends BaseFragment {
 
             try {
                 _suggestions = new String[]{};
-                if (_xHttpGetFile != null) {
-                    _xHttpGetFile.exit();
+                if (_httpOk != null) {
+                    _httpOk.cancel();
                 }
                 setSuggestionForSearchView();
             } catch (Throwable e) {
@@ -175,58 +180,58 @@ public class SearchView extends BaseFragment {
     private void loadSuggestions(final String query) {
         String url = String.format(PlayTubeController.getConfigInfo().loadSuggestionsUrl,
                 Utils.urlEncode(query));
-
-        if (_xHttpGetFile != null) {
-            _xHttpGetFile.exit();
+        if(_httpOk != null) {
+            _httpOk.cancel();
         }
-        _xHttpGetFile = new HttpDownload(url, new IHttplistener() {
+        _httpOk = new CustomHttpOk(url, new Callback() {
             @Override
-            public void returnResult(Object sender, final byte[] data, final ResultType resultType) {
-                MainActivity.getInstance().runOnUiThread(new Runnable() {
+            public void onFailure(Request request, IOException e) {
 
+            }
+
+            @Override
+            public void onResponse(final Response response) {
+                MainActivity.getInstance().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (resultType == ResultType.Done) {
-                            try {
+                        try {
 
-                                String result = new String(data);
+                            String result = response.body().string();
 
-                                int startIndex = result.indexOf('(');
-                                result = result.substring(startIndex + 1,
-                                        result.length() - 1);
-                                JSONArray objResult = new JSONArray(result);
-                                if (objResult.length() > 1) {
-                                    JSONArray items = (JSONArray) objResult
-                                            .get(1);
-                                    int count = items.length() < 5 ? items
-                                            .length() : 5;
-                                    String[] suggestions = new String[count];
-                                    for (int i = 0; i < count; ++i) {
-                                        suggestions[i] = ((JSONArray) items
-                                                .get(i)).get(0).toString()
-                                                .replace("\"", "");
-                                    }
-                                    _suggestions = suggestions;
-                                    setSuggestionForSearchView();
-
-                                } else {
-                                    _suggestions = new String[] {};
-                                    setSuggestionForSearchView();
+                            int startIndex = result.indexOf('(');
+                            result = result.substring(startIndex + 1,
+                                    result.length() - 1);
+                            JSONArray objResult = new JSONArray(result);
+                            if (objResult.length() > 1) {
+                                JSONArray items = (JSONArray) objResult
+                                        .get(1);
+                                int count = items.length() < 5 ? items
+                                        .length() : 5;
+                                String[] suggestions = new String[count];
+                                for (int i = 0; i < count; ++i) {
+                                    suggestions[i] = ((JSONArray) items
+                                            .get(i)).get(0).toString()
+                                            .replace("\"", "");
                                 }
+                                _suggestions = suggestions;
+                                setSuggestionForSearchView();
 
-                            } catch (Throwable e) {
-                                e.printStackTrace();
+                            } else {
+                                _suggestions = new String[] {};
+                                setSuggestionForSearchView();
                             }
+
+                        } catch (Throwable e) {
+                            e.printStackTrace();
                         }
                     }
                 });
+
             }
         });
-        _xHttpGetFile.start();
-
+        _httpOk.start();
     }
 
-    HttpDownload _xHttpGetFile;
     public void selectQuery(String query) {
         try {
             _editTextSearch.setQuery(query, false);

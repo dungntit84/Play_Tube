@@ -28,15 +28,35 @@
                         android:id="@+id/toolbar"
                         android:layout_width="match_parent"
                         android:layout_height="?attr/actionBarSize"
+                        android:layout_gravity="right"
+                        android:gravity="right"
                         app:popupTheme="@style/AppTheme.PopupOverlay">
 
-                        <TextView
-                            android:id="@+id/toolbar_text"
-                            style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:paddingRight="@dimen/activity_title_margin_right" />
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:id="@+id/toolbar_text"
+                                style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+                                android:layout_width="0dip"
+                                android:layout_height="?attr/actionBarSize"
+                                android:layout_weight="1"
+                                android:gravity="left|center_vertical" />
+
+                            <TextView
+                                android:id="@+id/toolbar_right"
+                                android:layout_width="wrap_content"
+                                android:layout_height="?attr/actionBarSize"
+                                android:clickable="true"
+                                android:paddingLeft="@dimen/row_padding_large"
+                                android:paddingRight="@dimen/row_padding_large"
+                                android:text="All"
+                                android:textColor="@color/linkColor"
+                                android:background="@drawable/selector_header"
+                                android:gravity="center_vertical"/>
+                        </LinearLayout>
+
                     </android.support.v7.widget.Toolbar>
 
                 </android.support.design.widget.AppBarLayout>
@@ -246,7 +266,7 @@
                         android:id="@+id/main_activity_player_header"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@color/header_player_bg"
+                        android:background="@color/headerPlayerBg"
                         android:gravity="center_vertical"
                         android:visibility="gone">
 

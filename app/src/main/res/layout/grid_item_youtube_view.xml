@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="@dimen/row_padding_grid"
+    android:background="@drawable/selector_setting"
     android:orientation="vertical">
 
     <FrameLayout
@@ -32,7 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="left"
-        android:maxLines="2"
+        android:lines="2"
         android:textColor="@color/textColor"
         android:textSize="@dimen/grid_text_title_size"
         android:textStyle="bold"></TextView>

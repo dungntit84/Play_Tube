@@ -46,7 +46,7 @@ public class PlaylistVideosView extends BaseFragment implements
         _binding.listView.setAdapter(_adapter);
         _binding.listView.setEmptyView(_binding.textViewMsg);
         _binding.textViewMsg.setVisibility(_youtubeList.size() == 0 ? View.VISIBLE : View.GONE);
-        MainActivity.getInstance().updateHomeIcon();
+        MainActivity.getInstance().setHeader();
         return _binding.getRoot();
     }
 

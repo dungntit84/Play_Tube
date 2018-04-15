@@ -3,28 +3,29 @@ package com.hteck.playtube.view;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.FrameLayout;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.adapter.YoutubeByPageAdapter;
-import com.hteck.playtube.common.HttpDownload;
-import com.hteck.playtube.common.IHttplistener;
+import com.hteck.playtube.common.CustomHttpOk;
 import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.YoutubeInfo;
 import com.hteck.playtube.databinding.ListViewBinding;
 import com.hteck.playtube.service.YoutubeHelper;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
+import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 public class YoutubeListView extends FrameLayout implements OnScrollListener {
@@ -35,9 +36,9 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
     private String _nextPageToken = "";
     private boolean _isLoading = false;
     private LoadingView _busyView;
-    private HttpDownload _httpDownload;
     private String _query;
     private ListViewBinding _binding;
+    private CustomHttpOk _httpOk;
 
     public YoutubeListView(Context context) {
         super(context);
@@ -134,58 +135,63 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
         String url = String
                 .format(PlayTubeController.getConfigInfo().searchVideoUrl,
                         Utils.urlEncode(_query), _nextPageToken);
-
-        _httpDownload = new HttpDownload(url, new IHttplistener() {
+        _httpOk = new CustomHttpOk(url, new Callback() {
             @Override
-            public void returnResult(Object sender, final byte[] data, final ResultType resultType) {
+            public void onFailure(Request request, IOException e) {
                 MainActivity.getInstance().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (resultType == ResultType.Done) {
-                            try {
-                                String s = new String(data);
-
-                                AbstractMap.SimpleEntry<String, ArrayList<YoutubeInfo>> searchResult = YoutubeHelper
-                                        .getVideoListInfo(s);
-                                _videoListLoading = searchResult.getValue();
-                                _nextPageToken = searchResult.getKey();
-
-                                if (_videoListLoading.size() == 0) {
-                                    if (_videoList.size() > 0
-                                            && _videoList.get(_videoList
-                                            .size() - 1) == null) {
-                                        _videoList.remove(_videoList.size() - 1);
-                                    }
-
-                                    setDataSource(_videoList);
-                                    hideProgressBar();
-                                    _isLoading = false;
-                                } else {
-                                    loadVideosInfo();
-                                }
-
-                            } catch (Throwable e) {
-                                e.printStackTrace();
-                                hideProgressBar();
-                                _isLoading = false;
-                            }
-                        }
-
-                        if (resultType != ResultType.Done) {
-                            Utils.showMessage(Utils
-                                    .getString(R.string.network_error));
-                            hideProgressBar();
-                            _isLoading = false;
-                            if (_videoList.size() != 0) {
-                                _adapter.setIsNetworkError(true);
-                                _adapter.notifyDataSetChanged();
-                            }
+                        Utils.showMessage(Utils
+                                .getString(R.string.network_error));
+                        hideProgressBar();
+                        _isLoading = false;
+                        if (_videoList.size() != 0) {
+                            _adapter.setIsNetworkError(true);
+                            _adapter.notifyDataSetChanged();
                         }
                     }
                 });
             }
+
+            @Override
+            public void onResponse(final Response response) {
+                MainActivity.getInstance().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            String s = response.body().string();
+
+                            AbstractMap.SimpleEntry<String, ArrayList<YoutubeInfo>> searchResult = YoutubeHelper
+                                    .getVideoListInfo(s);
+                            _videoListLoading = searchResult.getValue();
+                            _nextPageToken = searchResult.getKey();
+
+                            if (_videoListLoading.size() == 0) {
+                                if (_videoList.size() > 0
+                                        && _videoList.get(_videoList
+                                        .size() - 1) == null) {
+                                    _videoList.remove(_videoList.size() - 1);
+                                }
+
+                                setDataSource(_videoList);
+                                hideProgressBar();
+                                _isLoading = false;
+                            } else {
+                                loadVideosInfo();
+                            }
+
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                            hideProgressBar();
+                            _isLoading = false;
+                        }
+                    }
+                });
+
+            }
         });
-        _httpDownload.start();
+        _httpOk.start();
+
         if (_videoList.size() == 0) {
             showProgressBar();
         }
@@ -194,7 +200,7 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
     private void loadVideosInfo() {
         String videoIds = "";
         for (YoutubeInfo y : _videoListLoading) {
-            if (videoIds == "") {
+            if (Objects.equals(videoIds, "")) {
                 videoIds = y.id;
             } else {
                 videoIds = videoIds + "," + y.id;
@@ -203,59 +209,62 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
         String url = String
                 .format(PlayTubeController.getConfigInfo().loadVideosInfoUrl,
                         videoIds);
-        _httpDownload = new HttpDownload(url,
-                new IHttplistener() {
+        _httpOk = new CustomHttpOk(url, new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+                MainActivity.getInstance().runOnUiThread(new Runnable() {
                     @Override
-                    public void returnResult(Object sender, final byte[] data, final ResultType resultType) {
-                        MainActivity.getInstance().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (resultType == ResultType.Done) {
-                                    try {
-                                        String s = new String(data);
-
-                                        YoutubeHelper.populateYoutubeListInfo(_videoListLoading,
-                                                s);
-
-                                        if (_videoList.size() > 0
-                                                && _videoList.get(_videoList.size() - 1) == null) {
-                                            _videoList.remove(_videoList.size() - 1);
-                                        }
-
-                                        _videoList.addAll(YoutubeHelper
-                                                .getAvailableVideos(_videoListLoading));
-                                        if (!Utils.stringIsNullOrEmpty(_nextPageToken)) {
-                                            _videoList.add(null);
-                                        }
-                                        setDataSource(_videoList);
-
-                                    } catch (Throwable e) {
-                                        e.printStackTrace();
-                                    }
-                                    hideProgressBar();
-                                    _isLoading = false;
-                                }
-
-                                if (resultType != ResultType.Done) {
-                                    Utils.showMessage(Utils.getString(R.string.network_error));
-                                    hideProgressBar();
-                                    _isLoading = false;
-                                    if (_videoList.size() != 0) {
-                                        _adapter.setIsNetworkError(true);
-                                        _adapter.notifyDataSetChanged();
-                                    }
-                                }
-                            }
-                        });
+                    public void run() {
+                        Utils.showMessage(Utils.getString(R.string.network_error));
+                        hideProgressBar();
+                        _isLoading = false;
+                        if (_videoList.size() != 0) {
+                            _adapter.setIsNetworkError(true);
+                            _adapter.notifyDataSetChanged();
+                        }
                     }
                 });
-        _httpDownload.start();
+            }
 
+            @Override
+            public void onResponse(final Response response) {
+                MainActivity.getInstance().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            String s = response.body().string();
+
+                            YoutubeHelper.populateYoutubeListInfo(_videoListLoading,
+                                    s);
+
+                            if (_videoList.size() > 0
+                                    && _videoList.get(_videoList.size() - 1) == null) {
+                                _videoList.remove(_videoList.size() - 1);
+                            }
+
+                            _videoList.addAll(YoutubeHelper
+                                    .getAvailableVideos(_videoListLoading));
+                            if (!Utils.stringIsNullOrEmpty(_nextPageToken)) {
+                                _videoList.add(null);
+                            }
+                            setDataSource(_videoList);
+
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                        }
+                        hideProgressBar();
+                        _isLoading = false;
+                    }
+                });
+
+            }
+        });
+        _httpOk.start();
     }
 
     private void cancelAllRequests() {
-        if (_httpDownload != null) {
-            _httpDownload.exit();
+        if (_httpOk != null) {
+            _httpOk.cancel();
         }
     }
 

@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         _this = this;
         setSupportActionBar(_binding.toolbar);
-        _binding.toolbarText.setText(getTitle());
+        setTitle(getTitle().toString());
         _binding.mainActivityTextViewExplore.setText(Utils.getString(R.string.explore));
         _binding.mainActivityTextViewSearch.setText(Utils.getString(R.string.search));
         _binding.mainActivityTextViewPlaylists.setText(Utils.getString(R.string.playlists));
@@ -389,7 +389,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (fragmentManager.getBackStackEntryCount() > 1) {
             getSupportFragmentManager().popBackStackImmediate();
             result = true;
-            updateHomeIcon();
+            setHeader();
         }
 
         return result;
@@ -788,7 +788,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return false;
     }
 
-    public void updateHomeIcon() {
+    public void setHeader() {
         boolean isRoot = isRootLevel();
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -802,7 +802,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Fragment fragment = getCurrentFrag();
         if (fragment instanceof BaseFragment) {
             String title = ((BaseFragment) fragment).getTitle();
-            setTitle(title);
+            setTitle((BaseFragment) fragment);
             if (_searchView != null) {
                 _isInSearchMode = title.equals(Utils.getString(R.string.search));
                 visibleSearchView();
@@ -810,8 +810,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public void setTitle(String title) {
-        _binding.toolbarText.setText(title);
+    public void setTitle(BaseFragment baseFragment) {
+        _binding.toolbarText.setText(baseFragment.getTitle());
+        Constants.RightTitleType rightTitleType = baseFragment.getRightTitleType();
+        _binding.toolbarRight.setVisibility(rightTitleType == Constants.RightTitleType.Category ? View.VISIBLE : View.GONE);
+        _binding.toolbarRight.setText(baseFragment.getRightTitle());
+        View.OnClickListener clickListener = baseFragment.getGetRightEventListener();
+        _binding.toolbarRight.setOnClickListener(clickListener);
     }
 
     @Override

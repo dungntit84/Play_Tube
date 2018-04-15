@@ -4,17 +4,19 @@ import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Vector;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
-import android.widget.GridView;
+
 import com.hteck.playtube.R;
 import com.hteck.playtube.adapter.CustomArrayAdapter;
 import com.hteck.playtube.adapter.YoutubeByPageAdapter;
@@ -28,6 +30,7 @@ import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.CategoryInfo;
 import com.hteck.playtube.data.YoutubeInfo;
 import com.hteck.playtube.service.YoutubeHelper;
+import com.hteck.playtube.view.CategoryListView;
 import com.hteck.playtube.view.LoadingView;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
@@ -51,6 +54,7 @@ public class PopularView extends BaseFragment implements
     private CustomHttpOk _httpOk;
     private int _selectedCategoryIndex = 0;
     private PopularViewBinding _binding;
+    private static View _mainView;
 
     public static PopularView newInstance() {
         PopularView popularView = new PopularView();
@@ -60,13 +64,17 @@ public class PopularView extends BaseFragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        MainActivity.getInstance().updateHomeIcon();
+        MainActivity.getInstance().setHeader();
 
+        if (_mainView != null) {
+            return _mainView;
+        }
         if (_categoryList == null) {
             _categoryList = CategoryService.getGenreListInfo().getValue();
         }
 
-        return createView(container);
+        _mainView = createView(container);
+        return _mainView;
     }
 
     @Override
@@ -156,10 +164,10 @@ public class PopularView extends BaseFragment implements
             if (_viewNoItem == null) {
                 _viewNoItem = Utils.createNoItemView(MainActivity.getInstance(), MainActivity.getInstance().getString(R.string.no_youtube_found));
             }
-            ((ViewGroup)_binding.getRoot()).addView(_viewNoItem);
+            ((ViewGroup) _binding.getRoot()).addView(_viewNoItem);
         } else {
             if (_viewNoItem != null) {
-                ((ViewGroup)_binding.getRoot()).removeView(_viewNoItem);
+                ((ViewGroup) _binding.getRoot()).removeView(_viewNoItem);
             }
         }
         _youtubeList = videoList;
@@ -370,16 +378,14 @@ public class PopularView extends BaseFragment implements
             _viewReload = (ViewGroup) inflater.inflate(R.layout.retry_view, null);
             _binding.popularLayoutContent.addView(_viewReload);
         }
-        _viewReload.setOnTouchListener(new View.OnTouchListener() {
-
+        _viewReload.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onClick(View view) {
                 if (_viewReload != null) {
                     _binding.popularLayoutContent.removeView(_viewReload);
                     _viewReload = null;
                 }
                 loadData();
-                return false;
             }
         });
     }
@@ -434,5 +440,56 @@ public class PopularView extends BaseFragment implements
     @Override
     public String getTitle() {
         return Utils.getString(R.string.explore);
+    }
+
+    @Override
+    public String getRightTitle() {
+        if (_categoryList == null) {
+            _categoryList = CategoryService.getGenreListInfo().getValue();
+        }
+        return _categoryList.get(_selectedCategoryIndex).title;
+    }
+
+    @Override
+    public Constants.RightTitleType getRightTitleType() {
+        return Constants.RightTitleType.Category;
+    }
+
+    @Override
+    public View.OnClickListener getGetRightEventListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectCategory();
+            }
+        };
+    }
+    public void selectCategory() {
+        final CategoryListView v = new CategoryListView(
+                MainActivity.getInstance(), _selectedCategoryIndex);
+        AlertDialog.Builder builder = new AlertDialog.Builder(
+                MainActivity.getInstance(), AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+        builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int whichButton) {
+                _selectedCategoryIndex = v.getSelectedIndex();
+                MainActivity.getInstance().setHeader();
+                loadData();
+            }
+        });
+
+        builder.setNegativeButton(android.R.string.no,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        dialog.cancel();
+                    }
+                });
+        builder.setTitle(Utils.getString(
+                R.string.select_a_category));
+
+        builder.setView(v);
+        final AlertDialog dialog = builder.create();
+
+        dialog.show();
     }
 }

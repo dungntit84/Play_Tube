@@ -14,6 +14,7 @@ import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.data.YoutubeInfo;
+import com.hteck.playtube.service.HistoryService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -179,7 +180,7 @@ public class YoutubePlayerView extends YouTubePlayerSupportFragment {
 
             @Override
             public void onPrevious() {
-                PlayTubeController.getPlayingInfo().doNext();
+                PlayTubeController.getPlayingInfo().doPrevious();
                 updateNewVideoOnPlayer(PlayTubeController.getPlayingInfo().getCurrentYoutubeInfo());
             }
 
@@ -191,7 +192,7 @@ public class YoutubePlayerView extends YouTubePlayerSupportFragment {
 
             @Override
             public void onNext() {
-                PlayTubeController.getPlayingInfo().doPrevious();
+                PlayTubeController.getPlayingInfo().doNext();
                 updateNewVideoOnPlayer(PlayTubeController.getPlayingInfo().getCurrentYoutubeInfo());
             }
         });
@@ -287,8 +288,9 @@ public class YoutubePlayerView extends YouTubePlayerSupportFragment {
 
     public void updateNewVideoOnPlayer(YoutubeInfo youtubeInfo) {
         if (_youtubePlayerBottomView != null) {
-//            RecentHelper.addVideoToHistory(youtubeInfo);
-//            _youtubePlayerBottomView.refreshData(youtubeInfo, true);
+            HistoryService.addYoutubeToHistory(youtubeInfo);
+            _youtubePlayerBottomView.refreshData();
+            MainActivity.getInstance().refreshHistoryData();
         }
     }
 
