@@ -24,8 +24,7 @@ public class CustomArrayAdapter extends ArrayAdapter<String> {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         String rowItem = getItem(position);
-
-        View rowview = flater.inflate(R.layout.item_spinner_default,null,true);
+        View rowview = flater.inflate(R.layout.item_spinner_default, null);
 
         TextView txtTitle = (TextView) rowview.findViewById(R.id.text1);
         txtTitle.setText(rowItem);

@@ -36,7 +36,7 @@ public class YoutubeAdapter extends BaseAdapter {
         if (_youtubeListType == Constants.YoutubeListType.Popular) {
             return ViewHelper.getGridYoutubeView(convertView, _youtubeList.get(position), onClickListener);
         }
-        return ViewHelper.getYoutubeView(convertView, _youtubeList.get(position), onClickListener);
+        return ViewHelper.getYoutubeView(convertView, group, _youtubeList.get(position), onClickListener);
     }
 
     private OnClickListener onClickListener = new OnClickListener() {

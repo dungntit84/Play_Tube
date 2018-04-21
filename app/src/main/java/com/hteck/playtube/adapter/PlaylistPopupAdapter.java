@@ -34,6 +34,7 @@ public class PlaylistPopupAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup group) {
         LayoutInflater inflater = MainActivity.getInstance().getLayoutInflater();
         View v = inflater.inflate(R.layout.item_popup_playlist, null);
+        v.setBackgroundResource(0);
         try {
             PlaylistInfo playlistInfo = _playlistList.get(position);
             TextView textViewTitle = v.findViewById(R.id.item_playlist_title);

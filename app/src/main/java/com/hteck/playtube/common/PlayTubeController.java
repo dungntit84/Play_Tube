@@ -60,7 +60,7 @@ public class PlayTubeController {
             config.threadPriority(Thread.NORM_PRIORITY - 2);
             config.denyCacheImageMultipleSizesInMemory();
             config.diskCacheFileNameGenerator(new Md5FileNameGenerator());
-            config.diskCacheSize(100 * 1024 * 1024);
+            config.diskCacheSize(50 * 1024 * 1024);
             config.tasksProcessingOrder(QueueProcessingType.LIFO);
             ImageLoader.getInstance().init(config.build());
         } catch (Throwable e) {

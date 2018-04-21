@@ -80,6 +80,7 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
                 }
             }
         });
+
         return _binding.getRoot();
     }
 
