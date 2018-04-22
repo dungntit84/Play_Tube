@@ -2,6 +2,8 @@ package com.hteck.playtube.adapter;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.databinding.DataBindingUtil;
+import android.databinding.ViewDataBinding;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +19,7 @@ import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.common.ViewHelper;
 import com.hteck.playtube.data.PlaylistInfo;
+import com.hteck.playtube.databinding.ItemPopupPlaylistBinding;
 import com.hteck.playtube.fragment.PlaylistsView;
 import com.hteck.playtube.service.PlaylistService;
 import com.hteck.playtube.view.PlaylistsDialogView;
@@ -40,7 +43,10 @@ public class PlaylistAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup group) {
         LayoutInflater inflater = MainActivity.getInstance().getLayoutInflater();
         PlaylistInfo playlistInfo = _playlistList.get(position);
-        View v = playlistInfo.id == null ? inflater.inflate(R.layout.item_popup_playlist, null) : inflater.inflate(R.layout.item_playlist, null);
+
+        int resId = playlistInfo.id == null ? R.layout.item_popup_playlist : R.layout.item_playlist;
+        ViewDataBinding binding = DataBindingUtil.inflate(inflater, resId, group, false);
+        View v = binding.getRoot();
         try {
             TextView textViewTitle = v.findViewById(R.id.item_playlist_title);
             TextView textViewCount = v.findViewById(R.id.item_playlist_count);

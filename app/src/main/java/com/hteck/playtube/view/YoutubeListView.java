@@ -119,10 +119,6 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
         searchData();
     }
 
-    private void search() {
-        search(_query);
-    }
-
     public void searchMore() {
         if (_isLoading || Utils.stringIsNullOrEmpty(_nextPageToken)) {
             return;

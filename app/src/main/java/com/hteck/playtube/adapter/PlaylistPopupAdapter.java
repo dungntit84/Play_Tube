@@ -1,24 +1,21 @@
 package com.hteck.playtube.adapter;
 
+import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.PopupMenu;
-import android.widget.TextView;
-
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.common.ViewHelper;
 import com.hteck.playtube.data.PlaylistInfo;
+import com.hteck.playtube.databinding.ItemPopupPlaylistBinding;
+import com.hteck.playtube.holder.ItemPopupPlaylistViewHolder;
 
 import java.util.ArrayList;
 
 public class PlaylistPopupAdapter extends BaseAdapter {
-    public ArrayList<PlaylistInfo> _playlistList;
+    private ArrayList<PlaylistInfo> _playlistList;
 
     public PlaylistPopupAdapter(ArrayList<PlaylistInfo> playlistList) {
         super();
@@ -32,24 +29,32 @@ public class PlaylistPopupAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup group) {
-        LayoutInflater inflater = MainActivity.getInstance().getLayoutInflater();
-        View v = inflater.inflate(R.layout.item_popup_playlist, null);
-        v.setBackgroundResource(0);
+        ItemPopupPlaylistViewHolder holder;
+        if (convertView == null) {
+            LayoutInflater inflater = MainActivity.getInstance()
+                    .getLayoutInflater();
+            ItemPopupPlaylistBinding itemBinding = DataBindingUtil.inflate(inflater, R.layout.item_popup_playlist, group, false);
+            holder = new ItemPopupPlaylistViewHolder(itemBinding);
+            holder.view = itemBinding.getRoot();
+            holder.view.setTag(holder);
+        } else {
+            holder = (ItemPopupPlaylistViewHolder) convertView.getTag();
+        }
+
         try {
+            holder.view.setBackgroundResource(0);
             PlaylistInfo playlistInfo = _playlistList.get(position);
-            TextView textViewTitle = v.findViewById(R.id.item_playlist_title);
-            textViewTitle.setText(playlistInfo.title.toUpperCase());
-            ImageView iv = (ImageView) v.findViewById(R.id.item_playlist_img_thumb);
+            holder.binding.itemPlaylistTitle.setText(playlistInfo.title.toUpperCase());
             if (playlistInfo.id == null) {
-                iv.setImageResource(R.drawable.ic_playlist_add_black);
-                iv.setTag(null);
+                holder.binding.itemPlaylistImgThumb.setImageResource(R.drawable.ic_playlist_add_black);
+                holder.binding.itemPlaylistImgThumb.setTag(null);
             } else {
-                ViewHelper.displayYoutubeThumb(iv, playlistInfo.imageUrl);
+                ViewHelper.displayYoutubeThumb(holder.binding.itemPlaylistImgThumb, playlistInfo.imageUrl);
             }
         } catch (Throwable e) {
             e.printStackTrace();
         }
-        return v;
+        return holder.view;
     }
 
     @Override

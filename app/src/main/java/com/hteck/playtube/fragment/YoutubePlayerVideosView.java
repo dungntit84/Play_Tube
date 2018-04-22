@@ -93,6 +93,7 @@ public class YoutubePlayerVideosView extends Fragment implements
             return;
         }
         mIsDataLoaded = true;
+        _adapter.setIsNetworkError(false);
         loadDataMore();
     }
 

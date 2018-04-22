@@ -1,14 +1,11 @@
 package com.hteck.playtube.view;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.support.v7.widget.AlertDialogLayout;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
-
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.adapter.PlaylistPopupAdapter;

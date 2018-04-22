@@ -1,4 +1,4 @@
-package com.hteck.playtube.view;
+package com.hteck.playtube.holder;
 
 import android.view.View;
 

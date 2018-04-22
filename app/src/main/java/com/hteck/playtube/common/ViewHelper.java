@@ -4,7 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
-import android.graphics.Bitmap;
+import android.databinding.ViewDataBinding;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,54 +14,39 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
-import android.widget.TextView;
 
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.data.PlaylistInfo;
 import com.hteck.playtube.data.YoutubeInfo;
+import com.hteck.playtube.databinding.GridItemYoutubeViewBinding;
 import com.hteck.playtube.databinding.ItemYoutubeViewBinding;
+import com.hteck.playtube.holder.BaseViewHolder;
 import com.hteck.playtube.service.HistoryService;
 import com.hteck.playtube.service.PlaylistService;
-import com.hteck.playtube.view.ItemYoutubeViewHolder;
+import com.hteck.playtube.holder.GridItemYoutubeViewHolder;
+import com.hteck.playtube.holder.ItemYoutubeViewHolder;
 import com.hteck.playtube.view.PlaylistsDialogView;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 
-import java.util.List;
 import java.util.UUID;
-
-import static com.nostra13.universalimageloader.utils.MemoryCacheUtils.findCachedBitmapsForImageUri;
 
 public class ViewHelper {
     public static View getYoutubeView(View convertView, ViewGroup group, YoutubeInfo youtubeInfo, View.OnClickListener onClickListener) {
-//        View v = getConvertView(convertView, R.layout.item_youtube_view);
-
         LayoutInflater inflater = MainActivity.getInstance().getLayoutInflater();
-//        View v;
         ItemYoutubeViewHolder holder;
-        if (convertView == null) {
+        if (convertView == null || convertView.getTag() == null || !(convertView.getTag() instanceof ItemYoutubeViewHolder)) {
             ItemYoutubeViewBinding itemBinding = DataBindingUtil.inflate(inflater, R.layout.item_youtube_view, group, false);
             holder = new ItemYoutubeViewHolder(itemBinding);
             holder.view = itemBinding.getRoot();
             holder.view.setTag(holder);
-//            holder.view.setId((int) R.layout.item_youtube_view);
         } else {
-//            if (convertView.getId() != (int) R.layout.item_youtube_view) {
-//                ItemYoutubeViewBinding itemBinding = DataBindingUtil.inflate(inflater, R.layout.item_youtube_view, group, false);
-//                holder = new ItemYoutubeViewHolder(itemBinding);
-//                holder.view = itemBinding.getRoot();
-//                holder.view.setTag(holder);
-//                holder.view.setId((int) R.layout.item_youtube_view);
-//            } else {
-                holder = (ItemYoutubeViewHolder) convertView.getTag();
-//            }
+            holder = (ItemYoutubeViewHolder) convertView.getTag();
+        }
+        if (youtubeInfo == null) {
+            return holder.view;
         }
         try {
-            if (youtubeInfo == null) {
-                return holder.view;
-            }
             holder.binding.itemYoutubeTvTitle.setText(youtubeInfo.title.toUpperCase());
             displayYoutubeThumb(holder.binding.itemYoutubeImgThumb, youtubeInfo.imageUrl);
             holder.binding.itemYoutubeTvUploadedDate.setText(youtubeInfo.uploadedDate);
@@ -77,39 +62,41 @@ public class ViewHelper {
         return holder.view;
     }
 
-    public static View getGridYoutubeView(View convertView, YoutubeInfo youtubeInfo, View.OnClickListener onClickListener) {
-        View v = getConvertView(convertView, R.layout.grid_item_youtube_view);
-
+    public static View getGridYoutubeView(View convertView, ViewGroup group, YoutubeInfo youtubeInfo, View.OnClickListener onClickListener) {
+//        View v = getConvertView(convertView, R.layout.grid_item_youtube_view);
+        LayoutInflater inflater = MainActivity.getInstance().getLayoutInflater();
+        GridItemYoutubeViewHolder holder;
+        if (convertView == null) {
+            GridItemYoutubeViewBinding itemBinding = DataBindingUtil.inflate(inflater, R.layout.grid_item_youtube_view, group, false);
+            holder = new GridItemYoutubeViewHolder(itemBinding);
+            holder.view = itemBinding.getRoot();
+            holder.view.setTag(holder);
+        } else {
+            holder = (GridItemYoutubeViewHolder) convertView.getTag();
+        }
+        if (youtubeInfo == null) {
+            return holder.view;
+        }
         try {
-            TextView textViewTitle = v.findViewById(R.id.item_youtube_tv_title);
-            textViewTitle.setText(youtubeInfo.title.toUpperCase());
 
-            ImageView iv = v.findViewById(R.id.item_youtube_img_thumb);
-            displayYoutubeThumb(iv, youtubeInfo.imageUrl);
-            if (iv.getWidth() == 0) {
+            holder.binding.itemYoutubeTvTitle.setText(youtubeInfo.title.toUpperCase());
+
+            displayYoutubeThumb(holder.binding.itemYoutubeImgThumb, youtubeInfo.imageUrl);
+            if (holder.binding.itemYoutubeImgThumb.getWidth() == 0) {
                 int width = Utils.getYoutubeWidth();
                 int height = width * 18 / 32;
-                iv.setLayoutParams(new FrameLayout.LayoutParams(width, height));
+                holder.binding.itemYoutubeImgThumb.setLayoutParams(new FrameLayout.LayoutParams(width, height));
             }
-            TextView textViewUploadedDate = v.findViewById(R.id.item_youtube_tv_uploaded_date);
-            textViewUploadedDate.setText(youtubeInfo.uploadedDate);
-            TextView textViewPlaysNo = v.findViewById(R.id.item_youtube_tv_plays_no);
-            textViewPlaysNo.setText(Utils.getDisplayViews(youtubeInfo.viewsNo, true));
-
-            TextView textViewTime = v.findViewById(R.id.item_youtube_tv_time);
-            textViewTime.setText(Utils.getDisplayTime((int) youtubeInfo.duration));
-            TextView textViewUploader = v.findViewById(R.id.item_youtube_tv_uploader);
-            textViewUploader.setText(youtubeInfo.uploaderName);
-
-            ImageView imageViewAction = v
-                    .findViewById(R.id.item_youtube_img_action);
-
-            imageViewAction.setTag(youtubeInfo);
-            imageViewAction.setOnClickListener(onClickListener);
+            holder.binding.itemYoutubeTvUploadedDate.setText(youtubeInfo.uploadedDate);
+            holder.binding.itemYoutubeTvPlaysNo.setText(Utils.getDisplayViews(youtubeInfo.viewsNo, true));
+            holder.binding.itemYoutubeTvTime.setText(Utils.getDisplayTime((int) youtubeInfo.duration));
+            holder.binding.itemYoutubeTvUploader.setText(youtubeInfo.uploaderName);
+            holder.binding.itemYoutubeImgAction.setTag(youtubeInfo);
+            holder.binding.itemYoutubeImgAction.setOnClickListener(onClickListener);
         } catch (Throwable e) {
             e.printStackTrace();
         }
-        return v;
+        return holder.view;
     }
 
     public static PopupMenu showYoutubeMenu(Constants.YoutubeListType youtubeListType,
@@ -169,27 +156,31 @@ public class ViewHelper {
         return v;
     }
 
-    public static void displayYoutubeThumb(ImageView imageView, String url) {
-
-        List<Bitmap> bitmaps = MemoryCacheUtils.findCachedBitmapsForImageUri(url, ImageLoader.getInstance().getMemoryCache());
-        if (bitmaps.size() == 0) {
-            imageView.setImageResource(R.drawable.ic_thumb);
-            ImageLoader.getInstance().displayImage(
-                    url, imageView);
+    public static BaseViewHolder getViewHolder(View convertView, int resId, ViewGroup group) {
+        BaseViewHolder holder;
+        LayoutInflater inflater = MainActivity.getInstance().getLayoutInflater();
+        if (convertView == null || convertView.getTag(Constants.CUSTOM_TAG) == null || !convertView.getTag(Constants.CUSTOM_TAG).equals(resId)) {
+            ViewDataBinding binding = DataBindingUtil.inflate(inflater, resId, group, false);
+            holder = new BaseViewHolder(binding);
+            holder.view.setTag(Constants.CUSTOM_TAG, resId);
+            holder.view.setTag(holder);
         } else {
-            System.out.println("dungnt: " + bitmaps.get(0).getByteCount());
-            imageView.setImageBitmap(bitmaps.get(0));
+            holder = (BaseViewHolder) convertView.getTag();
         }
-//        if (imageView.getTag() == null
-//                || !imageView.getTag().toString()
-//                .equalsIgnoreCase(url)) {
-//            imageView.setTag(url);
-//            imageView.setImageResource(R.drawable.ic_thumb);
-//            if (!Utils.stringIsNullOrEmpty(url)) {
-//                ImageLoader.getInstance().displayImage(
-//                        url, imageView);
-//            }
-//        }
+        return holder;
+    }
+
+    public static void displayYoutubeThumb(ImageView imageView, String url) {
+        if (imageView.getTag() == null
+                || !imageView.getTag().toString()
+                .equalsIgnoreCase(url)) {
+            imageView.setTag(url);
+            imageView.setImageResource(R.drawable.ic_thumb);
+            if (!Utils.stringIsNullOrEmpty(url)) {
+                ImageLoader.getInstance().displayImage(
+                        url, imageView);
+            }
+        }
     }
 
     public static void showAddNewPlaylist(final YoutubeInfo youtubeInfo, final Dialog parent) {

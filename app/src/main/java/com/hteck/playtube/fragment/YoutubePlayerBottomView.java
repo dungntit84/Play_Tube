@@ -1,10 +1,10 @@
 package com.hteck.playtube.fragment;
 
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,26 +14,23 @@ import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.adapter.PagerAdapter;
 import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
+import com.hteck.playtube.databinding.TabsViewBinding;
 
 public class YoutubePlayerBottomView extends Fragment {
-    private PagerAdapter pagerAdapter;
-    private ViewPager viewPager;
     private PlayerYoutubeInfoView playerYoutubeInfoView;
     private YoutubePlayerVideosView youtubePlayerVideosRelatedView;
     private YoutubePlayerVideosView youtubePlayerVideosMoreView;
-    private TabLayout tabLayout;
 
     public static YoutubePlayerBottomView newInstance() {
 
-        YoutubePlayerBottomView fragment = new YoutubePlayerBottomView();
-        return fragment;
+        return new YoutubePlayerBottomView();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        return createView();
+        return createView(container);
     }
 
     public void refreshData() {
@@ -48,48 +45,23 @@ public class YoutubePlayerBottomView extends Fragment {
         }
     }
 
-    private View createView() {
+    private View createView(ViewGroup group) {
         LayoutInflater inflater = MainActivity.getInstance()
                 .getLayoutInflater();
-        View v = inflater.inflate(R.layout.tabs_view, null);
-        try {
-            viewPager = (ViewPager) v.findViewById(R.id.pager);
-            pagerAdapter = new PagerAdapter(getChildFragmentManager());
+        TabsViewBinding binding = DataBindingUtil.inflate(inflater, R.layout.tabs_view, group, false);
+        PagerAdapter pagerAdapter = new PagerAdapter(getChildFragmentManager());
 
-            playerYoutubeInfoView = PlayerYoutubeInfoView.newInstance(PlayTubeController.getPlayingInfo().getCurrentYoutubeInfo());
-            youtubePlayerVideosRelatedView = YoutubePlayerVideosView.newInstance("");
-            youtubePlayerVideosMoreView = YoutubePlayerVideosView.newInstance(PlayTubeController.getPlayingInfo().getCurrentYoutubeInfo().uploaderId);
-            pagerAdapter.addFragment(youtubePlayerVideosRelatedView, Utils.getString(R.string.related));
-            pagerAdapter.addFragment(youtubePlayerVideosMoreView, Utils.getString(R.string.more));
-            pagerAdapter.addFragment(playerYoutubeInfoView, Utils.getString(R.string.info));
-            viewPager.setAdapter(pagerAdapter);
-            tabLayout = (TabLayout) v.findViewById(R.id.tabs);
-            tabLayout.setupWithViewPager(viewPager);
-            tabLayout.setTabMode(TabLayout.MODE_FIXED);
+        playerYoutubeInfoView = PlayerYoutubeInfoView.newInstance(PlayTubeController.getPlayingInfo().getCurrentYoutubeInfo());
+        youtubePlayerVideosRelatedView = YoutubePlayerVideosView.newInstance("");
+        youtubePlayerVideosMoreView = YoutubePlayerVideosView.newInstance(PlayTubeController.getPlayingInfo().getCurrentYoutubeInfo().uploaderId);
+        pagerAdapter.addFragment(youtubePlayerVideosRelatedView, Utils.getString(R.string.related));
+        pagerAdapter.addFragment(youtubePlayerVideosMoreView, Utils.getString(R.string.more));
+        pagerAdapter.addFragment(playerYoutubeInfoView, Utils.getString(R.string.info));
+        binding.pager.setAdapter(pagerAdapter);
+        binding.tabs.setupWithViewPager(binding.pager);
+        binding.tabs.setTabMode(TabLayout.MODE_FIXED);
 
-            viewPager.setOffscreenPageLimit(4);
-            tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-                @Override
-                public void onTabSelected(TabLayout.Tab tab) {
-                    try {
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onTabUnselected(TabLayout.Tab tab) {
-
-                }
-
-                @Override
-                public void onTabReselected(TabLayout.Tab tab) {
-
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return v;
+        binding.pager.setOffscreenPageLimit(4);
+        return binding.getRoot();
     }
 }

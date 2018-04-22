@@ -107,9 +107,7 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
             _youtubeInfo = PlayTubeController.getPlayingInfo().getCurrentYoutubeInfo();
             _nextPageToken = "";
             Vector<CommentInfo> commentList = new Vector<>();
-            if (_adapterVideoInfo == null) {
-                return;
-            }
+            _adapterVideoInfo.setIsNetworkError(false);
             _adapterVideoInfo.setDataSource(_youtubeInfo, commentList);
             _adapterVideoInfo.notifyDataSetChanged();
 

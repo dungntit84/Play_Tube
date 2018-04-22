@@ -1,5 +1,6 @@
 package com.hteck.playtube.adapter;
 
+import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,8 @@ import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.common.Constants;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.YoutubeInfo;
+import com.hteck.playtube.databinding.GridItemYoutubeViewBinding;
+import com.hteck.playtube.databinding.ItemPopupPlaylistBinding;
 
 import java.util.ArrayList;
 
@@ -25,14 +28,11 @@ public class HistoryAdapter extends YoutubeAdapter {
         LayoutInflater inflater = MainActivity.getInstance()
                 .getLayoutInflater();
         if (position == 0) {
-            View v = inflater.inflate(R.layout.item_popup_playlist, null);
-            TextView textViewTitle = v.findViewById(R.id.item_playlist_title);
-            textViewTitle.setText(Utils.getString(R.string.clear_history).toUpperCase());
-            textViewTitle.setTextColor(MainActivity.getInstance().getResources().getColor(R.color.textColor));
-            ImageView iv = v.findViewById(R.id.item_playlist_img_thumb);
-            iv.setImageResource(R.drawable.ic_clear);
-            v.setTag(Constants.CUSTOM_TAG, null);
-            return v;
+            ItemPopupPlaylistBinding binding = DataBindingUtil.inflate(inflater, R.layout.item_popup_playlist, group, false);
+            binding.itemPlaylistTitle.setText(Utils.getString(R.string.clear_history).toUpperCase());
+            binding.itemPlaylistTitle.setTextColor(MainActivity.getInstance().getResources().getColor(R.color.textColor));
+            binding.itemPlaylistImgThumb.setImageResource(R.drawable.ic_clear);
+            return binding.getRoot();
         }
         return super.getView(position - 1, convertView, group);
     }
