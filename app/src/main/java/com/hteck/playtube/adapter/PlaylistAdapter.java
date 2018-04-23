@@ -3,31 +3,26 @@ package com.hteck.playtube.adapter;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
-import android.databinding.ViewDataBinding;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.PopupMenu;
-import android.widget.TextView;
-
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.common.ViewHelper;
 import com.hteck.playtube.data.PlaylistInfo;
+import com.hteck.playtube.databinding.ItemPlaylistBinding;
 import com.hteck.playtube.databinding.ItemPopupPlaylistBinding;
-import com.hteck.playtube.fragment.PlaylistsView;
 import com.hteck.playtube.service.PlaylistService;
-import com.hteck.playtube.view.PlaylistsDialogView;
 
 import java.util.ArrayList;
 
 public class PlaylistAdapter extends BaseAdapter {
-    public ArrayList<PlaylistInfo> _playlistList;
+    private ArrayList<PlaylistInfo> _playlistList;
 
     public PlaylistAdapter(ArrayList<PlaylistInfo> playlistList) {
         super();
@@ -44,44 +39,32 @@ public class PlaylistAdapter extends BaseAdapter {
         LayoutInflater inflater = MainActivity.getInstance().getLayoutInflater();
         PlaylistInfo playlistInfo = _playlistList.get(position);
 
-        int resId = playlistInfo.id == null ? R.layout.item_popup_playlist : R.layout.item_playlist;
-        ViewDataBinding binding = DataBindingUtil.inflate(inflater, resId, group, false);
-        View v = binding.getRoot();
-        try {
-            TextView textViewTitle = v.findViewById(R.id.item_playlist_title);
-            TextView textViewCount = v.findViewById(R.id.item_playlist_count);
-            textViewTitle.setText(playlistInfo.title.toUpperCase());
-            textViewTitle.setTextColor(MainActivity.getInstance().getResources().getColor(R.color.textColor));
-            if (textViewCount != null) {
-                textViewCount.setText(Utils.getDisplayVideos(playlistInfo.youtubeList.size()));
-            }
-            ImageView iv = v.findViewById(R.id.item_playlist_img_thumb);
-
-            if (playlistInfo.id == null) {
-                iv.setImageResource(R.drawable.ic_playlist_add);
-                iv.setTag(null);
+        if (playlistInfo.id == null) {
+            ItemPopupPlaylistBinding binding = DataBindingUtil.inflate(inflater, R.layout.item_popup_playlist, group, false);
+            binding.itemPlaylistTitle.setText(playlistInfo.title.toUpperCase());
+            binding.itemPlaylistTitle.setTextColor(MainActivity.getInstance().getResources().getColor(R.color.textColor));
+            binding.itemPlaylistImgThumb.setImageResource(R.drawable.ic_playlist_add);
+            binding.itemPlaylistImgThumb.setTag(null);
+            return binding.getRoot();
+        } else {
+            ItemPlaylistBinding binding = DataBindingUtil.inflate(inflater, R.layout.item_playlist, group, false);
+            binding.itemPlaylistTitle.setText(playlistInfo.title.toUpperCase());
+            binding.itemPlaylistTitle.setTextColor(MainActivity.getInstance().getResources().getColor(R.color.textColor));
+            binding.itemPlaylistCount.setText(Utils.getDisplayVideos(playlistInfo.youtubeList.size()));
+            ViewHelper.displayYoutubeThumb(binding.itemPlaylistImgThumb, playlistInfo.imageUrl);
+            binding.itemPlaylistImgAction.setTag(playlistInfo);
+            binding.itemPlaylistImgAction.setOnClickListener(onClickListener);
+            if (playlistInfo.id.equals(Utils.buildFavouritesUUID())) {
+                binding.itemPlaylistImgAction.setVisibility(View.GONE);
             } else {
-                ViewHelper.displayYoutubeThumb(iv, playlistInfo.imageUrl);
+                binding.itemPlaylistImgAction.setVisibility(View.VISIBLE);
             }
-            ImageView imageViewAction = (ImageView) v
-                    .findViewById(R.id.item_playlist_img_action);
-            if (imageViewAction != null) {
-                imageViewAction.setTag(playlistInfo);
-                imageViewAction.setOnClickListener(onClickListener);
-                if (playlistInfo.id.equals(Utils.buildFavouritesUUID())) {
-                    imageViewAction.setVisibility(View.GONE);
-                } else {
-                    imageViewAction.setVisibility(View.VISIBLE);
-                }
-            }
-            v.setTag(playlistInfo);
-        } catch (Throwable e) {
-            e.printStackTrace();
+
+            return binding.getRoot();
         }
-        return v;
     }
 
-    OnClickListener onClickListener = new OnClickListener() {
+    private OnClickListener onClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             PopupMenu popup = new PopupMenu(MainActivity.getInstance(), v);

@@ -1,6 +1,7 @@
 package com.hteck.playtube.adapter;
 
 import android.app.Activity;
+import android.databinding.DataBindingUtil;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.hteck.playtube.R;
+import com.hteck.playtube.databinding.ItemSpinnerDefaultBinding;
 
 public class CustomArrayAdapter extends ArrayAdapter<String> {
     LayoutInflater flater;
@@ -24,12 +26,10 @@ public class CustomArrayAdapter extends ArrayAdapter<String> {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         String rowItem = getItem(position);
-        View rowview = flater.inflate(R.layout.item_spinner_default, null);
+        ItemSpinnerDefaultBinding binding = DataBindingUtil.inflate(flater, R.layout.item_spinner_default, parent, false);
+        binding.text1.setText(rowItem);
 
-        TextView txtTitle = (TextView) rowview.findViewById(R.id.text1);
-        txtTitle.setText(rowItem);
-
-        return rowview;
+        return binding.getRoot();
     }
     @Override
     public int getCount() {

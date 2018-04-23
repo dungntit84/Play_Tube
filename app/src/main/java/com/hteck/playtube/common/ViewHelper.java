@@ -63,7 +63,6 @@ public class ViewHelper {
     }
 
     public static View getGridYoutubeView(View convertView, ViewGroup group, YoutubeInfo youtubeInfo, View.OnClickListener onClickListener) {
-//        View v = getConvertView(convertView, R.layout.grid_item_youtube_view);
         LayoutInflater inflater = MainActivity.getInstance().getLayoutInflater();
         GridItemYoutubeViewHolder holder;
         if (convertView == null) {
@@ -167,6 +166,7 @@ public class ViewHelper {
         } else {
             holder = (BaseViewHolder) convertView.getTag();
         }
+
         return holder;
     }
 
