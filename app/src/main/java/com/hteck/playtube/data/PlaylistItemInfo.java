@@ -1,44 +1,32 @@
-package com.venustech.playtube.info;
+package com.hteck.playtube.data;
 
-import java.util.Vector;
+import com.hteck.playtube.common.Constants;
 
-import com.venustech.playtube.common.Constants.ChannelActivityType;
-import com.venustech.playtube.common.Constants.YoutubePlaylistItemType;
-
-import android.provider.MediaStore.Video;
+import java.util.ArrayList;
 
 public class PlaylistItemInfo {
-	public YoutubePlaylistItemType playlistItemType;
+	public int playlistItemType;
 	public Object dataInfo;
 	public ChannelSectionInfo activityInfo;
 	public String time;
 
-	public Vector<VideoInfo> getVideoList() {
-		Vector<VideoInfo> results = new Vector<VideoInfo>();
+	public ArrayList<YoutubeInfo> getYoutubeList() {
+		ArrayList<YoutubeInfo> results = new ArrayList<>();
 		try {
-			if (activityInfo.activityType == ChannelActivityType.SinglePlaylist) {
-				return ((PlaylistInfo) activityInfo.dataInfo).videoList;
-			} else if (activityInfo.activityType == ChannelActivityType.Uploads) {
-				return ((ChannelInfo) activityInfo.dataInfo).videoList;
-			} else if (activityInfo.activityType == ChannelActivityType.RecentActiviy) {
-				Vector<PlaylistItemInfo> items = ((ChannelInfo) activityInfo.dataInfo).channelActivities;
-				for (PlaylistItemInfo item : items) {
-					results.add((VideoInfo) item.dataInfo);
+			switch (activityInfo.userActivityType) {
+				case Constants.UserActivityType.SINGLEPLAYLIST: {
+					return ((PlaylistInfo) activityInfo.dataInfo).youtubeList;
+				}
+				case Constants.UserActivityType.UPLOADS: {
+					return ((ChannelInfo) activityInfo.dataInfo).youtubeList;
+				}
+				case Constants.UserActivityType.RECENTACTIVIY: {
+					ArrayList<PlaylistItemInfo> items = ((ChannelInfo) activityInfo.dataInfo).activities;
+					for (PlaylistItemInfo item : items) {
+						results.add((YoutubeInfo) item.dataInfo);
+					}
 				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return results;
-	}
-
-	public Vector<PlaylistInfo> getplayLists() {
-		Vector<PlaylistInfo> results = new Vector<PlaylistInfo>();
-		try {
-			if (activityInfo.activityType == ChannelActivityType.AllPlaylists) {
-				return ((ChannelInfo) dataInfo).playlists;
-			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

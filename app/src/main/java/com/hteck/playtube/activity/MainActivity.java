@@ -429,7 +429,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         R.id.layout_player_bottom_fragment);
 
             } else {
-                _youtubePlayerApiView.initAndPlayYoutube();
+                _youtubePlayerApiView.reinitPlayer();
                 if (_youtubePlayerBottomView == null) {
                     _youtubePlayerBottomView = YoutubePlayerBottomView.newInstance();
                 } else {

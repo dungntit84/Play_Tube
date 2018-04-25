@@ -37,4 +37,5 @@
     <dimen name="mini_player_width">256dp</dimen>
     <dimen name="mini_player_height">144dp</dimen>
     <dimen name="separator_height">1dp</dimen>
+    <dimen name="channel_height">64dp</dimen>
 </resources>

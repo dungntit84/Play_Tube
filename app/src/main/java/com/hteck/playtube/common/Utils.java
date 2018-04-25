@@ -30,12 +30,17 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
+import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 public class Utils {
+
+    private static Vector<TimerTask> mTimerCallback = null;
 
     public static void showMessage(final String msg) {
         MainActivity.getInstance().runOnUiThread(new Runnable() {
@@ -634,4 +639,34 @@ public class Utils {
             e.printStackTrace();
         }
     }
+
+    public static void runInNextLoopUI(final Runnable r, long delayMs) {
+        Timer t = new Timer();
+        TimerTask tt = new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    MainActivity.getInstance().runOnUiThread(r);
+
+                    removeTimerTask(this);
+                } catch (Throwable e) {
+                }
+            }
+        };
+
+        if (mTimerCallback == null) {
+            mTimerCallback = new Vector<TimerTask>(3);
+        }
+        synchronized (mTimerCallback) {
+            mTimerCallback.add(tt);
+        }
+        t.schedule(tt, delayMs);
+    }
+
+    static void removeTimerTask(TimerTask tt) {
+        synchronized (mTimerCallback) {
+            mTimerCallback.remove(tt);
+        }
+    }
+
 }

@@ -13,6 +13,7 @@ import com.google.android.youtube.player.YouTubePlayer.Provider;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.common.PlayTubeController;
+import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.YoutubeInfo;
 import com.hteck.playtube.service.HistoryService;
 
@@ -43,10 +44,10 @@ public class YoutubePlayerView extends YouTubePlayerSupportFragment {
     public void onCreate(Bundle b) {
         super.onCreate(b);
 
-        initAndPlayYoutube(false);
+        initPlayer();
     }
 
-    private void initAndPlayYoutube(final boolean isCue) {
+    private void initPlayer() {
         if (_youtubePlayer == null) {
             try {
                 OnInitializedListener initializedListener =
@@ -60,19 +61,24 @@ public class YoutubePlayerView extends YouTubePlayerSupportFragment {
                             @Override
                             public void onInitializationSuccess(
                                     YouTubePlayer.Provider provider,
-                                    YouTubePlayer player, boolean wasRestored) {
+                                    final YouTubePlayer player, boolean wasRestored) {
+
                                 try {
-                                    try {
-                                        onPause();
-                                        onResume();
-                                    } catch (Throwable e) {
-                                        e.printStackTrace();
+                                    if (!wasRestored) {
+                                        try {
+                                            onPause();
+                                            onResume();
+                                        } catch (Throwable e) {
+                                            e.printStackTrace();
+                                        }
                                     }
                                     _youtubePlayer = player;
 
                                     _youtubePlayer
                                             .setPlayerStyle(YouTubePlayer.PlayerStyle.DEFAULT);
-                                    playYoutube(isCue);
+                                    if (!wasRestored) {
+                                        playYoutube();
+                                    }
                                     _youtubePlayer
                                             .setFullscreenControlFlags(YouTubePlayer.FULLSCREEN_FLAG_CUSTOM_LAYOUT);
 
@@ -85,6 +91,7 @@ public class YoutubePlayerView extends YouTubePlayerSupportFragment {
                                 } catch (Throwable e) {
                                     e.printStackTrace();
                                 }
+
                             }
                         };
                 initialize(PlayTubeController.getConfigInfo().youtubeDevID, initializedListener);
@@ -94,31 +101,23 @@ public class YoutubePlayerView extends YouTubePlayerSupportFragment {
             }
         } else {
             try {
-                playYoutube(isCue);
+                playYoutube();
             } catch (Throwable e) {
                 e.printStackTrace();
                 if (e instanceof IllegalStateException) {
                     _youtubePlayer = null;
-                    initAndPlayYoutube(isCue);
+                    initPlayer();
                 }
             }
         }
     }
 
-    private void playYoutube(boolean isCue) {
-        if (isCue) {
-            _youtubePlayer
-                    .cueVideos(
-                            getYoutubeIds(PlayTubeController.getPlayingInfo().getYoutubeList()),
-                            PlayTubeController.getPlayingInfo().getCurrentIndex(),
-                            0);
-        } else {
-            _youtubePlayer
-                    .loadVideos(
-                            getYoutubeIds(PlayTubeController.getPlayingInfo().getYoutubeList()),
-                            PlayTubeController.getPlayingInfo().getCurrentIndex(),
-                            0);
-        }
+    private void playYoutube() {
+        _youtubePlayer
+                .loadVideos(
+                        getYoutubeIds(PlayTubeController.getPlayingInfo().getYoutubeList()),
+                        PlayTubeController.getPlayingInfo().getCurrentIndex(),
+                        0);
     }
 
     public void visibleFullScreenButton(boolean isVisible) {
@@ -127,8 +126,9 @@ public class YoutubePlayerView extends YouTubePlayerSupportFragment {
         }
     }
 
-    public void initAndPlayYoutube() {
-        initAndPlayYoutube(false);
+    public void reinitPlayer() {
+        stop();
+        initPlayer();
     }
 
     public void stop() {
@@ -298,7 +298,7 @@ public class YoutubePlayerView extends YouTubePlayerSupportFragment {
         try {
             if (e instanceof IllegalStateException) {
                 _youtubePlayer = null;
-                initAndPlayYoutube(true);
+                initPlayer();
                 MainActivity.getInstance().setRequestedOrientation(
                         ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
