@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 
 import com.hteck.playtube.common.Constants;
 import com.hteck.playtube.common.Utils;
+import com.hteck.playtube.data.ChannelInfo;
 import com.hteck.playtube.data.CommentInfo;
 import com.hteck.playtube.data.YoutubeInfo;
 
@@ -16,6 +17,21 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Vector;
+
+import static com.hteck.playtube.common.Constants.ItemConstants.TITLE;
+import static com.hteck.playtube.common.Constants.YoutubeField.CONTENTDETAILS;
+import static com.hteck.playtube.common.Constants.YoutubeField.Channel.MEDIUM;
+import static com.hteck.playtube.common.Constants.YoutubeField.Channel.RELATEDPLAYLISTS;
+import static com.hteck.playtube.common.Constants.YoutubeField.Channel.SUBSCRIBERCOUNT;
+import static com.hteck.playtube.common.Constants.YoutubeField.Channel.THUMBNAILS;
+import static com.hteck.playtube.common.Constants.YoutubeField.Channel.UPLOADS;
+import static com.hteck.playtube.common.Constants.YoutubeField.Channel.URL;
+import static com.hteck.playtube.common.Constants.YoutubeField.Channel.VIDEOCOUNT;
+import static com.hteck.playtube.common.Constants.YoutubeField.ID;
+import static com.hteck.playtube.common.Constants.YoutubeField.SNIPPET;
+import static com.hteck.playtube.common.Constants.YoutubeField.STATISTICS;
+import static com.hteck.playtube.common.Utils.getString;
 
 public class YoutubeHelper {
     public static String getSortByValue(int position) {
@@ -73,15 +89,14 @@ public class YoutubeHelper {
                 JSONObject jObjectItem = (JSONObject) items.get(i);
 
                 YoutubeInfo youtubeInfo = new YoutubeInfo();
-                youtubeInfo.id = Utils.getString(jObjectItem, Constants.YoutubeField.ID,
+                youtubeInfo.id = getString(jObjectItem, ID,
                         Constants.YoutubeField.VIDEOID);
                 if (!Utils.stringIsNullOrEmpty(youtubeInfo.id)) {
                     videoList.add(youtubeInfo);
                 }
             }
-            final String NEXTPAGETOKEN = Constants.YoutubeField.NEXTPAGETOKEN;
-            if (jObjectData.has(NEXTPAGETOKEN)) {
-                nextPageToken = jObjectData.getString(NEXTPAGETOKEN);
+            if (jObjectData.has(Constants.YoutubeField.NEXTPAGETOKEN)) {
+                nextPageToken = jObjectData.getString(Constants.YoutubeField.NEXTPAGETOKEN);
             }
         } catch (Throwable e) {
             e.printStackTrace();
@@ -99,7 +114,7 @@ public class YoutubeHelper {
                 boolean isDataReturned = false;
                 for (int k = 0; k < items.length(); ++k) {
                     JSONObject jObjectItem = (JSONObject) items.get(k);
-                    String id = jObjectItem.getString(Constants.YoutubeField.ID);
+                    String id = jObjectItem.getString(ID);
 
                     if (youtubeList.get(i).id.equals(id)) {
                         if (populateVideoItem(youtubeList.get(i),
@@ -122,19 +137,19 @@ public class YoutubeHelper {
                                              JSONObject jObjectItem) {
         try {
             JSONObject jObjectSnippet = jObjectItem
-                    .getJSONObject(Constants.YoutubeField.SNIPPET);
+                    .getJSONObject(SNIPPET);
             youtubeInfo.title = jObjectSnippet.getString(Constants.YoutubeField.TITLE);
             if (Utils.stringIsNullOrEmpty(youtubeInfo.title)) {
                 return false;
             }
 
-            youtubeInfo.id = jObjectItem.getString(Constants.YoutubeField.ID);
-            youtubeInfo.duration = Utils.getTimeInSeconds(Utils.getString(jObjectItem,
-                    Constants.YoutubeField.CONTENTDETAILS, Constants.YoutubeField.DURATION));
+            youtubeInfo.id = jObjectItem.getString(ID);
+            youtubeInfo.duration = Utils.getTimeInSeconds(getString(jObjectItem,
+                    CONTENTDETAILS, Constants.YoutubeField.DURATION));
 
-            if (jObjectItem.has(Constants.YoutubeField.STATISTICS)) {
+            if (jObjectItem.has(STATISTICS)) {
                 JSONObject jobjStatistics = jObjectItem
-                        .getJSONObject(Constants.YoutubeField.STATISTICS);
+                        .getJSONObject(STATISTICS);
                 youtubeInfo.viewsNo = jobjStatistics
                         .getInt(Constants.YoutubeField.VIEWCOUNT);
                 if (jobjStatistics.has(Constants.YoutubeField.LIKECOUNT)) {
@@ -166,43 +181,127 @@ public class YoutubeHelper {
         return false;
     }
 
-	public static AbstractMap.SimpleEntry<String, ArrayList<CommentInfo>> getCommentList(
-			String val) {
+    public static AbstractMap.SimpleEntry<String, ArrayList<CommentInfo>> getCommentList(
+            String val) {
         ArrayList<CommentInfo> commentList = new ArrayList<>();
-		String nextPageToken = "";
-		try {
+        String nextPageToken = "";
+        try {
 
-			JSONObject jObjData = new JSONObject(val);
-			JSONArray items = jObjData.getJSONArray(Constants.YoutubeField.ITEMS);
-			for (int i = 0; i < items.length(); ++i) {
+            JSONObject jObjData = new JSONObject(val);
+            JSONArray items = jObjData.getJSONArray(Constants.YoutubeField.ITEMS);
+            for (int i = 0; i < items.length(); ++i) {
 
-				CommentInfo commentInfo = new CommentInfo();
+                CommentInfo commentInfo = new CommentInfo();
 
-				JSONObject jObjectTopLevelComment = Utils.getJSONObject(
-						(JSONObject) items.get(i), Constants.YoutubeField.SNIPPET, Constants.YoutubeField.TOPLEVELCOMMENT);
-				if (jObjectTopLevelComment != null) {
+                JSONObject jObjectTopLevelComment = Utils.getJSONObject(
+                        (JSONObject) items.get(i), SNIPPET, Constants.YoutubeField.TOPLEVELCOMMENT);
+                if (jObjectTopLevelComment != null) {
 
-					commentInfo.userName = Utils.getString(
-							jObjectTopLevelComment, Constants.YoutubeField.SNIPPET,
+                    commentInfo.userName = getString(
+                            jObjectTopLevelComment, SNIPPET,
                             Constants.YoutubeField.AUTHORDISPLAYNAME);
-					commentInfo.details = Utils.getString(jObjectTopLevelComment,
-                            Constants.YoutubeField.SNIPPET, Constants.YoutubeField.TEXTDISPLAY);
-					commentInfo.commentedDate = Utils
-							.getDisplayDateTime(Utils.getString(jObjectTopLevelComment,
-                                    Constants.YoutubeField.SNIPPET, Constants.YoutubeField.PUBLISHEDAT));
+                    commentInfo.details = getString(jObjectTopLevelComment,
+                            SNIPPET, Constants.YoutubeField.TEXTDISPLAY);
+                    commentInfo.commentedDate = Utils
+                            .getDisplayDateTime(getString(jObjectTopLevelComment,
+                                    SNIPPET, Constants.YoutubeField.PUBLISHEDAT));
 
                     commentList.add(commentInfo);
                 }
-			}
-			final String NEXTPAGETOKEN = Constants.YoutubeField.NEXTPAGETOKEN;
-			if (jObjData.has(NEXTPAGETOKEN)) {
-				nextPageToken = jObjData.getString(NEXTPAGETOKEN);
-			}
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
+            }
+            final String NEXTPAGETOKEN = Constants.YoutubeField.NEXTPAGETOKEN;
+            if (jObjData.has(NEXTPAGETOKEN)) {
+                nextPageToken = jObjData.getString(NEXTPAGETOKEN);
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
 
-		return new AbstractMap.SimpleEntry<>(nextPageToken,
+        return new AbstractMap.SimpleEntry<>(nextPageToken,
                 commentList);
-	}
+    }
+
+    public static AbstractMap.SimpleEntry<ArrayList<ChannelInfo>, String> getChannelList(
+            String data) {
+        ArrayList<ChannelInfo> channels = new ArrayList<ChannelInfo>();
+        String pageToken = "";
+        try {
+
+            JSONObject jObjectData = new JSONObject(data);
+            JSONArray items = jObjectData.getJSONArray(Constants.YoutubeField.ITEMS);
+            for (int i = 0; i < items.length(); ++i) {
+                ChannelInfo channelInfo = populateChannel((JSONObject) items
+                        .get(i));
+                if (channelInfo != null) {
+                    channels.add(channelInfo);
+                }
+            }
+            if (jObjectData.has(Constants.YoutubeField.NEXTPAGETOKEN)) {
+                pageToken = jObjectData.getString(Constants.YoutubeField.NEXTPAGETOKEN);
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+        return new AbstractMap.SimpleEntry<>(channels, pageToken);
+    }
+
+    public static ChannelInfo populateChannel(JSONObject jObject) {
+        ChannelInfo result = new ChannelInfo();
+
+        try {
+            JSONObject jObjectSnippet = jObject
+                    .getJSONObject(SNIPPET);
+            result.title = jObjectSnippet.getString(Constants.YoutubeField.TITLE);
+            result.id = jObject.getJSONObject(ID).getString(
+                    Constants.YoutubeField.Channel.CHANNELID);
+            result.imageUrl = getString(jObjectSnippet, THUMBNAILS,
+                    MEDIUM, URL);
+            return result;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return result;
+        }
+    }
+
+    public static ArrayList<ChannelInfo> getChannels(
+            String data) {
+        ArrayList<ChannelInfo> channels = new ArrayList<>();
+        try {
+            JSONObject jObjectData = new JSONObject(data);
+            JSONArray items = jObjectData.getJSONArray(Constants.YoutubeField.ITEMS);
+            for (int i = 0; i < items.length(); ++i) {
+                JSONObject jObjectItem = (JSONObject) items.get(i);
+                JSONObject jObjectSnippet = jObjectItem
+                        .getJSONObject(SNIPPET);
+                String id = jObjectItem.getString(ID);
+                ChannelInfo channelInfo = new ChannelInfo();
+                channelInfo.id = id;
+                if (jObjectItem.has(STATISTICS)) {
+                    JSONObject jobjStatistics = jObjectItem
+                            .getJSONObject(STATISTICS);
+                    channelInfo.subscriberCount = jobjStatistics
+                            .getInt(SUBSCRIBERCOUNT);
+                    channelInfo.videoCount = jobjStatistics
+                            .getInt(VIDEOCOUNT);
+                }
+
+                channelInfo.uploadPlaylistId = getString(jObjectItem,
+                        CONTENTDETAILS,
+                        RELATEDPLAYLISTS,
+                        UPLOADS);
+
+                channelInfo.imageUrl = getString(jObjectSnippet,
+                        THUMBNAILS, MEDIUM,
+                        URL);
+                channelInfo.title = jObjectSnippet
+                        .getString(TITLE);
+                channels.add(channelInfo);
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        return channels;
+    }
+
 }

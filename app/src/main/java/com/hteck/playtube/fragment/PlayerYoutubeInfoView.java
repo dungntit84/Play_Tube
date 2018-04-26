@@ -58,7 +58,7 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
 
         _binding = DataBindingUtil.inflate(inflater, R.layout.frame_layout_view, container, false);
         _listView = new ListView(MainActivity.getInstance());
-        _adapterVideoInfo = new PlayerYoutubeInfoAdapter(
+        _adapterVideoInfo = new PlayerYoutubeInfoAdapter(getContext(),
                 _youtubeInfo);
         _listView.setAdapter(_adapterVideoInfo);
         _listView.setSmoothScrollbarEnabled(false);
@@ -68,7 +68,7 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int index, long arg3) {
                 try {
-                    if (index == _adapterVideoInfo.getCount() - 1 && _adapterVideoInfo.getCommentList().size() > 0 && _adapterVideoInfo.getCommentList().lastElement() == null) {
+                    if (index == _adapterVideoInfo.getCount() - 1 && _adapterVideoInfo.getCommentList().size() > 0 && _adapterVideoInfo.getCommentList().get(index) == null) {
                         if (_adapterVideoInfo.getIsNetworkError()) {
                             _adapterVideoInfo.setIsNetworkError(false);
                             _adapterVideoInfo.notifyDataSetChanged();
@@ -106,7 +106,7 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
             }
             _youtubeInfo = PlayTubeController.getPlayingInfo().getCurrentYoutubeInfo();
             _nextPageToken = "";
-            Vector<CommentInfo> commentList = new Vector<>();
+            ArrayList<CommentInfo> commentList = new ArrayList<>();
             _adapterVideoInfo.setIsNetworkError(false);
             _adapterVideoInfo.setDataSource(_youtubeInfo, commentList);
             _adapterVideoInfo.notifyDataSetChanged();
@@ -193,7 +193,7 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
                             ArrayList<CommentInfo> commentList = commentListInfo
                                     .getValue();
                             if (_adapterVideoInfo.getCommentList().size() > 0
-                                    && _adapterVideoInfo.getCommentList().lastElement() == null) {
+                                    && _adapterVideoInfo.getCommentList().get(_adapterVideoInfo.getCommentList().size() - 1) == null) {
                                 _adapterVideoInfo.getCommentList()
                                         .remove(_adapterVideoInfo.getCommentList()
                                                 .size() - 1);

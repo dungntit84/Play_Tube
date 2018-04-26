@@ -15,6 +15,7 @@ public class Constants {
     public final static String PLAYLIST_DATA = "playlist_data";
     public final static String HISTORY_DATA = "history_data";
     public final static String NO_USES_SETTING = "no_uses_setting";
+    public final static int PAGE_SIZE = 20;
 
     public class ItemConstants {
         public final static String VERSION = "version";
@@ -53,6 +54,17 @@ public class Constants {
         public final static String AUTHORDISPLAYNAME = "authorDisplayName";
         public final static String TOPLEVELCOMMENT = "topLevelComment";
         public final static String TEXTDISPLAY = "textDisplay";
+
+        public class Channel {
+            public final static String CHANNELID = "channelId";
+            public final static String THUMBNAILS = "thumbnails";
+            public final static String MEDIUM = "medium";
+            public final static String URL = "url";
+            public final static String SUBSCRIBERCOUNT = "subscriberCount";
+            public final static String VIDEOCOUNT = "videoCount";
+            public final static String RELATEDPLAYLISTS = "relatedPlaylists";
+            public final static String UPLOADS = "uploads";
+        }
     }
 
     public class PlaylistItemType {
@@ -70,6 +82,7 @@ public class Constants {
         public final static int UPLOADED = 106;
         public final static int OTHERACTION = 107;
     }
+
     public class UserActivityType {
         public final static int MULTIPLECHANNELS = 998;
         public final static int RECENTACTIVIY = 999;
@@ -79,11 +92,13 @@ public class Constants {
         public final static int SINGLEPLAYLIST = 1003;
         public final static int MULTIPLEPLAYLISTS = 1004;
     }
+
     public class SortBy {
         public final static int NONE = 0;
         public final static int MOSTVIEWED = 1;
         public final static int MOSTRECENT = 2;
     }
+
     public class YoutubeState {
         public final static int QUEUE = 50;
         public final static int WAITINGFORLOADINGITEMCOUNT = 51;

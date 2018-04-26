@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.adapter.PlaylistPopupAdapter;
@@ -30,7 +31,7 @@ public class PlaylistsDialogView extends FrameLayout {
         PlaylistInfo addNewPlaylist = new PlaylistInfo();
         addNewPlaylist.title = Utils.getString(R.string.create_new_playlist);
         playlists.add(0, addNewPlaylist);
-        PlaylistPopupAdapter adapter = new PlaylistPopupAdapter(playlists);
+        PlaylistPopupAdapter adapter = new PlaylistPopupAdapter(context, playlists);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 

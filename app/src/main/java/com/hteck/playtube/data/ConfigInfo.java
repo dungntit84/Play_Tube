@@ -13,4 +13,6 @@ public class ConfigInfo {
     public String loadRelatedOfYoutubeUrl;
     public String loadYoutubesOfChannelUrl;
     public String loadSuggestionsUrl;
+    public String searchChannelUrl;
+    public String loadChannelsInfoUrl;
 }

@@ -681,4 +681,27 @@ public class Utils {
 
         return false;
     }
+
+    public static int getInt(JSONObject jObj, String... propNames) {
+        try {
+            JSONObject item = null;
+            if (propNames.length == 1) {
+                item = jObj;
+            }
+            for (int i = 0; i < propNames.length - 1; ++i) {
+                JSONObject tmp = item == null ? jObj : item;
+                if (tmp.has(propNames[i])) {
+                    item = tmp.getJSONObject(propNames[i]);
+                } else {
+                    return 0;
+                }
+            }
+            if (item != null && item.has(propNames[propNames.length - 1])) {
+                return item.getInt(propNames[propNames.length - 1]);
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }

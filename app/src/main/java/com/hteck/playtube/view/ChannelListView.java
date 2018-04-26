@@ -15,12 +15,20 @@ import android.widget.ListView;
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.adapter.ChannelByPageAdapter;
+import com.hteck.playtube.common.Constants;
 import com.hteck.playtube.common.CustomHttpOk;
 import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.ChannelInfo;
 import com.hteck.playtube.databinding.ListViewBinding;
+import com.hteck.playtube.service.YoutubeHelper;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+import com.squareup.okhttp.internal.Util;
 
+import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 
 public class ChannelListView extends FrameLayout implements
@@ -30,7 +38,6 @@ public class ChannelListView extends FrameLayout implements
     private ArrayList<ChannelInfo> _channelList = new ArrayList<>();
     private ArrayList<ChannelInfo> _channelListSearching = new ArrayList<>();
     ChannelByPageAdapter _adapterChannel;
-    private boolean _isNetworkError;
     String _query;
     private LoadingView _busyView;
     public boolean mIsSearched;
@@ -38,6 +45,7 @@ public class ChannelListView extends FrameLayout implements
     private View _viewReload;
     private ListViewBinding _binding;
     private CustomHttpOk _httpOk;
+
     public ChannelListView(Context context) {
         super(context);
 
@@ -78,9 +86,10 @@ public class ChannelListView extends FrameLayout implements
         if (_isLoading) {
             return;
         }
+        _isLoading = true;
         _channelList = new ArrayList<>();
         setDataSource(_channelList, true);
-        _isLoading = true;
+
         cancelAllRequests();
         _nextPageToken = "";
         _query = query;
@@ -96,65 +105,71 @@ public class ChannelListView extends FrameLayout implements
 
     private void search() {
         String url = String
-                .format(PlayTubeController.getConfigInfo()..getDevKeyInfo().searchChannelApiUrl,
-                        Utils.encodeUrl(_query), _nextPageToken);
-        IEventHandler eventHandler = new IEventHandler() {
-
+                .format(PlayTubeController.getConfigInfo().searchChannelUrl, _nextPageToken,
+                        Utils.urlEncode(_query));
+        CustomHttpOk httpOk = new CustomHttpOk(url, new Callback() {
             @Override
-            public void returnResult(Object sender,
-                                     final ResultType resultType, final byte[] data) {
+            public void onFailure(Request request, IOException e) {
                 MainActivity.getInstance().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (resultType == ResultType.Success) {
-                            try {
-                                String s = new String(data);
-                                KeyPairValue<String, Vector<ChannelInfo>> searchResult = YoutubeHelper
-                                        .getChannels(s);
-                                _nextPageToken = searchResult.getKey();
-                                _channelListSearching = searchResult.getValue();
-
-                                if (_channelListSearching.size() == 0) {
-                                    if (_channelList.size() > 0
-                                            && _channelList
-                                            .elementAt(_channelList
-                                                    .size() - 1) == null) {
-                                        _channelList.remove(_channelList.size() - 1);
-                                    }
-
-                                    setDataSource(_channelList, false);
-                                    hideBusyAnimation();
-                                    _isLoading = false;
-                                } else {
-                                    loadChannelsInfo();
-                                }
-
-                            } catch (Throwable e) {
-                                e.printStackTrace();
-                                hideBusyAnimation();
-                                _isLoading = false;
-                            }
-                        }
-
-                        if (resultType == ResultType.NetworkError) {
-                            Utils.showMessageToast(MainActivity.getInstance()
+                        try {
+                            Utils.showMessage(Utils
                                     .getString(R.string.network_error));
                             hideBusyAnimation();
                             _isLoading = false;
                             if (_channelList.size() == 0) {
-                                initReloadEvent();
+                                handleNetworkError();
                             } else {
-                                _isNetworkError = true;
-                                _adapterChannel.mIsNetworkError = true;
+                                _adapterChannel.setIsNetworkError(true);
                                 _adapterChannel.notifyDataSetChanged();
                             }
+                        } catch (Throwable e) {
+                            e.printStackTrace();
                         }
                     }
                 });
             }
-        };
-        _httpGetFile = new HttpGetFile(url, eventHandler);
-        _httpGetFile.start();
+
+            @Override
+            public void onResponse(final Response response) throws IOException {
+                MainActivity.getInstance().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            String s = response.body().string();
+                            AbstractMap.SimpleEntry<ArrayList<ChannelInfo>, String> searchResult = YoutubeHelper
+                                    .getChannelList(s);
+                            _nextPageToken = searchResult.getValue();
+                            _channelListSearching = searchResult.getKey();
+
+                            if (_channelListSearching.size() == 0) {
+                                if (_channelList.size() > 0
+                                        && _channelList
+                                        .get(_channelList
+                                                .size() - 1) == null) {
+                                    _channelList.remove(_channelList.size() - 1);
+                                }
+
+                                setDataSource(_channelList, false);
+                                hideBusyAnimation();
+                                _isLoading = false;
+                            } else {
+                                loadChannelsInfo();
+                            }
+
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                            hideBusyAnimation();
+                            _isLoading = false;
+                        }
+
+                    }
+                });
+            }
+        });
+
+        httpOk.start();
         if (_channelList.size() == 0) {
             showBusyAnimation();
         }
@@ -173,10 +188,10 @@ public class ChannelListView extends FrameLayout implements
             return;
         }
         _isLoading = true;
-        _channelListSearching = new Vector<ChannelInfo>();
+        _channelListSearching = new ArrayList<>();
         int count = 0;
         for (ChannelInfo c : _channelList) {
-            if (Utils.isNullOrEmpty(c.title)) {
+            if (Utils.stringIsNullOrEmpty(c.title)) {
                 count++;
                 _channelListSearching.add(c);
                 if (count == Constants.PAGE_SIZE) {
@@ -197,97 +212,97 @@ public class ChannelListView extends FrameLayout implements
             }
         }
         String url = String
-                .format(MainContext.getDevKeyInfo().getChannelsDetailsApiUrl,
+                .format(PlayTubeController.getConfigInfo().loadChannelsInfoUrl,
                         ids);
-
-        IEventHandler eventHandler = new IEventHandler() {
-
+        CustomHttpOk httpOk = new CustomHttpOk(url, new Callback() {
             @Override
-            public void returnResult(Object sender,
-                                     final ResultType resultType, final byte[] data) {
+            public void onFailure(Request request, IOException e) {
                 MainActivity.getInstance().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (resultType == ResultType.Success) {
-                            try {
-
-                                String s = new String(data);
-                                if (Utils.isLoadMoreChannels(_channelList)) {
-                                    YoutubeHelper.populateChannelsInfo(
-                                            _channelList, s);
-                                } else {
-                                    YoutubeHelper.populateChannelsInfo(
-                                            _channelListSearching, s);
-
-                                    if (_channelList.size() > 0
-                                            && _channelList
-                                            .elementAt(_channelList
-                                                    .size() - 1) == null) {
-                                        _channelList.remove(_channelList.size() - 1);
-                                    }
-                                    _channelList.addAll(_channelListSearching);
-                                    if (!Utils.isNullOrEmpty(_nextPageToken)) {
-                                        _channelList.add(null);
-                                    }
-                                }
-                                setDataSource(_channelList, false);
-
-                            } catch (Throwable e) {
-                                e.printStackTrace();
-                            }
-                            hideBusyAnimation();
-                            _isLoading = false;
-                        }
-
-                        if (resultType == ResultType.NetworkError) {
-                            Utils.showMessageToast(MainActivity.getInstance()
+                        try {
+                            Utils.showMessage(Utils
                                     .getString(R.string.network_error));
                             hideBusyAnimation();
                             _isLoading = false;
                             if (_channelList.size() == 0) {
-                                initReloadEvent();
+                                handleNetworkError();
                             } else {
-                                _isNetworkError = true;
-                                _adapterChannel.mIsNetworkError = true;
+                                _adapterChannel.setIsNetworkError(true);
                                 _adapterChannel.notifyDataSetChanged();
                             }
+                        } catch (Throwable e) {
+                            e.printStackTrace();
                         }
                     }
                 });
             }
-        };
-        _httpGetFile = new HttpGetFile(url, eventHandler);
-        _httpGetFile.start();
+
+            @Override
+            public void onResponse(final Response response) throws IOException {
+                MainActivity.getInstance().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+
+                            String s = response.body().string();
+                            if (Utils.haveMoreChannels(_channelList)) {
+                                _channelList = YoutubeHelper.getChannels(s);
+                            } else {
+                                _channelListSearching = YoutubeHelper.getChannels(s);
+
+                                if (_channelList.size() > 0
+                                        && _channelList
+                                        .get(_channelList
+                                                .size() - 1) == null) {
+                                    _channelList.remove(_channelList.size() - 1);
+                                }
+                                _channelList.addAll(_channelListSearching);
+                                if (!Utils.stringIsNullOrEmpty(_nextPageToken)) {
+                                    _channelList.add(null);
+                                }
+                            }
+                            setDataSource(_channelList, false);
+
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                        }
+                        hideBusyAnimation();
+                        _isLoading = false;
+                    }
+                });
+            }
+        });
+
+        httpOk.start();
     }
 
     private void hideBusyAnimation() {
-        Utils.hideBusyAnimation(_contentView, _busyView);
+        Utils.hideProgressBar(_binding.layoutMain, _busyView);
     }
 
     private void showBusyAnimation() {
-        _busyView = Utils.showBusyAnimation(_contentView, _busyView);
+        _busyView = Utils.showProgressBar(_binding.layoutMain, _busyView);
     }
 
     @Override
-    public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-        int index = (int) arg3;
+    public void onItemClick(AdapterView<?> arg0, View arg1, int index, long arg3) {
         if (index == _channelList.size() - 1
-                && _channelList.lastElement() == null) {
-            if (_isNetworkError) {
-                _isNetworkError = false;
-                _adapterChannel.mIsNetworkError = false;
+                && _channelList.get(_channelList.size() - 1) == null) {
+            if (_adapterChannel.getIsNetworkError()) {
+                _adapterChannel.setIsNetworkError(false);
                 _adapterChannel.notifyDataSetChanged();
                 searchMore();
             }
         } else {
-            ChannelInfo channelInfo = _channelList.elementAt(index);
+            ChannelInfo channelInfo = _channelList.get(index);
             if (channelInfo == null) {
                 return;
             }
 
-            UserDetails userDetails = UserDetails
-                    .newInstance(channelInfo);
-            MainActivity.getInstance().launchFragment(userDetails);
+//            UserDetails userDetails = UserDetails
+//                    .newInstance(channelInfo);
+//            MainActivity.getInstance().launchFragment(userDetails);
         }
     }
 
@@ -301,13 +316,13 @@ public class ChannelListView extends FrameLayout implements
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
         if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
-            if (_listView.getLastVisiblePosition() == _listView.getAdapter()
+            if (view.getLastVisiblePosition() == view.getAdapter()
                     .getCount() - 1) {
-                if (Utils.isLoadMoreChannels(_channelList)
+                if (Utils.haveMoreChannels(_channelList)
                         || (_channelList.size() > 0 && _channelList
-                        .lastElement() == null)) {
-                    if (!_isNetworkError) {
-                        if (Utils.isLoadMoreChannels(_channelList)) {
+                        .get(_channelList.size() - 1) == null)) {
+                    if (!_adapterChannel.getIsNetworkError()) {
+                        if (Utils.haveMoreChannels(_channelList)) {
                             loadMoreChannelsInfo();
                         } else {
                             searchMore();
@@ -318,23 +333,23 @@ public class ChannelListView extends FrameLayout implements
         }
     }
 
-    private void initReloadEvent() {
+    private void handleNetworkError() {
         LayoutInflater inflater = MainActivity.getInstance()
                 .getLayoutInflater();
-        _viewReload = (ViewGroup) inflater.inflate(R.layout.reload_view, null);
-        _contentView.addView(_viewReload);
-        _viewReload.setOnTouchListener(new OnTouchListener() {
-
+        if (_viewReload == null) {
+            _viewReload = (ViewGroup) inflater.inflate(R.layout.retry_view, null);
+            _binding.layoutMain.addView(_viewReload);
+        }
+        _viewReload.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onClick(View view) {
                 if (_viewReload != null) {
-                    _contentView.removeView(_viewReload);
+                    _binding.layoutMain.removeView(_viewReload);
                     _viewReload = null;
                 }
-
                 search();
-                return false;
             }
         });
     }
+
 }
