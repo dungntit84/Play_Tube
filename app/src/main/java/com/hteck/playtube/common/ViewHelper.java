@@ -155,9 +155,8 @@ public class ViewHelper {
         return v;
     }
 
-    public static BaseViewHolder getViewHolder(View convertView, int resId, ViewGroup group) {
+    public static BaseViewHolder getViewHolder(LayoutInflater inflater, View convertView, int resId, ViewGroup group) {
         BaseViewHolder holder;
-        LayoutInflater inflater = MainActivity.getInstance().getLayoutInflater();
         if (convertView == null || convertView.getTag(Constants.CUSTOM_TAG) == null || !convertView.getTag(Constants.CUSTOM_TAG).equals(resId)) {
             ViewDataBinding binding = DataBindingUtil.inflate(inflater, resId, group, false);
             holder = new BaseViewHolder(binding);

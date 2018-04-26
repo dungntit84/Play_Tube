@@ -1,5 +1,6 @@
 package com.hteck.playtube.adapter;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,24 +20,27 @@ import com.hteck.playtube.databinding.ItemLoadMoreBinding;
 import com.hteck.playtube.databinding.PlayerInfoBinding;
 import com.hteck.playtube.holder.BaseViewHolder;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 public class PlayerYoutubeInfoAdapter extends BaseAdapter {
-    private Vector<CommentInfo> _commentList = new Vector<>();
+    private Context _context;
+    private ArrayList<CommentInfo> _commentList = new ArrayList<>();
     private YoutubeInfo _youtubeInfo;
     private boolean _isNetworkError;
 
-    public PlayerYoutubeInfoAdapter(YoutubeInfo youtubeInfo) {
+    public PlayerYoutubeInfoAdapter(Context context, YoutubeInfo youtubeInfo) {
         super();
+        _context = context;
         _youtubeInfo = youtubeInfo;
     }
 
-    public void setDataSource(YoutubeInfo youtubeInfo, Vector<CommentInfo> commentList) {
+    public void setDataSource(YoutubeInfo youtubeInfo, ArrayList<CommentInfo> commentList) {
         _youtubeInfo = youtubeInfo;
         _commentList = commentList;
     }
 
-    public Vector<CommentInfo> getCommentList() {
+    public ArrayList<CommentInfo> getCommentList() {
         return _commentList;
     }
 
@@ -59,17 +63,17 @@ public class PlayerYoutubeInfoAdapter extends BaseAdapter {
         if (position == 0) {
             holder = getYoutubeInfoView(convertView, group);
         } else if (position == 1) {
-            holder = ViewHelper.getViewHolder(convertView, R.layout.header_template_view, group);
-        } else if (position - 1 == _commentList.size() && _commentList.lastElement() == null) {
+            holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, R.layout.header_template_view, group);
+        } else if (position - 1 == _commentList.size() && _commentList.get(_commentList.size() - 1) == null) {
             if (!_isNetworkError) {
-                holder = ViewHelper.getViewHolder(convertView, R.layout.loading_view, group);
+                holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, R.layout.loading_view, group);
             } else {
-                holder = ViewHelper.getViewHolder(convertView, R.layout.item_load_more, group);
+                holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, R.layout.item_load_more, group);
                 ((ItemLoadMoreBinding) holder.binding).itemLoadMoreTvMsg.setText(Utils.getString(R.string.network_error_info));
             }
         } else {
             CommentInfo userCommentInfo = _commentList.get(position - 2);
-            holder = ViewHelper.getViewHolder(convertView, R.layout.item_comment, group);
+            holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, R.layout.item_comment, group);
             ItemCommentBinding binding = ((ItemCommentBinding) holder.binding);
             binding.itemCommentTextViewTitle.setText(userCommentInfo.userName);
             binding.itemCommentTextViewTime.setText(userCommentInfo.commentedDate);
@@ -87,7 +91,7 @@ public class PlayerYoutubeInfoAdapter extends BaseAdapter {
     @Override
     public Object getItem(int position) {
         if (position > 2 && _commentList.size() > position - 2) {
-            return _commentList.elementAt(position - 2);
+            return _commentList.get(position - 2);
         }
         return null;
     }
@@ -98,7 +102,7 @@ public class PlayerYoutubeInfoAdapter extends BaseAdapter {
     }
 
     private BaseViewHolder getYoutubeInfoView(View convertView, ViewGroup group) {
-        BaseViewHolder holder = ViewHelper.getViewHolder(convertView, R.layout.player_info, group);
+        BaseViewHolder holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, R.layout.player_info, group);
         PlayerInfoBinding binding = (PlayerInfoBinding) holder.binding;
         binding.playerInfoTvTitle.setText(_youtubeInfo.title.toUpperCase());
         ViewHelper.displayYoutubeThumb(binding.playerInfoImgThumb, _youtubeInfo.imageUrl);

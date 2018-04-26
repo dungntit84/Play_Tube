@@ -1,5 +1,7 @@
 package com.hteck.playtube.adapter;
 
+import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,58 +9,47 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.hteck.playtube.R;
+import com.hteck.playtube.common.ViewHelper;
+import com.hteck.playtube.data.ChannelInfo;
+import com.hteck.playtube.databinding.ItemChannelBinding;
+import com.hteck.playtube.databinding.ItemPlaylistBinding;
+import com.hteck.playtube.holder.BaseViewHolder;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.venustech.playtube.common.Utils;
-import com.venustech.playtube.info.ChannelInfo;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class ChannelAdapter extends BaseAdapter {
-    public Vector<ChannelInfo> _channelList;
+    protected Context _context;
+    public ArrayList<ChannelInfo> _channelList;
 
-    public ChannelAdapter(Vector<ChannelInfo> channelList) {
+    public ChannelAdapter(Context context, ArrayList<ChannelInfo> channelList) {
         super();
+        _context = context;
         _channelList = channelList;
     }
 
-    public void setDataSource(Vector<ChannelInfo> channelList) {
+    public void setDataSource(ArrayList<ChannelInfo> channelList) {
         _channelList = channelList;
         notifyDataSetChanged();
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup group) {
-        LayoutInflater inflater = MainActivity.getInstance()
-                .getLayoutInflater();
-        TextView textView = null;
+        BaseViewHolder holder;
+        holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, R.layout.item_channel, group);
+        ItemChannelBinding binding = (ItemChannelBinding) holder.binding;
 
-        View v;
-        if (convertView == null) {
-            v = inflater.inflate(R.layout.item_user, null);
-            v.setTag(Constants.TAG_ID, R.layout.item_user);
-        } else {
-            v = convertView;
-            if (v.getTag(Constants.TAG_ID) == null || !(v.getTag(Constants.TAG_ID) instanceof Integer) || (int) v.getTag(Constants.TAG_ID) != R.layout.item_user) {
-                v = inflater.inflate(R.layout.item_user, null);
-                v.setTag(Constants.TAG_ID, R.layout.item_user);
-            }
-        }
+        ChannelInfo channelInfo = _channelList.get(position);
 
-        textView = (TextView) v.findViewById(R.id.tv_title);
-        textView.setText(channelInfo.title);
-
-        ImageView iv = (ImageView) v.findViewById(R.id.image_view_thumb);
-        ImageLoader.getInstance().displayImage(channelInfo.thumbUrl, iv);
-
-        textView = (TextView) v.findViewById(R.id.text_view_video_count);
-        textView.setText(channelInfo.getDisplayNumOfVideos());
-        textView.setVisibility(channelInfo.numVideos > 0 ? View.VISIBLE
+        binding.textViewTitle.setText(channelInfo.title);
+        ImageLoader.getInstance().displayImage(channelInfo.imageUrl, binding.imageViewThumb);
+        binding.textViewVideoCount.setText(channelInfo.getDisplayVideoCount());
+        binding.textViewVideoCount.setVisibility(channelInfo.videoCount > 0 ? View.VISIBLE
                 : View.GONE);
+        binding.textViewSubscriberCount.setText(channelInfo.getDisplaySubscriberCount());
 
-        textView = (TextView) v.findViewById(R.id.text_view_num_subscribers);
-        textView.setText(channelInfo.getDisplayNumOfSubscribers());
-
-        return v;
+        return holder.view;
 
     }
 
@@ -70,7 +61,7 @@ public class ChannelAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        return _channelList.elementAt(position);
+        return _channelList.get(position);
     }
 
     @Override

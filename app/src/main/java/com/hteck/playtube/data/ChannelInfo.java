@@ -27,7 +27,7 @@ public class ChannelInfo {
         return Utils.formatNumber(videoCount, true) + (videoCount > 1 ? " videos" : " video");
     }
 
-    public String getDisplayNumOfSubscribers() {
+    public String getDisplaySubscriberCount() {
         return Utils.formatNumber(subscriberCount, false) + (videoCount > 1 ? " subscribers" : " subscriber");
     }
     public boolean isLoggedIn;

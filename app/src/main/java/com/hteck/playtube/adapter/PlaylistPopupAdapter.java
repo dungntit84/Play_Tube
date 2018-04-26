@@ -1,5 +1,6 @@
 package com.hteck.playtube.adapter;
 
+import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,10 +19,12 @@ import com.hteck.playtube.holder.ItemPopupPlaylistViewHolder;
 import java.util.ArrayList;
 
 public class PlaylistPopupAdapter extends BaseAdapter {
+    private Context _context;
     private ArrayList<PlaylistInfo> _playlistList;
 
-    public PlaylistPopupAdapter(ArrayList<PlaylistInfo> playlistList) {
+    public PlaylistPopupAdapter(Context context, ArrayList<PlaylistInfo> playlistList) {
         super();
+        _context = context;
         _playlistList = playlistList;
     }
 
@@ -35,10 +38,10 @@ public class PlaylistPopupAdapter extends BaseAdapter {
         BaseViewHolder holder;
         PlaylistInfo playlistInfo = _playlistList.get(position);
         if (playlistInfo.id == null) {
-            holder = ViewHelper.getViewHolder(convertView, R.layout.item_add_playlist, group);
+            holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, R.layout.item_add_playlist, group);
             ((ItemAddPlaylistBinding) holder.binding).itemPlaylistTitle.setText(playlistInfo.title.toUpperCase());
         } else {
-            holder = ViewHelper.getViewHolder(convertView, R.layout.item_popup_playlist, group);
+            holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, R.layout.item_popup_playlist, group);
             ((ItemPopupPlaylistBinding) holder.binding).itemPlaylistTitle.setText(playlistInfo.title.toUpperCase());
             ViewHelper.displayYoutubeThumb(((ItemPopupPlaylistBinding) holder.binding).itemPlaylistImgThumb, playlistInfo.imageUrl);
         }

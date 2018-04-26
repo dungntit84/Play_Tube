@@ -11,4 +11,7 @@
     <loadRelatedOfYoutubeUrl value="https://www.googleapis.com/youtube/v3/search?part=snippet&amp;relatedToVideoId=%s&amp;pageToken=%s&amp;type=video&amp;videoEmbeddable=true&amp;maxResults=20&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs"/>
     <loadYoutubesOfChannelUrl value="https://www.googleapis.com/youtube/v3/search?part=snippet&amp;channelId=%s&amp;pageToken=%s&amp;maxResults=20&amp;type=video&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs"/>
     <loadSuggestionsUrl value="http://suggestqueries.google.com/complete/search?hl=vi&amp;client=youtube&amp;ds=yt&amp;q=%s"/>
+    <searchChannelApiUrl value="https://www.googleapis.com/youtube/v3/search?type=channel&amp;pageToken=%s&amp;maxResults=20&amp;part=snippet&amp;q=%s&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
+    <getChannelsDetailsApiUrl value="https://www.googleapis.com/youtube/v3/channels?part=contentDetails,snippet,statistics&amp;id=%s&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
+
 </Root>

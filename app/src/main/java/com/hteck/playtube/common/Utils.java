@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
+import com.hteck.playtube.data.ChannelInfo;
 import com.hteck.playtube.data.YoutubeInfo;
 import com.hteck.playtube.view.LoadingView;
 
@@ -28,6 +29,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Timer;
@@ -410,7 +412,7 @@ public class Utils {
         return loadingView;
     }
 
-    public static LoadingView hideProgressBar(ViewGroup parent, LoadingView loadingView) {
+    public static void hideProgressBar(ViewGroup parent, LoadingView loadingView) {
         try {
             if (loadingView != null) {
                 parent.removeView(loadingView);
@@ -420,7 +422,6 @@ public class Utils {
         }
 
         loadingView = null;
-        return loadingView;
     }
 
     public static void shareVideo(YoutubeInfo youtubeInfo) {
@@ -573,7 +574,9 @@ public class Utils {
                 InputMethodManager imm = (InputMethodManager) MainActivity
                         .getInstance().getSystemService(
                                 Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
             }
         } catch (Throwable e) {
             e.printStackTrace();
@@ -655,7 +658,7 @@ public class Utils {
         };
 
         if (mTimerCallback == null) {
-            mTimerCallback = new Vector<TimerTask>(3);
+            mTimerCallback = new Vector<>(3);
         }
         synchronized (mTimerCallback) {
             mTimerCallback.add(tt);
@@ -669,4 +672,13 @@ public class Utils {
         }
     }
 
+    public static boolean haveMoreChannels(ArrayList<ChannelInfo> channels) {
+        for (ChannelInfo c : channels) {
+            if (c != null && stringIsNullOrEmpty(c.title)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

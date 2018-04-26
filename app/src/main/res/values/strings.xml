@@ -46,4 +46,6 @@
     <string name="rate_app_content">Please rate this App on the Store.</string>
     <string name="network_error_reload">Network error! \nTouch to reload</string>
     <string name="select_a_category">Select a Category</string>
+    <string name="no_channel_found">No Channel found!</string>
+    <string name="no_playlist_found">No Playlist found!</string>
 </resources>
