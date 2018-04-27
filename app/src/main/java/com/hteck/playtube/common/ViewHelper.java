@@ -182,6 +182,19 @@ public class ViewHelper {
         }
     }
 
+    public static void displayChannelThumb(ImageView imageView, String url) {
+        if (imageView.getTag() == null
+                || !imageView.getTag().toString()
+                .equalsIgnoreCase(url)) {
+            imageView.setTag(url);
+            imageView.setImageResource(R.drawable.ic_user);
+            if (!Utils.stringIsNullOrEmpty(url)) {
+                ImageLoader.getInstance().displayImage(
+                        url, imageView);
+            }
+        }
+    }
+
     public static void showAddNewPlaylist(final YoutubeInfo youtubeInfo, final Dialog parent) {
         final View v = MainActivity.getInstance().getLayoutInflater().inflate(R.layout.edit_playlist, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(

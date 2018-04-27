@@ -1,18 +1,24 @@
 package com.hteck.playtube.fragment;
 
 import android.database.MatrixCursor;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.SearchView.OnQueryTextListener;
+
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
+import com.hteck.playtube.adapter.PagerAdapter;
 import com.hteck.playtube.adapter.SearchCursorAdapter;
 import com.hteck.playtube.common.CustomHttpOk;
 import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
+import com.hteck.playtube.databinding.TabsSearchViewBinding;
+import com.hteck.playtube.databinding.TabsViewBinding;
 import com.hteck.playtube.view.YoutubeListView;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
@@ -25,11 +31,14 @@ import java.io.IOException;
 public class SearchView extends BaseFragment {
     private android.widget.SearchView _editTextSearch;
     private static String _query = "";
-    private static YoutubeListView _youtubeListView;
+    private static SearchVideoFragment _searchVideoFragment;
+    private static SearchChannelFragment _searchChannelFragment;
     private String[] _suggestions = new String[]{};
     private MatrixCursor mSearchCursor;
     private SearchCursorAdapter _adapter;
     private CustomHttpOk _httpOk;
+    private TabsSearchViewBinding _binding;
+
     public static SearchView newInstance(
             android.widget.SearchView editTextSearch) {
         SearchView v = new SearchView();
@@ -42,16 +51,43 @@ public class SearchView extends BaseFragment {
                              Bundle savedInstanceState) {
 
         MainActivity.getInstance().setHeader();
-        if (_youtubeListView == null) {
-            _youtubeListView = new YoutubeListView(getContext());
-        } else {
-            ViewGroup parent = (ViewGroup) _youtubeListView.getParent();
-            if (parent != null) {
-                parent.removeView(_youtubeListView);
-            }
-        }
+
         initView();
-        return _youtubeListView;
+        return createView(container);
+    }
+
+    private View createView(ViewGroup group) {
+        LayoutInflater inflater = MainActivity.getInstance()
+                .getLayoutInflater();
+        _binding = DataBindingUtil.inflate(inflater, R.layout.tabs_search_view, group, false);
+        PagerAdapter pagerAdapter = new PagerAdapter(getChildFragmentManager());
+
+        _searchVideoFragment = SearchVideoFragment.newInstance();
+        _searchChannelFragment = SearchChannelFragment.newInstance();
+
+        pagerAdapter.addFragment(_searchVideoFragment, Utils.getString(R.string.video));
+        pagerAdapter.addFragment(_searchChannelFragment, Utils.getString(R.string.channel));
+        _binding.pager.setAdapter(pagerAdapter);
+        _binding.tabs.setupWithViewPager(_binding.pager);
+        _binding.tabs.setTabMode(TabLayout.MODE_FIXED);
+        _binding.tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                doSearch(false);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+        _binding.pager.setOffscreenPageLimit(4);
+        return _binding.getRoot();
     }
 
     private void initView() {
@@ -63,7 +99,7 @@ public class SearchView extends BaseFragment {
                     if (Utils.stringIsNullOrEmpty(query)) {
                         return false;
                     }
-
+                    resetSearch();
                     _query = query;
 
                     doSearch(true);
@@ -139,7 +175,7 @@ public class SearchView extends BaseFragment {
         }
         if (isNewSearch) {
             // Check if no view has focus:
-            Utils.closeKeyboard();
+            Utils.hideKeyboard();
 
             try {
                 _suggestions = new String[]{};
@@ -152,13 +188,40 @@ public class SearchView extends BaseFragment {
             }
         }
 
-        _youtubeListView.search(_query);
+        switch (_binding.tabs.getSelectedTabPosition()) {
+            case 0: {
+                if (!_searchVideoFragment.getView().mIsSearched) {
+                    _searchVideoFragment.getView().mIsSearched = true;
+                    _searchVideoFragment.getView().search(_query);
+                }
+                break;
+            }
+
+            default: {
+                if (!_searchChannelFragment.getView().mIsSearched) {
+                    _searchChannelFragment.getView().mIsSearched = true;
+                    _searchChannelFragment.getView().search(_query);
+                }
+                break;
+            }
+        }
+    }
+
+    private void resetSearch() {
+        try {
+            _searchVideoFragment.getView().mIsSearched = false;
+            _searchChannelFragment.getView().mIsSearched = false;
+
+            _query = "";
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     private void setSuggestionForSearchView() {
         // closeSearchCursor();
 
-        String[] columnNames = { "_id", "text" };
+        String[] columnNames = {"_id", "text"};
         mSearchCursor = new MatrixCursor(columnNames);
 
         String[] temp = new String[2];
@@ -180,7 +243,7 @@ public class SearchView extends BaseFragment {
     private void loadSuggestions(final String query) {
         String url = String.format(PlayTubeController.getConfigInfo().loadSuggestionsUrl,
                 Utils.urlEncode(query));
-        if(_httpOk != null) {
+        if (_httpOk != null) {
             _httpOk.cancel();
         }
         _httpOk = new CustomHttpOk(url, new Callback() {
@@ -217,7 +280,7 @@ public class SearchView extends BaseFragment {
                                 setSuggestionForSearchView();
 
                             } else {
-                                _suggestions = new String[] {};
+                                _suggestions = new String[]{};
                                 setSuggestionForSearchView();
                             }
 
@@ -239,6 +302,7 @@ public class SearchView extends BaseFragment {
             e.printStackTrace();
         }
     }
+
     @Override
     public String getTitle() {
         return Utils.getString(R.string.search);

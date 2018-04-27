@@ -1,23 +1,17 @@
 package com.hteck.playtube.adapter;
 
 import android.content.Context;
-import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
-
 import com.hteck.playtube.R;
 import com.hteck.playtube.common.ViewHelper;
 import com.hteck.playtube.data.ChannelInfo;
 import com.hteck.playtube.databinding.ItemChannelBinding;
-import com.hteck.playtube.databinding.ItemPlaylistBinding;
 import com.hteck.playtube.holder.BaseViewHolder;
-import com.nostra13.universalimageloader.core.ImageLoader;
-
 import java.util.ArrayList;
+import static com.hteck.playtube.common.ViewHelper.displayChannelThumb;
 
 public class ChannelAdapter extends BaseAdapter {
     protected Context _context;
@@ -43,7 +37,7 @@ public class ChannelAdapter extends BaseAdapter {
         ChannelInfo channelInfo = _channelList.get(position);
 
         binding.textViewTitle.setText(channelInfo.title);
-        ImageLoader.getInstance().displayImage(channelInfo.imageUrl, binding.imageViewThumb);
+        displayChannelThumb(binding.imageViewThumb, channelInfo.imageUrl);
         binding.textViewVideoCount.setText(channelInfo.getDisplayVideoCount());
         binding.textViewVideoCount.setVisibility(channelInfo.videoCount > 0 ? View.VISIBLE
                 : View.GONE);

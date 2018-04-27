@@ -39,7 +39,7 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
     private String _query;
     private ListViewBinding _binding;
     private CustomHttpOk _httpOk;
-
+    public boolean mIsSearched;
     public YoutubeListView(Context context) {
         super(context);
         View v = createView();

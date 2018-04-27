@@ -3,19 +3,15 @@ package com.hteck.playtube.view;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
-import android.widget.ListView;
 
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.adapter.ChannelByPageAdapter;
-import com.hteck.playtube.common.Constants;
 import com.hteck.playtube.common.CustomHttpOk;
 import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
@@ -25,18 +21,17 @@ import com.hteck.playtube.service.YoutubeHelper;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
-import com.squareup.okhttp.internal.Util;
 
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ChannelListView extends FrameLayout implements
         AdapterView.OnItemClickListener, OnScrollListener {
 
     private String _nextPageToken = "";
     private ArrayList<ChannelInfo> _channelList = new ArrayList<>();
-    private ArrayList<ChannelInfo> _channelListSearching = new ArrayList<>();
     ChannelByPageAdapter _adapterChannel;
     String _query;
     private LoadingView _busyView;
@@ -64,7 +59,7 @@ public class ChannelListView extends FrameLayout implements
         _binding.listView.setOnScrollListener(this);
     }
 
-    public void setDataSource(ArrayList<ChannelInfo> channelList, boolean isInit) {
+    public void setDataSource(boolean isInit, ArrayList<ChannelInfo> channelList) {
 
         if (isInit || channelList.size() > 0) {
             _binding.textViewMsg.setVisibility(GONE);
@@ -88,7 +83,7 @@ public class ChannelListView extends FrameLayout implements
         }
         _isLoading = true;
         _channelList = new ArrayList<>();
-        setDataSource(_channelList, true);
+        setDataSource(true, _channelList);
 
         cancelAllRequests();
         _nextPageToken = "";
@@ -107,7 +102,7 @@ public class ChannelListView extends FrameLayout implements
         String url = String
                 .format(PlayTubeController.getConfigInfo().searchChannelUrl, _nextPageToken,
                         Utils.urlEncode(_query));
-        CustomHttpOk httpOk = new CustomHttpOk(url, new Callback() {
+        _httpOk = new CustomHttpOk(url, new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
                 MainActivity.getInstance().runOnUiThread(new Runnable() {
@@ -141,9 +136,9 @@ public class ChannelListView extends FrameLayout implements
                             AbstractMap.SimpleEntry<ArrayList<ChannelInfo>, String> searchResult = YoutubeHelper
                                     .getChannelList(s);
                             _nextPageToken = searchResult.getValue();
-                            _channelListSearching = searchResult.getKey();
+                            ArrayList<ChannelInfo> channels = searchResult.getKey();
 
-                            if (_channelListSearching.size() == 0) {
+                            if (channels.size() == 0) {
                                 if (_channelList.size() > 0
                                         && _channelList
                                         .get(_channelList
@@ -151,11 +146,11 @@ public class ChannelListView extends FrameLayout implements
                                     _channelList.remove(_channelList.size() - 1);
                                 }
 
-                                setDataSource(_channelList, false);
+                                setDataSource(false, _channelList);
                                 hideBusyAnimation();
                                 _isLoading = false;
                             } else {
-                                loadChannelsInfo();
+                                loadChannelsInfo(channels);
                             }
 
                         } catch (Throwable e) {
@@ -169,7 +164,7 @@ public class ChannelListView extends FrameLayout implements
             }
         });
 
-        httpOk.start();
+        _httpOk.start();
         if (_channelList.size() == 0) {
             showBusyAnimation();
         }
@@ -183,29 +178,29 @@ public class ChannelListView extends FrameLayout implements
         search();
     }
 
-    private void loadMoreChannelsInfo() {
-        if (_isLoading) {
-            return;
-        }
-        _isLoading = true;
-        _channelListSearching = new ArrayList<>();
-        int count = 0;
-        for (ChannelInfo c : _channelList) {
-            if (Utils.stringIsNullOrEmpty(c.title)) {
-                count++;
-                _channelListSearching.add(c);
-                if (count == Constants.PAGE_SIZE) {
-                    break;
-                }
-            }
-        }
-        loadChannelsInfo();
-    }
+//    private void loadMoreChannelsInfo() {
+//        if (_isLoading) {
+//            return;
+//        }
+//        _isLoading = true;
+//        _channelListSearching = new ArrayList<>();
+//        int count = 0;
+//        for (ChannelInfo c : _channelList) {
+//            if (Utils.stringIsNullOrEmpty(c.title)) {
+//                count++;
+//                _channelListSearching.add(c);
+//                if (count == Constants.PAGE_SIZE) {
+//                    break;
+//                }
+//            }
+//        }
+//        loadChannelsInfo();
+//    }
 
-    private void loadChannelsInfo() {
+    private void loadChannelsInfo(ArrayList<ChannelInfo> channels) {
         String ids = "";
-        for (ChannelInfo channelInfo : _channelListSearching) {
-            if (ids == "") {
+        for (ChannelInfo channelInfo : channels) {
+            if (Objects.equals(ids, "")) {
                 ids = channelInfo.id;
             } else {
                 ids = ids + "," + channelInfo.id;
@@ -214,7 +209,7 @@ public class ChannelListView extends FrameLayout implements
         String url = String
                 .format(PlayTubeController.getConfigInfo().loadChannelsInfoUrl,
                         ids);
-        CustomHttpOk httpOk = new CustomHttpOk(url, new Callback() {
+        _httpOk = new CustomHttpOk(url, new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
                 MainActivity.getInstance().runOnUiThread(new Runnable() {
@@ -246,23 +241,23 @@ public class ChannelListView extends FrameLayout implements
                         try {
 
                             String s = response.body().string();
-                            if (Utils.haveMoreChannels(_channelList)) {
-                                _channelList = YoutubeHelper.getChannels(s);
-                            } else {
-                                _channelListSearching = YoutubeHelper.getChannels(s);
+//                            if (Utils.haveMoreChannels(_channelList)) {
+//                                _channelList = YoutubeHelper.getChannels(s);
+//                            } else {
+                            ArrayList<ChannelInfo> channels = YoutubeHelper.getChannels(s);
 
-                                if (_channelList.size() > 0
-                                        && _channelList
-                                        .get(_channelList
-                                                .size() - 1) == null) {
-                                    _channelList.remove(_channelList.size() - 1);
-                                }
-                                _channelList.addAll(_channelListSearching);
-                                if (!Utils.stringIsNullOrEmpty(_nextPageToken)) {
-                                    _channelList.add(null);
-                                }
+                            if (_channelList.size() > 0
+                                    && _channelList
+                                    .get(_channelList
+                                            .size() - 1) == null) {
+                                _channelList.remove(_channelList.size() - 1);
                             }
-                            setDataSource(_channelList, false);
+                            _channelList.addAll(channels);
+                            if (!Utils.stringIsNullOrEmpty(_nextPageToken)) {
+                                _channelList.add(null);
+                            }
+//                            }
+                            setDataSource(false, _channelList);
 
                         } catch (Throwable e) {
                             e.printStackTrace();
@@ -274,7 +269,7 @@ public class ChannelListView extends FrameLayout implements
             }
         });
 
-        httpOk.start();
+        _httpOk.start();
     }
 
     private void hideBusyAnimation() {
@@ -322,11 +317,11 @@ public class ChannelListView extends FrameLayout implements
                         || (_channelList.size() > 0 && _channelList
                         .get(_channelList.size() - 1) == null)) {
                     if (!_adapterChannel.getIsNetworkError()) {
-                        if (Utils.haveMoreChannels(_channelList)) {
-                            loadMoreChannelsInfo();
-                        } else {
-                            searchMore();
-                        }
+//                        if (Utils.haveMoreChannels(_channelList)) {
+//                            loadMoreChannelsInfo();
+//                        } else {
+                        searchMore();
+//                        }
                     }
                 }
             }
@@ -337,7 +332,7 @@ public class ChannelListView extends FrameLayout implements
         LayoutInflater inflater = MainActivity.getInstance()
                 .getLayoutInflater();
         if (_viewReload == null) {
-            _viewReload = (ViewGroup) inflater.inflate(R.layout.retry_view, null);
+            _viewReload = inflater.inflate(R.layout.retry_view, null);
             _binding.layoutMain.addView(_viewReload);
         }
         _viewReload.setOnClickListener(new View.OnClickListener() {
