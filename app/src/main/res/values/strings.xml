@@ -50,4 +50,13 @@
     <string name="no_playlist_found">No Playlist found!</string>
     <string name="video">VIDEO</string>
     <string name="channel">CHANNEL</string>
+    <string name="show_all">Show all</string>
+    <string name="uploaded">uploaded</string>
+    <string name="liked">liked</string>
+    <string name="commented">commented</string>
+    <string name="uploaded_and_posted">uploaded and posted</string>
+    <string name="subscribed">subscribed</string>
+    <string name="recommended">recommended</string>
+    <string name="had_an_action_on">had an action on</string>
+    <string name="user_action_description"> %s a video %s</string>
 </resources>

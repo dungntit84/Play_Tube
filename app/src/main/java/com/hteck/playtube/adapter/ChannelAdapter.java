@@ -5,12 +5,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+
 import com.hteck.playtube.R;
 import com.hteck.playtube.common.ViewHelper;
 import com.hteck.playtube.data.ChannelInfo;
 import com.hteck.playtube.databinding.ItemChannelBinding;
 import com.hteck.playtube.holder.BaseViewHolder;
+
 import java.util.ArrayList;
+
 import static com.hteck.playtube.common.ViewHelper.displayChannelThumb;
 
 public class ChannelAdapter extends BaseAdapter {
@@ -30,11 +33,13 @@ public class ChannelAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup group) {
-        BaseViewHolder holder;
-        holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, R.layout.item_channel, group);
-        ItemChannelBinding binding = (ItemChannelBinding) holder.binding;
+        return getDetailsView(LayoutInflater.from(_context), convertView, group, _channelList.get(position));
+    }
 
-        ChannelInfo channelInfo = _channelList.get(position);
+    public static View getDetailsView(LayoutInflater inflater, View convertView, ViewGroup group, ChannelInfo channelInfo) {
+        BaseViewHolder holder;
+        holder = ViewHelper.getViewHolder(inflater, convertView, R.layout.item_channel, group);
+        ItemChannelBinding binding = (ItemChannelBinding) holder.binding;
 
         binding.textViewTitle.setText(channelInfo.title);
         displayChannelThumb(binding.imageViewThumb, channelInfo.imageUrl);
@@ -44,7 +49,6 @@ public class ChannelAdapter extends BaseAdapter {
         binding.textViewSubscriberCount.setText(channelInfo.getDisplaySubscriberCount());
 
         return holder.view;
-
     }
 
     @Override

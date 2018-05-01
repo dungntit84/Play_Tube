@@ -13,5 +13,5 @@
     <loadSuggestionsUrl value="http://suggestqueries.google.com/complete/search?hl=vi&amp;client=youtube&amp;ds=yt&amp;q=%s"/>
     <searchChannelUrl value="https://www.googleapis.com/youtube/v3/search?type=channel&amp;pageToken=%s&amp;maxResults=20&amp;part=snippet&amp;q=%s&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
     <loadChannelsInfoUrl value="https://www.googleapis.com/youtube/v3/channels?id=%s&amp;part=contentDetails,snippet,statistics&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
-
+    <loadSectionsOfChannelUrl value="https://www.googleapis.com/youtube/v3/channelSections?channelId=%s&amp;part=contentDetails,snippet&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
 </Root>
