@@ -45,4 +45,6 @@
     <dimen name="separator_height">1dp</dimen>
     <dimen name="channel_height">64dp</dimen>
     <dimen name="user_activity_channel_height">36dp</dimen>
+    <dimen name="subscribe_width">106dp</dimen>
+    <dimen name="subscribe_height">30dp</dimen>
 </resources>
