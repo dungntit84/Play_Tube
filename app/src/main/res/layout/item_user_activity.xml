@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bgMain"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/row_padding"
+        android:paddingLeft="@dimen/row_padding"
+        android:paddingTop="@dimen/row_padding">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingBottom="@dimen/normal_padding"
+            android:paddingTop="@dimen/normal_padding">
+
+            <FrameLayout
+                android:layout_width="@dimen/user_activity_channel_height"
+                android:layout_height="@dimen/user_activity_channel_height">
+
+                <ImageView
+                    android:id="@+id/image_view_channel_thumb"
+                    android:layout_width="@dimen/user_activity_channel_height"
+                    android:layout_height="@dimen/user_activity_channel_height"
+                    android:src="@drawable/ic_user"></ImageView>
+
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:paddingLeft="@dimen/row_padding">
+
+                <TextView
+                    android:id="@+id/text_view_uploader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:textColor="@color/textColor"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/text_view_other"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:textColor="@color/textColor" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <include
+                android:id="@+id/included"
+                layout="@layout/item_youtube_view" />
+        </FrameLayout>
+
+    </LinearLayout>
+</layout>

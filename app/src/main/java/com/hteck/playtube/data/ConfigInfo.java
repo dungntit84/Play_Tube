@@ -15,4 +15,5 @@ public class ConfigInfo {
     public String loadSuggestionsUrl;
     public String searchChannelUrl;
     public String loadChannelsInfoUrl;
+    public String loadSectionsOfChannelUrl;
 }

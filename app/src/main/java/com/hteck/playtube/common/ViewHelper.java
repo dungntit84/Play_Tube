@@ -14,12 +14,16 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
+import com.hteck.playtube.data.ChannelInfo;
 import com.hteck.playtube.data.PlaylistInfo;
+import com.hteck.playtube.data.PlaylistItemInfo;
 import com.hteck.playtube.data.YoutubeInfo;
 import com.hteck.playtube.databinding.GridItemYoutubeViewBinding;
+import com.hteck.playtube.databinding.ItemUserActivityBinding;
 import com.hteck.playtube.databinding.ItemYoutubeViewBinding;
 import com.hteck.playtube.holder.BaseViewHolder;
 import com.hteck.playtube.service.HistoryService;
@@ -30,6 +34,8 @@ import com.hteck.playtube.view.PlaylistsDialogView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.UUID;
+
+import static com.hteck.playtube.common.Utils.getString;
 
 public class ViewHelper {
     public static View getYoutubeView(View convertView, ViewGroup group, YoutubeInfo youtubeInfo, View.OnClickListener onClickListener) {
@@ -118,7 +124,7 @@ public class ViewHelper {
                         showPlaylistsToAdd(youtubeInfo);
                     } else if (item.getItemId() == R.id.menu_item_add_to_favourites) {
                         PlaylistService.addYoutubeToFavouritePlaylist(youtubeInfo);
-                        Utils.showMessage(Utils.getString(R.string.added));
+                        Utils.showMessage(getString(R.string.added));
                         MainActivity.getInstance().refreshPlaylistData();
                     } else if (item.getItemId() == R.id.menu_item_share) {
                         Utils.shareVideo(youtubeInfo);
@@ -201,7 +207,7 @@ public class ViewHelper {
                 MainActivity.getInstance());
         builder.setPositiveButton(android.R.string.yes, null);
         builder.setNegativeButton(android.R.string.no, null);
-        builder.setTitle(Utils.getString(R.string.add_new_playlist));
+        builder.setTitle(getString(R.string.add_new_playlist));
         builder.setView(v);
         final AlertDialog mAlertDialog = builder.create();
         mAlertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
@@ -225,7 +231,7 @@ public class ViewHelper {
 
                             playlistInfo.title = title;
                             PlaylistService.addPlaylist(playlistInfo, youtubeInfo);
-                            Utils.showMessage(Utils.getString(R.string.added));
+                            Utils.showMessage(getString(R.string.added));
                             dialog.dismiss();
                             parent.dismiss();
                             MainActivity.getInstance().refreshPlaylistData();
@@ -245,7 +251,7 @@ public class ViewHelper {
                 MainActivity.getInstance());
         builder.setPositiveButton(android.R.string.yes, null);
         builder.setNegativeButton(android.R.string.no, null);
-        builder.setTitle(Utils.getString(R.string.add_new_playlist));
+        builder.setTitle(getString(R.string.add_new_playlist));
         if (playlistInfo != null) {
             EditText editText = v.findViewById(R.id.edit_playlist_edit_text);
             editText.setText(playlistInfo.title);
@@ -280,7 +286,7 @@ public class ViewHelper {
                             } else {
                                 PlaylistService.updatePlaylist(playlistInfoNew);
                             }
-                            Utils.showMessage(Utils.getString(R.string.added));
+                            Utils.showMessage(getString(R.string.added));
                             dialog.dismiss();
                             MainActivity.getInstance().refreshPlaylistData();
                         } catch (Exception ex) {
@@ -309,10 +315,10 @@ public class ViewHelper {
     private static void removeYoutubeFromPlaylist(final PlaylistInfo playlistInfo, final YoutubeInfo youtubeInfo) {
         final AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.getInstance(),
                 AlertDialog.THEME_HOLO_LIGHT);
-        String msg = String.format(Utils.getString(R.string.remove_youtube_confirm), youtubeInfo.title);
+        String msg = String.format(getString(R.string.remove_youtube_confirm), youtubeInfo.title);
         alert.setMessage(msg);
 
-        alert.setPositiveButton(Utils.getString(R.string.ok), new DialogInterface.OnClickListener() {
+        alert.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -321,7 +327,7 @@ public class ViewHelper {
             }
         });
 
-        alert.setNeutralButton(Utils.getString(R.string.cancel),
+        alert.setNeutralButton(getString(R.string.cancel),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.dismiss();
@@ -333,10 +339,10 @@ public class ViewHelper {
     private static void removeYoutubeFromHistory(final YoutubeInfo youtubeInfo) {
         final AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.getInstance(),
                 AlertDialog.THEME_HOLO_LIGHT);
-        String msg = String.format(Utils.getString(R.string.remove_youtube_confirm), youtubeInfo.title);
+        String msg = String.format(getString(R.string.remove_youtube_confirm), youtubeInfo.title);
         alert.setMessage(msg);
 
-        alert.setPositiveButton(Utils.getString(R.string.ok), new DialogInterface.OnClickListener() {
+        alert.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -345,12 +351,66 @@ public class ViewHelper {
             }
         });
 
-        alert.setNeutralButton(Utils.getString(R.string.cancel),
+        alert.setNeutralButton(getString(R.string.cancel),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.dismiss();
                     }
                 });
         alert.show();
+    }
+
+    public static View getActivityYoutubeView(LayoutInflater inflater, View convertView, ViewGroup group,
+                                              YoutubeInfo youtubeInfo,
+                                              ChannelInfo channelInfo, PlaylistItemInfo itemViewInfo,
+                                              View.OnClickListener onClickListener) {
+
+        BaseViewHolder holder = getViewHolder(inflater, convertView, R.layout.item_user_activity, group);
+        ItemUserActivityBinding binding = (ItemUserActivityBinding) holder.binding;
+        ImageLoader.getInstance().displayImage(channelInfo.imageUrl,
+                binding.imageViewChannelThumb);
+        binding.textViewUploader.setText(channelInfo.title);
+        String actionTitle = String.format(getString(R.string.user_action_description),
+                getActionDescription(itemViewInfo.playlistItemType),
+                itemViewInfo.time);
+        binding.textViewOther.setText(actionTitle);
+
+        binding.included.itemYoutubeTvTitle.setText(youtubeInfo.title.toUpperCase());
+        displayYoutubeThumb(binding.included.itemYoutubeImgThumb, youtubeInfo.imageUrl);
+        binding.included.itemYoutubeTvUploadedDate.setText(youtubeInfo.uploadedDate);
+        binding.included.itemYoutubeTvPlaysNo.setText(Utils.getDisplayViews(youtubeInfo.viewsNo, false));
+        binding.included.itemYoutubeTvLikesNo.setText(Utils.getDisplayLikes(youtubeInfo.likesNo, false));
+        binding.included.itemYoutubeTvTime.setText(Utils.getDisplayTime((int) youtubeInfo.duration));
+        binding.included.itemYoutubeTvUploader.setText(youtubeInfo.uploaderName);
+        binding.included.itemYoutubeImgAction.setTag(youtubeInfo);
+        binding.included.itemYoutubeImgAction.setOnClickListener(onClickListener);
+
+        return holder.view;
+    }
+
+    private static String getActionDescription(int actionType) {
+        switch (actionType) {
+            case Constants.PlaylistItemType.UPLOADED: {
+                return getString(R.string.uploaded);
+            }
+            case Constants.PlaylistItemType.LIKED: {
+                return getString(R.string.liked);
+            }
+            case Constants.PlaylistItemType.COMMENTED: {
+                return getString(R.string.commented);
+            }
+            case Constants.PlaylistItemType.UPLOADEDANDPOSTED: {
+                return getString(R.string.uploaded_and_posted);
+            }
+            case Constants.PlaylistItemType.SUBSCRIBED: {
+                return getString(R.string.subscribed);
+            }
+            case Constants.PlaylistItemType.RECOMMENDED: {
+                return getString(R.string.recommended);
+            }
+            default: {
+                return getString(R.string.had_an_action_on);
+            }
+        }
     }
 }
