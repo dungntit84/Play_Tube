@@ -41,7 +41,7 @@ public class YoutubePlaylistAdapter extends BaseAdapter {
     public static View getDetailsView(LayoutInflater inflater, View convertView, ViewGroup group,
                                       YoutubePlaylistInfo playlistInfo) {
         BaseViewHolder holder;
-        holder = ViewHelper.getViewHolder(inflater, convertView, R.layout.item_playlist, group);
+        holder = ViewHelper.getViewHolder(inflater, convertView, group, R.layout.item_playlist);
         ItemPlaylistBinding binding = (ItemPlaylistBinding) holder.binding;
 
         binding.itemPlaylistTitle.setText(playlistInfo.title);

@@ -38,10 +38,10 @@ public class PlaylistPopupAdapter extends BaseAdapter {
         BaseViewHolder holder;
         PlaylistInfo playlistInfo = _playlistList.get(position);
         if (playlistInfo.id == null) {
-            holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, R.layout.item_add_playlist, group);
+            holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.item_add_playlist);
             ((ItemAddPlaylistBinding) holder.binding).itemPlaylistTitle.setText(playlistInfo.title.toUpperCase());
         } else {
-            holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, R.layout.item_popup_playlist, group);
+            holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.item_popup_playlist);
             ((ItemPopupPlaylistBinding) holder.binding).itemPlaylistTitle.setText(playlistInfo.title.toUpperCase());
             ViewHelper.displayYoutubeThumb(((ItemPopupPlaylistBinding) holder.binding).itemPlaylistImgThumb, playlistInfo.imageUrl);
         }

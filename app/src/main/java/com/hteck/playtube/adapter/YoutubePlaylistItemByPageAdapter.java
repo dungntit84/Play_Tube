@@ -4,22 +4,27 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.hteck.playtube.R;
+import com.hteck.playtube.common.Constants;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.common.ViewHelper;
 import com.hteck.playtube.data.ChannelInfo;
+import com.hteck.playtube.data.PlaylistItemInfo;
+import com.hteck.playtube.data.YoutubeInfo;
 import com.hteck.playtube.databinding.ItemLoadMoreBinding;
+import com.hteck.playtube.fragment.UserActivityFragment;
 import com.hteck.playtube.holder.BaseViewHolder;
 
 import java.util.ArrayList;
 import java.util.Vector;
 
-public class ChannelByPageAdapter extends ChannelAdapter {
-    public boolean _isNetworkError;
+public class YoutubePlaylistItemByPageAdapter extends YoutubePlaylistItemAdapter {
+    private boolean _isNetworkError;
 
-    public ChannelByPageAdapter(Context context, ArrayList<ChannelInfo> channelList) {
-        super(context, channelList);
+    public YoutubePlaylistItemByPageAdapter(Context context, UserActivityFragment channelHomeTab, ChannelInfo channelInfo, Vector<PlaylistItemInfo> items) {
+        super(context, channelHomeTab, channelInfo, items);
     }
 
     public void setIsNetworkError(boolean isNetworkError) {
@@ -34,7 +39,7 @@ public class ChannelByPageAdapter extends ChannelAdapter {
     public View getView(int position, View convertView, ViewGroup group) {
         BaseViewHolder holder;
         if (position == getCount() - 1) {
-            if (_channelList.get(_channelList.size() - 1) == null || Utils.haveMoreChannels(_channelList)) {
+            if (_items.get(_items.size() - 1) == null) {
                 if (!_isNetworkError) {
                     holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.loading_view);
                 } else {
@@ -45,22 +50,5 @@ public class ChannelByPageAdapter extends ChannelAdapter {
             }
         }
         return super.getView(position, convertView, group);
-    }
-
-    @Override
-    public int getCount() {
-
-        if (Utils.haveMoreChannels(_channelList)) {
-            int size = 0;
-            for (ChannelInfo c : _channelList) {
-                if (!Utils.stringIsNullOrEmpty(c.title)) {
-                    size++;
-                } else {
-                    break;
-                }
-            }
-            return size + 1;
-        }
-        return super.getCount();
     }
 }

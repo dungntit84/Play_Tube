@@ -3,10 +3,13 @@ package com.hteck.playtube.service;
 import android.annotation.SuppressLint;
 
 import com.hteck.playtube.common.Constants;
+import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.ChannelInfo;
+import com.hteck.playtube.data.ChannelSectionInfo;
 import com.hteck.playtube.data.CommentInfo;
 import com.hteck.playtube.data.YoutubeInfo;
+import com.hteck.playtube.data.YoutubePlaylistInfo;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,17 +23,15 @@ import java.util.Date;
 import java.util.Vector;
 
 import static com.hteck.playtube.common.Constants.ItemConstants.TITLE;
+import static com.hteck.playtube.common.Constants.YoutubeField.CHANNELID;
+import static com.hteck.playtube.common.Constants.YoutubeField.CHANNELS;
 import static com.hteck.playtube.common.Constants.YoutubeField.CONTENTDETAILS;
-import static com.hteck.playtube.common.Constants.YoutubeField.Channel.MEDIUM;
-import static com.hteck.playtube.common.Constants.YoutubeField.Channel.RELATEDPLAYLISTS;
-import static com.hteck.playtube.common.Constants.YoutubeField.Channel.SUBSCRIBERCOUNT;
-import static com.hteck.playtube.common.Constants.YoutubeField.Channel.THUMBNAILS;
-import static com.hteck.playtube.common.Constants.YoutubeField.Channel.UPLOADS;
-import static com.hteck.playtube.common.Constants.YoutubeField.Channel.URL;
-import static com.hteck.playtube.common.Constants.YoutubeField.Channel.VIDEOCOUNT;
 import static com.hteck.playtube.common.Constants.YoutubeField.ID;
+import static com.hteck.playtube.common.Constants.YoutubeField.ITEMS;
+import static com.hteck.playtube.common.Constants.YoutubeField.PLAYLISTS;
 import static com.hteck.playtube.common.Constants.YoutubeField.SNIPPET;
 import static com.hteck.playtube.common.Constants.YoutubeField.STATISTICS;
+import static com.hteck.playtube.common.Constants.YoutubeField.TYPE;
 import static com.hteck.playtube.common.Utils.getString;
 
 public class YoutubeHelper {
@@ -84,7 +85,7 @@ public class YoutubeHelper {
         ArrayList<YoutubeInfo> videoList = new ArrayList<>();
         try {
             JSONObject jObjectData = new JSONObject(data);
-            JSONArray items = jObjectData.getJSONArray(Constants.YoutubeField.ITEMS);
+            JSONArray items = jObjectData.getJSONArray(ITEMS);
             for (int i = 0; i < items.length(); ++i) {
                 JSONObject jObjectItem = (JSONObject) items.get(i);
 
@@ -109,7 +110,7 @@ public class YoutubeHelper {
                                                String data) {
         try {
             JSONObject jObjData = new JSONObject(data);
-            JSONArray items = jObjData.getJSONArray(Constants.YoutubeField.ITEMS);
+            JSONArray items = jObjData.getJSONArray(ITEMS);
             for (int i = youtubeList.size() - 1; i >= 0; --i) {
                 boolean isDataReturned = false;
                 for (int k = 0; k < items.length(); ++k) {
@@ -164,7 +165,7 @@ public class YoutubeHelper {
             youtubeInfo.imageUrl = String.format(
                     "http://i.ytimg.com/vi/%s/mqdefault.jpg", youtubeInfo.id);
             youtubeInfo.uploaderId = jObjectSnippet
-                    .getString(Constants.YoutubeField.CHANNELID);
+                    .getString(CHANNELID);
             youtubeInfo.uploaderName = jObjectSnippet
                     .getString(Constants.YoutubeField.CHANNELTITLE);
             String time = jObjectSnippet.getString(Constants.YoutubeField.PUBLISHEDAT);
@@ -188,7 +189,7 @@ public class YoutubeHelper {
         try {
 
             JSONObject jObjData = new JSONObject(val);
-            JSONArray items = jObjData.getJSONArray(Constants.YoutubeField.ITEMS);
+            JSONArray items = jObjData.getJSONArray(ITEMS);
             for (int i = 0; i < items.length(); ++i) {
 
                 CommentInfo commentInfo = new CommentInfo();
@@ -228,7 +229,7 @@ public class YoutubeHelper {
         try {
 
             JSONObject jObjectData = new JSONObject(data);
-            JSONArray items = jObjectData.getJSONArray(Constants.YoutubeField.ITEMS);
+            JSONArray items = jObjectData.getJSONArray(ITEMS);
             for (int i = 0; i < items.length(); ++i) {
                 ChannelInfo channelInfo = populateChannel((JSONObject) items
                         .get(i));
@@ -254,9 +255,9 @@ public class YoutubeHelper {
                     .getJSONObject(SNIPPET);
             result.title = jObjectSnippet.getString(Constants.YoutubeField.TITLE);
             result.id = jObject.getJSONObject(ID).getString(
-                    Constants.YoutubeField.Channel.CHANNELID);
-            result.imageUrl = getString(jObjectSnippet, THUMBNAILS,
-                    MEDIUM, URL);
+                    Constants.YoutubeField.CHANNELID);
+            result.imageUrl = getString(jObjectSnippet, Constants.YoutubeField.THUMBNAILS,
+                    Constants.YoutubeField.MEDIUM, Constants.YoutubeField.URL);
             return result;
         } catch (Throwable e) {
             e.printStackTrace();
@@ -269,7 +270,7 @@ public class YoutubeHelper {
         ArrayList<ChannelInfo> channels = new ArrayList<>();
         try {
             JSONObject jObjectData = new JSONObject(data);
-            JSONArray items = jObjectData.getJSONArray(Constants.YoutubeField.ITEMS);
+            JSONArray items = jObjectData.getJSONArray(ITEMS);
             for (int i = 0; i < items.length(); ++i) {
                 JSONObject jObjectItem = (JSONObject) items.get(i);
                 JSONObject jObjectSnippet = jObjectItem
@@ -281,19 +282,19 @@ public class YoutubeHelper {
                     JSONObject jobjStatistics = jObjectItem
                             .getJSONObject(STATISTICS);
                     channelInfo.subscriberCount = jobjStatistics
-                            .getInt(SUBSCRIBERCOUNT);
+                            .getInt(Constants.YoutubeField.SUBSCRIBERCOUNT);
                     channelInfo.videoCount = jobjStatistics
-                            .getInt(VIDEOCOUNT);
+                            .getInt(Constants.YoutubeField.VIDEOCOUNT);
                 }
 
                 channelInfo.uploadPlaylistId = getString(jObjectItem,
                         CONTENTDETAILS,
-                        RELATEDPLAYLISTS,
-                        UPLOADS);
+                        Constants.YoutubeField.RELATEDPLAYLISTS,
+                        Constants.YoutubeField.UPLOADS);
 
                 channelInfo.imageUrl = getString(jObjectSnippet,
-                        THUMBNAILS, MEDIUM,
-                        URL);
+                        Constants.YoutubeField.THUMBNAILS, Constants.YoutubeField.MEDIUM,
+                        Constants.YoutubeField.URL);
                 channelInfo.title = jObjectSnippet
                         .getString(TITLE);
                 channels.add(channelInfo);
@@ -304,4 +305,157 @@ public class YoutubeHelper {
         return channels;
     }
 
+    public static Vector<ChannelSectionInfo> getActivityInfos(String data) {
+        Vector<ChannelSectionInfo> results = new Vector<ChannelSectionInfo>();
+        try {
+
+            JSONObject jObjectData = new JSONObject(data);
+            JSONArray items = jObjectData.getJSONArray(ITEMS);
+            for (int i = 0; i < items.length(); ++i) {
+                JSONObject jObjectItem = (JSONObject) items.get(i);
+                JSONObject jObjectSnippet = ((JSONObject) jObjectItem
+                        .getJSONObject(SNIPPET));
+                String type = getString(jObjectSnippet, TYPE);
+                if (isValidForMark(type,
+                        PlayTubeController.getConfigInfo().channelSectionPlaylistMark)) {
+                    YoutubePlaylistInfo playlistInfo = new YoutubePlaylistInfo();
+                    JSONObject jObjectContentDetails = jObjectItem
+                            .getJSONObject(CONTENTDETAILS);
+                    JSONArray jArray = jObjectContentDetails
+                            .getJSONArray(PLAYLISTS);
+                    if (jArray.length() > 0) {
+                        playlistInfo.id = jArray.get(0).toString();
+                        ChannelSectionInfo channelSectionInfo = new ChannelSectionInfo();
+                        channelSectionInfo.activityType = Constants.UserActivityType.SINGLEPLAYLIST;
+                        channelSectionInfo.dataInfo = playlistInfo;
+                        channelSectionInfo.youtubeState = Constants.YoutubeState.WAITINGFORLOADINGITEMCOUNT;
+                        results.add(channelSectionInfo);
+                    }
+                } else if (isValidForMark(type,
+                        PlayTubeController.getConfigInfo().channelSectionLikesMark)) {
+                    ChannelInfo channelInfo = new ChannelInfo();
+                    String channelId = jObjectSnippet
+                            .getString(CHANNELID);
+                    channelInfo.id = channelId;
+
+                    ChannelSectionInfo channelSectionInfo = new ChannelSectionInfo();
+                    channelSectionInfo.activityType = Constants.UserActivityType.FAVOURITE;
+                    channelSectionInfo.youtubeState = Constants.YoutubeState.QUEUE;
+                    channelSectionInfo.dataInfo = channelInfo;
+
+                    results.add(channelSectionInfo);
+                } else if (isValidForMark(type,
+                        PlayTubeController.getConfigInfo().channelSectionChannelMark)) {
+                    ChannelInfo channelInfo = new ChannelInfo();
+                    String channelId = jObjectSnippet
+                            .getString(CHANNELID);
+                    channelInfo.id = channelId;
+
+                    ChannelSectionInfo channelSectionInfo = new ChannelSectionInfo();
+                    channelSectionInfo.activityType = Constants.UserActivityType.UPLOADS;
+                    channelSectionInfo.youtubeState = Constants.YoutubeState.WAITINGFORLOADINGITEMCOUNT;
+                    channelSectionInfo.dataInfo = channelInfo;
+
+                    if (type.equals("recentUploads")) {
+                        channelSectionInfo.sortBy = Constants.SortBy.MOSTRECENT;
+                    } else if (type.equals("popularUploads")) {
+                        channelSectionInfo.sortBy = Constants.SortBy.MOSTVIEWED;
+                    }
+
+                    results.add(channelSectionInfo);
+                } else if (isValidForMark(
+                        type,
+                        PlayTubeController.getConfigInfo().channelSectionRecentActivityMark)) {
+                    ChannelInfo channelInfo = new ChannelInfo();
+                    String channelId = jObjectSnippet
+                            .getString(CHANNELID);
+                    channelInfo.id = channelId;
+
+                    ChannelSectionInfo channelSectionInfo = new ChannelSectionInfo();
+                    channelSectionInfo.activityType = Constants.UserActivityType.RECENTACTIVIY;
+                    channelSectionInfo.youtubeState = Constants.YoutubeState.WAITINGFORLOADINGITEMCOUNT;
+                    channelSectionInfo.dataInfo = channelInfo;
+
+                    results.add(channelSectionInfo);
+                } else if (isValidForMark(
+                        type,
+                        PlayTubeController.getConfigInfo().channelSectionAllPlaylistsMark)) {
+                    ChannelInfo channelInfo = new ChannelInfo();
+                    String channelId = jObjectSnippet
+                            .getString(CHANNELID);
+                    channelInfo.id = channelId;
+
+                    ChannelSectionInfo channelSectionInfo = new ChannelSectionInfo();
+                    channelSectionInfo.activityType = Constants.UserActivityType.ALLPLAYLISTS;
+                    channelSectionInfo.youtubeState = Constants.YoutubeState.WAITINGFORLOADINGITEMCOUNT;
+                    channelSectionInfo.dataInfo = channelInfo;
+
+                    results.add(channelSectionInfo);
+                }
+
+                else if (isValidForMark(
+                        type,
+                        PlayTubeController.getConfigInfo().channelSectionMultiPlaylistsMark)) {
+                    Vector<YoutubePlaylistInfo> playlists = new Vector<>();
+                    JSONObject jObjectContentDetails = jObjectItem
+                            .getJSONObject(CONTENTDETAILS);
+                    JSONArray jArray = jObjectContentDetails
+                            .getJSONArray(PLAYLISTS);
+                    for (int k = 0; k < jArray.length(); ++k) {
+                        YoutubePlaylistInfo playlistInfo = new YoutubePlaylistInfo();
+                        playlistInfo.id = jArray.get(k).toString();
+
+                        playlists.add(playlistInfo);
+                    }
+                    ChannelSectionInfo channelSectionInfo = new ChannelSectionInfo();
+                    channelSectionInfo.activityType = Constants.UserActivityType.MULTIPLEPLAYLISTS;
+                    channelSectionInfo.youtubeState = Constants.YoutubeState.ITEMCOUNTLOADED;
+                    channelSectionInfo.dataInfo = playlists;
+                    channelSectionInfo.title = jObjectSnippet
+                            .getString(TITLE);
+                    results.add(channelSectionInfo);
+                } else if (isValidForMark(
+                        type,
+                        PlayTubeController.getConfigInfo().channelSectionMultiChannelsMark)) {
+                    Vector<ChannelInfo> channels = new Vector<ChannelInfo>();
+                    JSONObject jObjectContentDetails = jObjectItem
+                            .getJSONObject(CONTENTDETAILS);
+                    JSONArray jArray = jObjectContentDetails
+                            .getJSONArray(CHANNELS);
+                    for (int k = 0; k < jArray.length(); ++k) {
+                        ChannelInfo channelInfo = new ChannelInfo();
+                        channelInfo.id = jArray.get(k).toString();
+
+                        channels.add(channelInfo);
+                    }
+                    ChannelSectionInfo channelSectionInfo = new ChannelSectionInfo();
+                    channelSectionInfo.activityType = Constants.UserActivityType.MULTIPLECHANNELS;
+                    channelSectionInfo.youtubeState = Constants.YoutubeState.ITEMCOUNTLOADED;
+                    channelSectionInfo.dataInfo = channels;
+                    channelSectionInfo.title = jObjectSnippet
+                            .getString(TITLE);
+                    results.add(channelSectionInfo);
+                }
+            }
+
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+        return results;
+    }
+
+    private static boolean isValidForMark(String val, String mark) {
+        try {
+            String[] elements = mark.split("[,]");
+            for (String item : elements) {
+                if (item.equals(val)) {
+                    return true;
+                }
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

@@ -59,4 +59,5 @@
     <string name="recommended">recommended</string>
     <string name="had_an_action_on">had an action on</string>
     <string name="user_action_description"> %s a video %s</string>
+    <string name="unsubscribe_confirm">unsubscribe?</string>
 </resources>

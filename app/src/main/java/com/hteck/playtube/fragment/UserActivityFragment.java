@@ -15,6 +15,8 @@ import android.widget.AbsListView.OnScrollListener;
 
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
+import com.hteck.playtube.adapter.YoutubePlaylistItemByPageAdapter;
+import com.hteck.playtube.common.Constants;
 import com.hteck.playtube.common.CustomHttpOk;
 import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
@@ -39,7 +41,6 @@ public class UserActivityFragment extends Fragment implements
     Vector<ChannelSectionInfo> _activityListAll = new Vector<>();
     Vector<ChannelSectionInfo> _activityListLoading = new Vector<>();
     YoutubePlaylistItemByPageAdapter _adapter;
-    private boolean _isNetworkError;
     ListView _listView;
     private View _viewReload;
     private LoadingView _busyView;
@@ -107,8 +108,7 @@ public class UserActivityFragment extends Fragment implements
                         if (_playlistItemViewInfos.size() == 0) {
                             initReloadEvent();
                         } else {
-                            _isNetworkError = true;
-                            _adapter.mIsNetworkError = true;
+                            _adapter.setIsNetworkError(true);
                             _adapter.notifyDataSetChanged();
                         }
                     }
@@ -151,7 +151,7 @@ public class UserActivityFragment extends Fragment implements
             showBusyAnimation();
         }
         String url = String.format(
-                MainContext.getDevKeyInfo().getActivitiesInChannelApiUrl,
+                PlayTubeController.getConfigInfo().getActivitiesInChannelApiUrl,
                 _channelInfo.id, _nextPageToken, Constants.PAGE_SIZE);
         Utils.download(url, downloadChannelActivitiesCompleted);
     }

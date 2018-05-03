@@ -16,4 +16,11 @@ public class ConfigInfo {
     public String searchChannelUrl;
     public String loadChannelsInfoUrl;
     public String loadSectionsOfChannelUrl;
+    public String channelSectionPlaylistMark = "singlePlaylist";
+    public String channelSectionChannelMark = "recentUploads,popularUploads";
+    public String channelSectionAllPlaylistsMark = "allPlaylists";
+    public String channelSectionMultiPlaylistsMark = "multiplePlaylists";
+    public String channelSectionMultiChannelsMark = "multipleChannels";
+    public String channelSectionLikesMark = "likes";
+    public String channelSectionRecentActivityMark = "recentActivity";
 }

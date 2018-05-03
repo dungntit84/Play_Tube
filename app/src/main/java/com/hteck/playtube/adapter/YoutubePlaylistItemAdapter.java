@@ -13,13 +13,16 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.hteck.playtube.R;
+import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.common.Constants;
+import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.common.ViewHelper;
 import com.hteck.playtube.data.ChannelInfo;
 import com.hteck.playtube.data.PlaylistInfo;
 import com.hteck.playtube.data.PlaylistItemInfo;
 import com.hteck.playtube.data.YoutubeInfo;
 import com.hteck.playtube.data.YoutubePlaylistInfo;
+import com.hteck.playtube.databinding.ChannelHeaderBinding;
 import com.hteck.playtube.databinding.HeaderTemplateViewBinding;
 import com.hteck.playtube.fragment.UserActivityFragment;
 import com.hteck.playtube.holder.BaseViewHolder;
@@ -27,7 +30,7 @@ import com.hteck.playtube.holder.BaseViewHolder;
 import java.util.Vector;
 
 public class YoutubePlaylistItemAdapter extends BaseAdapter {
-    private Vector<PlaylistItemInfo> _items = new Vector<PlaylistItemInfo>();
+    protected Vector<PlaylistItemInfo> _items = new Vector<>();
     private ChannelInfo mChannel;
     private ChannelInfo mSubscriptionInfo;
     public boolean mIsSubscribed;
@@ -36,7 +39,7 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
     private boolean _isCheckingSubscribed = false;
     private boolean _isSubscribedStateChecked;
     UserActivityFragment _channelHomeTab;
-    private Context _context;
+    protected Context _context;
 
     public YoutubePlaylistItemAdapter(Context context, UserActivityFragment channelHomeTab, ChannelInfo channelInfo, Vector<PlaylistItemInfo> items) {
         super();
@@ -72,7 +75,7 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup group) {
         BaseViewHolder holder;
         if (position == 0) {
-            return getChannelInfoView();
+            return getChannelInfoView(convertView, group);
         }
         int otherPosition = position - 1;
         PlaylistItemInfo playlistItemViewInfo = _items
@@ -80,7 +83,7 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
         LayoutInflater inflater = LayoutInflater.from(_context);
         View v;
         if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.NAME) {
-            holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, R.layout.header_template_view, group);
+            holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.header_template_view);
             HeaderTemplateViewBinding binding = (HeaderTemplateViewBinding) holder.binding;
             String title = playlistItemViewInfo.dataInfo.toString();
             binding.headerTemplateTextViewTitle.setText(title);
@@ -133,28 +136,19 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
         return v;
     }
 
-    private View getChannelInfoView() {
-        LayoutInflater inflater = MainActivity.getInstance()
-                .getLayoutInflater();
-        ViewGroup v = (ViewGroup) inflater.inflate(R.layout.user_header,
-                null);
+    private View getChannelInfoView(View convertView, ViewGroup group) {
+        BaseViewHolder holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.channel_header);
+        ChannelHeaderBinding binding = (ChannelHeaderBinding) holder.binding;
 
-        TextView textViewTitle = (TextView) v
-                .findViewById(R.id.tv_title);
-        textViewTitle.setText(mChannel.title);
-
-        TextView textViewNumOfSubcribers = (TextView) v
-                .findViewById(R.id.text_view_num_subcribers);
-        String ex = mChannel.numSubscribers > 1 ? " subscribers"
+        binding.textViewTitle.setText(mChannel.title);
+        String ex = mChannel.subscriberCount > 1 ? " subscribers"
                 : " subscriber";
-        textViewNumOfSubcribers.setText(Utils
-                .formatNumber(mChannel.numSubscribers, false) + ex);
+        binding.textViewSubcriberCount.setText(Utils
+                .formatNumber(mChannel.subscriberCount, false) + ex);
         if (_isSubscribedStateChecked) {
-            setSubscribeButtonState(v);
+            setSubscribeButtonState(binding.buttonSubscribe);
         }
-
-        View bt = v.findViewById(R.id.button_subscribe);
-        bt.setOnClickListener(new OnClickListener() {
+        binding.buttonSubscribe.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -172,11 +166,7 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
                                 @Override
                                 public void onClick(DialogInterface dialog,
                                                     int which) {
-                                    try {
-                                        unsubscribeChannel(true);
-                                    } catch (Exception e) {
-                                        Utils.showErrorMessage(e);
-                                    }
+                                    unsubscribeChannel(true);
                                 }
                             });
 
@@ -195,7 +185,7 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
             }
         });
 
-        return v;
+        return holder.view;
     }
 
     public void checkChannelSubscribed(boolean isCheckLogedIn) {
@@ -251,13 +241,11 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
 //        ys.checkChannelSubscribed(mChannel.id);
     }
 
-    private void setSubscribeButtonState(View parent) {
-//        View bt = parent.findViewById(R.id.button_subscribe);
-//
-//        bt.setBackgroundResource(mIsSubscribed ? R.drawable.subscribe_ok
-//                : R.drawable.subscribe);
-//
-//        bt.setVisibility(View.VISIBLE);
+    private void setSubscribeButtonState(View buttonSubscribe) {
+        buttonSubscribe.setBackgroundResource(mIsSubscribed ? R.drawable.ic_subscribed
+                : R.drawable.ic_subscribe);
+
+        buttonSubscribe.setVisibility(View.VISIBLE);
     }
 
     public void doPendingAction() {

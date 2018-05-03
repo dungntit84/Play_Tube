@@ -43,28 +43,27 @@ public class Constants {
         public final static String LIVEBROADCASTCONTENT = "liveBroadcastContent";
         public final static String LIKECOUNT = "likeCount";
         public final static String DISLIKECOUNT = "dislikeCount";
-        public final static String CHANNELID = "channelId";
         public final static String CHANNELTITLE = "channelTitle";
         public final static String PUBLISHEDAT = "publishedAt";
         public final static String DESCRIPTION = "description";
         public final static String ITEMS = "items";
+        public final static String TYPE = "type";
         public final static String NEXTPAGETOKEN = "nextPageToken";
         public final static String VIDEOID = "videoId";
         public final static String SNIPPET = "snippet";
         public final static String AUTHORDISPLAYNAME = "authorDisplayName";
         public final static String TOPLEVELCOMMENT = "topLevelComment";
         public final static String TEXTDISPLAY = "textDisplay";
-
-        public class Channel {
-            public final static String CHANNELID = "channelId";
-            public final static String THUMBNAILS = "thumbnails";
-            public final static String MEDIUM = "medium";
-            public final static String URL = "url";
-            public final static String SUBSCRIBERCOUNT = "subscriberCount";
-            public final static String VIDEOCOUNT = "videoCount";
-            public final static String RELATEDPLAYLISTS = "relatedPlaylists";
-            public final static String UPLOADS = "uploads";
-        }
+        public final static String PLAYLISTS = "playlists";
+        public final static String CHANNELID = "channelId";
+        public final static String THUMBNAILS = "thumbnails";
+        public final static String MEDIUM = "medium";
+        public final static String URL = "url";
+        public final static String SUBSCRIBERCOUNT = "subscriberCount";
+        public final static String VIDEOCOUNT = "videoCount";
+        public final static String RELATEDPLAYLISTS = "relatedPlaylists";
+        public final static String UPLOADS = "uploads";
+        public final static String CHANNELS = "channels";
     }
 
     public class PlaylistItemType {

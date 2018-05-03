@@ -161,7 +161,7 @@ public class ViewHelper {
         return v;
     }
 
-    public static BaseViewHolder getViewHolder(LayoutInflater inflater, View convertView, int resId, ViewGroup group) {
+    public static BaseViewHolder getViewHolder(LayoutInflater inflater, View convertView, ViewGroup group, int resId) {
         BaseViewHolder holder;
         if (convertView == null || convertView.getTag(Constants.CUSTOM_TAG) == null || !convertView.getTag(Constants.CUSTOM_TAG).equals(resId)) {
             ViewDataBinding binding = DataBindingUtil.inflate(inflater, resId, group, false);
@@ -365,7 +365,7 @@ public class ViewHelper {
                                               ChannelInfo channelInfo, PlaylistItemInfo itemViewInfo,
                                               View.OnClickListener onClickListener) {
 
-        BaseViewHolder holder = getViewHolder(inflater, convertView, R.layout.item_user_activity, group);
+        BaseViewHolder holder = getViewHolder(inflater, convertView, group, R.layout.item_user_activity);
         ItemUserActivityBinding binding = (ItemUserActivityBinding) holder.binding;
         ImageLoader.getInstance().displayImage(channelInfo.imageUrl,
                 binding.imageViewChannelThumb);
