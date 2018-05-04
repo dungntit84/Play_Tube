@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.view.View.OnTouchListener;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.AbsListView.OnScrollListener;
 
@@ -30,6 +29,8 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import java.io.IOException;
+import java.util.AbstractMap;
+import java.util.Map;
 import java.util.Vector;
 
 public class UserActivityFragment extends Fragment implements
@@ -151,8 +152,58 @@ public class UserActivityFragment extends Fragment implements
             showBusyAnimation();
         }
         String url = String.format(
-                PlayTubeController.getConfigInfo().getActivitiesInChannelApiUrl,
+                PlayTubeController.getConfigInfo().loadActivitiesInChannelUrl,
                 _channelInfo.id, _nextPageToken, Constants.PAGE_SIZE);
+
+        CustomHttpOk httpOk = new CustomHttpOk(url, new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(final Response response) throws IOException {
+                MainActivity.getInstance().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            String s = response.body().string();
+                            AbstractMap.SimpleEntry<String, Vector<PlaylistItemInfo>> activityListInfos = YoutubeHelper
+                                    .getUserActivities(s);
+                            if (_hasVideoActivityOnly) {
+                                _playlistItemViewInfosLoading = activityListInfos
+                                        .getValue();
+                                _isLoadCompleted = Utils
+                                        .stringIsNullOrEmpty(activityListInfos
+                                                .getKey());
+                                _nextPageToken = activityListInfos.getKey();
+                                if (_playlistItemViewInfosLoading.size() > 0) {
+                                    loadVideosInfo();
+                                } else {
+                                    _isLoading = false;
+                                    hideBusyAnimation();
+                                }
+                            } else {
+                                CustomHttpOk httpGetFile = (CustomHttpOk) sender;
+                                ChannelSectionInfo channelSectionInfo = (ChannelSectionInfo) httpGetFile.dataContext;
+                                ChannelInfo channelInfo = (ChannelInfo) channelSectionInfo.dataInfo;
+                                channelInfo.channelActivities = activityListInfos
+                                        .getValue();
+                                channelInfo.hasMoreVideos = !Utils
+                                        .isNullOrEmpty(activityListInfos
+                                                .getKey());
+
+                                channelSectionInfo.loadingVideosDataState = LoadingVideosDataState.loadedItemCount;
+                                loadDataByPage();
+                            }
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                            _isLoading = false;
+                        }
+                    }
+                });
+            }
+        })
         Utils.download(url, downloadChannelActivitiesCompleted);
     }
 
@@ -168,7 +219,7 @@ public class UserActivityFragment extends Fragment implements
                         try {
                             String s = new String(data);
                             KeyPairValue<String, Vector<PlaylistItemInfo>> activityListInfos = YoutubeHelper
-                                    .getChannelActivities(s);
+                                    .getUserActivities(s);
                             if (_hasVideoActivityOnly) {
                                 _playlistItemViewInfosLoading = activityListInfos
                                         .getValue();

@@ -34,6 +34,29 @@ public class Constants {
     }
 
     public class YoutubeField {
+        public final static String COMMENT = "comment";
+        public final static String FAVOURITES = "favorites";
+        public final static String FAVOURITE = "favorite";
+        public final static String LIKES = "likes";
+        public final static String LIKE = "like";
+        public final static String UPLOAD = "upload";
+        public final static String PLAYLISTITEM = "playlistItem";
+        public final static String RECOMMENDATION = "recommendation";
+        public final static String WATCHHISTORY = "watchHistory";
+        public final static String WATCHLATER = "watchLater";
+        public final static String STATUS = "status";
+        public final static String PRIVACYSTATUS = "privacyStatus";
+        public final static String VIDEOPUBLISHEDAT = "videoPublishedAt";
+        public final static String HIGH = "high";
+        public final static String ITEMCOUNT = "itemCount";
+        public final static String PLAYLISTID = "playlistId";
+        public final static String TOTALITEMCOUNT = "totalItemCount";
+        public final static String RESOURCEID = "resourceId";
+        public final static String CHANNELITEM = "channelItem";
+        public final static String BULLETIN = "bulletin";
+        public final static String SUBSCRIPTION = "subscription";
+        public final static String SOCIAL = "social";
+
         public final static String TITLE = "title";
         public final static String ID = "id";
         public final static String CONTENTDETAILS = "contentDetails";
@@ -64,6 +87,8 @@ public class Constants {
         public final static String RELATEDPLAYLISTS = "relatedPlaylists";
         public final static String UPLOADS = "uploads";
         public final static String CHANNELS = "channels";
+
+
     }
 
     public class PlaylistItemType {

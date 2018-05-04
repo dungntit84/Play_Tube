@@ -14,4 +14,12 @@
     <searchChannelUrl value="https://www.googleapis.com/youtube/v3/search?type=channel&amp;pageToken=%s&amp;maxResults=20&amp;part=snippet&amp;q=%s&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
     <loadChannelsInfoUrl value="https://www.googleapis.com/youtube/v3/channels?id=%s&amp;part=contentDetails,snippet,statistics&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
     <loadSectionsOfChannelUrl value="https://www.googleapis.com/youtube/v3/channelSections?channelId=%s&amp;part=contentDetails,snippet&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
+    <userSinglePlaylistSectionMark value="singlePlaylist" />
+    <channelVideosSectionMark value="recentUploads,popularUploads" />
+    <allPlaylistsSectionMark value="allPlaylists" />
+    <multiPlaylistsSectionMark value="multiplePlaylists" />
+    <multiChannelsSectionMark value="multipleChannels" />
+    <likesSectionMark value="likes" />
+    <recentActivitySectionMark value="recentActivity" />
+    <loadActivitiesInChannelUrl value="https://www.googleapis.com/youtube/v3/activities?pageToken=%s&amp;part=contentDetails,snippet&amp;channelId=%s&amp;maxResults=20&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
 </Root>

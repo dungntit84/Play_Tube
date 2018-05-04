@@ -8,10 +8,12 @@ import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.ChannelInfo;
 import com.hteck.playtube.data.ChannelSectionInfo;
 import com.hteck.playtube.data.CommentInfo;
+import com.hteck.playtube.data.PlaylistItemInfo;
 import com.hteck.playtube.data.YoutubeInfo;
 import com.hteck.playtube.data.YoutubePlaylistInfo;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
@@ -23,15 +25,29 @@ import java.util.Date;
 import java.util.Vector;
 
 import static com.hteck.playtube.common.Constants.ItemConstants.TITLE;
+import static com.hteck.playtube.common.Constants.YoutubeField.BULLETIN;
 import static com.hteck.playtube.common.Constants.YoutubeField.CHANNELID;
+import static com.hteck.playtube.common.Constants.YoutubeField.CHANNELITEM;
 import static com.hteck.playtube.common.Constants.YoutubeField.CHANNELS;
+import static com.hteck.playtube.common.Constants.YoutubeField.COMMENT;
 import static com.hteck.playtube.common.Constants.YoutubeField.CONTENTDETAILS;
+import static com.hteck.playtube.common.Constants.YoutubeField.FAVOURITE;
 import static com.hteck.playtube.common.Constants.YoutubeField.ID;
 import static com.hteck.playtube.common.Constants.YoutubeField.ITEMS;
+import static com.hteck.playtube.common.Constants.YoutubeField.LIKE;
+import static com.hteck.playtube.common.Constants.YoutubeField.NEXTPAGETOKEN;
+import static com.hteck.playtube.common.Constants.YoutubeField.PLAYLISTITEM;
 import static com.hteck.playtube.common.Constants.YoutubeField.PLAYLISTS;
+import static com.hteck.playtube.common.Constants.YoutubeField.PUBLISHEDAT;
+import static com.hteck.playtube.common.Constants.YoutubeField.RECOMMENDATION;
+import static com.hteck.playtube.common.Constants.YoutubeField.RESOURCEID;
 import static com.hteck.playtube.common.Constants.YoutubeField.SNIPPET;
+import static com.hteck.playtube.common.Constants.YoutubeField.SOCIAL;
 import static com.hteck.playtube.common.Constants.YoutubeField.STATISTICS;
+import static com.hteck.playtube.common.Constants.YoutubeField.SUBSCRIPTION;
 import static com.hteck.playtube.common.Constants.YoutubeField.TYPE;
+import static com.hteck.playtube.common.Constants.YoutubeField.UPLOAD;
+import static com.hteck.playtube.common.Constants.YoutubeField.VIDEOID;
 import static com.hteck.playtube.common.Utils.getString;
 
 public class YoutubeHelper {
@@ -91,13 +107,13 @@ public class YoutubeHelper {
 
                 YoutubeInfo youtubeInfo = new YoutubeInfo();
                 youtubeInfo.id = getString(jObjectItem, ID,
-                        Constants.YoutubeField.VIDEOID);
+                        VIDEOID);
                 if (!Utils.stringIsNullOrEmpty(youtubeInfo.id)) {
                     videoList.add(youtubeInfo);
                 }
             }
-            if (jObjectData.has(Constants.YoutubeField.NEXTPAGETOKEN)) {
-                nextPageToken = jObjectData.getString(Constants.YoutubeField.NEXTPAGETOKEN);
+            if (jObjectData.has(NEXTPAGETOKEN)) {
+                nextPageToken = jObjectData.getString(NEXTPAGETOKEN);
             }
         } catch (Throwable e) {
             e.printStackTrace();
@@ -168,7 +184,7 @@ public class YoutubeHelper {
                     .getString(CHANNELID);
             youtubeInfo.uploaderName = jObjectSnippet
                     .getString(Constants.YoutubeField.CHANNELTITLE);
-            String time = jObjectSnippet.getString(Constants.YoutubeField.PUBLISHEDAT);
+            String time = jObjectSnippet.getString(PUBLISHEDAT);
             youtubeInfo.uploadedDate = Utils.getDisplayTime(time);
             youtubeInfo.isLive = "live".equalsIgnoreCase(jObjectSnippet
                     .getString(Constants.YoutubeField.LIVEBROADCASTCONTENT));
@@ -205,12 +221,11 @@ public class YoutubeHelper {
                             SNIPPET, Constants.YoutubeField.TEXTDISPLAY);
                     commentInfo.commentedDate = Utils
                             .getDisplayDateTime(getString(jObjectTopLevelComment,
-                                    SNIPPET, Constants.YoutubeField.PUBLISHEDAT));
+                                    SNIPPET, PUBLISHEDAT));
 
                     commentList.add(commentInfo);
                 }
             }
-            final String NEXTPAGETOKEN = Constants.YoutubeField.NEXTPAGETOKEN;
             if (jObjData.has(NEXTPAGETOKEN)) {
                 nextPageToken = jObjData.getString(NEXTPAGETOKEN);
             }
@@ -224,7 +239,7 @@ public class YoutubeHelper {
 
     public static AbstractMap.SimpleEntry<ArrayList<ChannelInfo>, String> getChannelList(
             String data) {
-        ArrayList<ChannelInfo> channels = new ArrayList<ChannelInfo>();
+        ArrayList<ChannelInfo> channels = new ArrayList<>();
         String pageToken = "";
         try {
 
@@ -237,8 +252,8 @@ public class YoutubeHelper {
                     channels.add(channelInfo);
                 }
             }
-            if (jObjectData.has(Constants.YoutubeField.NEXTPAGETOKEN)) {
-                pageToken = jObjectData.getString(Constants.YoutubeField.NEXTPAGETOKEN);
+            if (jObjectData.has(NEXTPAGETOKEN)) {
+                pageToken = jObjectData.getString(NEXTPAGETOKEN);
             }
         } catch (Throwable e) {
             e.printStackTrace();
@@ -306,18 +321,28 @@ public class YoutubeHelper {
     }
 
     public static Vector<ChannelSectionInfo> getActivityInfos(String data) {
-        Vector<ChannelSectionInfo> results = new Vector<ChannelSectionInfo>();
+        Vector<ChannelSectionInfo> results = new Vector<>();
         try {
 
             JSONObject jObjectData = new JSONObject(data);
             JSONArray items = jObjectData.getJSONArray(ITEMS);
             for (int i = 0; i < items.length(); ++i) {
                 JSONObject jObjectItem = (JSONObject) items.get(i);
-                JSONObject jObjectSnippet = ((JSONObject) jObjectItem
-                        .getJSONObject(SNIPPET));
+                JSONObject jObjectSnippet = jObjectItem.getJSONObject(SNIPPET);
                 String type = getString(jObjectSnippet, TYPE);
                 if (isValidForMark(type,
-                        PlayTubeController.getConfigInfo().channelSectionPlaylistMark)) {
+                        PlayTubeController.getConfigInfo().likesSectionMark)) {
+                    ChannelInfo channelInfo = new ChannelInfo();
+                    channelInfo.id = jObjectSnippet
+                            .getString(CHANNELID);
+                    ChannelSectionInfo channelSectionInfo = new ChannelSectionInfo();
+                    channelSectionInfo.activityType = Constants.UserActivityType.FAVOURITE;
+                    channelSectionInfo.youtubeState = Constants.YoutubeState.QUEUE;
+                    channelSectionInfo.dataInfo = channelInfo;
+
+                    results.add(channelSectionInfo);
+                } else if (isValidForMark(type,
+                        PlayTubeController.getConfigInfo().userSinglePlaylistSectionMark)) {
                     YoutubePlaylistInfo playlistInfo = new YoutubePlaylistInfo();
                     JSONObject jObjectContentDetails = jObjectItem
                             .getJSONObject(CONTENTDETAILS);
@@ -332,25 +357,10 @@ public class YoutubeHelper {
                         results.add(channelSectionInfo);
                     }
                 } else if (isValidForMark(type,
-                        PlayTubeController.getConfigInfo().channelSectionLikesMark)) {
+                        PlayTubeController.getConfigInfo().channelVideosSectionMark)) {
                     ChannelInfo channelInfo = new ChannelInfo();
-                    String channelId = jObjectSnippet
+                    channelInfo.id = jObjectSnippet
                             .getString(CHANNELID);
-                    channelInfo.id = channelId;
-
-                    ChannelSectionInfo channelSectionInfo = new ChannelSectionInfo();
-                    channelSectionInfo.activityType = Constants.UserActivityType.FAVOURITE;
-                    channelSectionInfo.youtubeState = Constants.YoutubeState.QUEUE;
-                    channelSectionInfo.dataInfo = channelInfo;
-
-                    results.add(channelSectionInfo);
-                } else if (isValidForMark(type,
-                        PlayTubeController.getConfigInfo().channelSectionChannelMark)) {
-                    ChannelInfo channelInfo = new ChannelInfo();
-                    String channelId = jObjectSnippet
-                            .getString(CHANNELID);
-                    channelInfo.id = channelId;
-
                     ChannelSectionInfo channelSectionInfo = new ChannelSectionInfo();
                     channelSectionInfo.activityType = Constants.UserActivityType.UPLOADS;
                     channelSectionInfo.youtubeState = Constants.YoutubeState.WAITINGFORLOADINGITEMCOUNT;
@@ -365,11 +375,22 @@ public class YoutubeHelper {
                     results.add(channelSectionInfo);
                 } else if (isValidForMark(
                         type,
-                        PlayTubeController.getConfigInfo().channelSectionRecentActivityMark)) {
+                        PlayTubeController.getConfigInfo().allPlaylistsSectionMark)) {
                     ChannelInfo channelInfo = new ChannelInfo();
-                    String channelId = jObjectSnippet
+                    channelInfo.id = jObjectSnippet
                             .getString(CHANNELID);
-                    channelInfo.id = channelId;
+                    ChannelSectionInfo channelSectionInfo = new ChannelSectionInfo();
+                    channelSectionInfo.activityType = Constants.UserActivityType.ALLPLAYLISTS;
+                    channelSectionInfo.youtubeState = Constants.YoutubeState.WAITINGFORLOADINGITEMCOUNT;
+                    channelSectionInfo.dataInfo = channelInfo;
+
+                    results.add(channelSectionInfo);
+                } else if (isValidForMark(
+                        type,
+                        PlayTubeController.getConfigInfo().recentActivitySectionMark)) {
+                    ChannelInfo channelInfo = new ChannelInfo();
+                    channelInfo.id = jObjectSnippet
+                            .getString(CHANNELID);
 
                     ChannelSectionInfo channelSectionInfo = new ChannelSectionInfo();
                     channelSectionInfo.activityType = Constants.UserActivityType.RECENTACTIVIY;
@@ -379,23 +400,7 @@ public class YoutubeHelper {
                     results.add(channelSectionInfo);
                 } else if (isValidForMark(
                         type,
-                        PlayTubeController.getConfigInfo().channelSectionAllPlaylistsMark)) {
-                    ChannelInfo channelInfo = new ChannelInfo();
-                    String channelId = jObjectSnippet
-                            .getString(CHANNELID);
-                    channelInfo.id = channelId;
-
-                    ChannelSectionInfo channelSectionInfo = new ChannelSectionInfo();
-                    channelSectionInfo.activityType = Constants.UserActivityType.ALLPLAYLISTS;
-                    channelSectionInfo.youtubeState = Constants.YoutubeState.WAITINGFORLOADINGITEMCOUNT;
-                    channelSectionInfo.dataInfo = channelInfo;
-
-                    results.add(channelSectionInfo);
-                }
-
-                else if (isValidForMark(
-                        type,
-                        PlayTubeController.getConfigInfo().channelSectionMultiPlaylistsMark)) {
+                        PlayTubeController.getConfigInfo().multiPlaylistsSectionMark)) {
                     Vector<YoutubePlaylistInfo> playlists = new Vector<>();
                     JSONObject jObjectContentDetails = jObjectItem
                             .getJSONObject(CONTENTDETAILS);
@@ -416,8 +421,8 @@ public class YoutubeHelper {
                     results.add(channelSectionInfo);
                 } else if (isValidForMark(
                         type,
-                        PlayTubeController.getConfigInfo().channelSectionMultiChannelsMark)) {
-                    Vector<ChannelInfo> channels = new Vector<ChannelInfo>();
+                        PlayTubeController.getConfigInfo().multiChannelsSectionMark)) {
+                    Vector<ChannelInfo> channels = new Vector<>();
                     JSONObject jObjectContentDetails = jObjectItem
                             .getJSONObject(CONTENTDETAILS);
                     JSONArray jArray = jObjectContentDetails
@@ -457,5 +462,86 @@ public class YoutubeHelper {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static AbstractMap.SimpleEntry<String, Vector<PlaylistItemInfo>> getUserActivities(
+            String data) {
+        Vector<PlaylistItemInfo> activityList = new Vector<>();
+        String nextPageToken = "";
+        try {
+
+            JSONObject jObjectData = new JSONObject(data);
+            JSONArray items = jObjectData.getJSONArray(ITEMS);
+            for (int i = 0; i < items.length(); ++i) {
+                PlaylistItemInfo itemInfo = new PlaylistItemInfo();
+
+                JSONObject jObjectContentDetails = ((JSONObject) items.get(i))
+                        .getJSONObject(CONTENTDETAILS);
+                YoutubeInfo videoInfo = new YoutubeInfo();
+
+                JSONObject objResourceDetails = getResourceDetails(jObjectContentDetails);
+                if (objResourceDetails != null) {
+                    if (!objResourceDetails.isNull(VIDEOID)) {
+                        videoInfo.id = getString(objResourceDetails,
+                                VIDEOID);
+                    } else if (!objResourceDetails
+                            .isNull(RESOURCEID)) {
+                        videoInfo.id = getString(objResourceDetails,
+                                RESOURCEID, VIDEOID);
+                    }
+                }
+
+                if (!Utils.stringIsNullOrEmpty(videoInfo.id)) {
+                    itemInfo.dataInfo = videoInfo;
+                    JSONObject jObjectSnippet = ((JSONObject) items
+                            .get(i)).getJSONObject(SNIPPET);
+                    String time = getString(jObjectSnippet,
+                            PUBLISHEDAT);
+                    itemInfo.time = Utils.getDisplayTime(time);
+
+                    if (jObjectContentDetails.has(COMMENT)) {
+                        itemInfo.playlistItemType = Constants.PlaylistItemType.COMMENTED;
+                    } else if (jObjectContentDetails.has(LIKE)) {
+                        itemInfo.playlistItemType = Constants.PlaylistItemType.LIKED;
+                    } else if (jObjectContentDetails.has(UPLOAD)) {
+                        itemInfo.playlistItemType = Constants.PlaylistItemType.UPLOADED;
+                    } else if (jObjectContentDetails.has(BULLETIN)) {
+                        itemInfo.playlistItemType = Constants.PlaylistItemType.UPLOADEDANDPOSTED;
+                    } else if (jObjectContentDetails.has(RECOMMENDATION)) {
+                        itemInfo.playlistItemType = Constants.PlaylistItemType.RECOMMENDED;
+                    } else if (jObjectContentDetails.has(SUBSCRIPTION)) {
+                        itemInfo.playlistItemType = Constants.PlaylistItemType.SUBSCRIBED;
+                    } else {
+                        itemInfo.playlistItemType = Constants.PlaylistItemType.OTHERACTION;
+                    }
+                    activityList.add(itemInfo);
+                }
+            }
+            if (jObjectData.has(NEXTPAGETOKEN)) {
+                nextPageToken = jObjectData.getString(NEXTPAGETOKEN);
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+        return new AbstractMap.SimpleEntry<>(nextPageToken, activityList);
+    }
+
+    private static JSONObject getResourceDetails(JSONObject obj) {
+        String[] fields = {SOCIAL, SUBSCRIPTION, BULLETIN, CHANNELITEM,
+                COMMENT, FAVOURITE, LIKE,
+                PLAYLISTITEM, RECOMMENDATION,
+
+                UPLOAD};
+        for (String s : fields) {
+            if (!obj.isNull(s)) {
+                try {
+                    return obj.getJSONObject(s);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
     }
 }
