@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Source Code_New.iml" filepath="$PROJECT_DIR$/Source Code_New.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Template Project.iml" filepath="$PROJECT_DIR$/Template Project.iml" />
       <module fileurl="file://F:\Android\PlayTube\Source Code_New\Template Project.iml" filepath="F:\Android\PlayTube\Source Code_New\Template Project.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>

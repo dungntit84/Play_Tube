@@ -17,8 +17,8 @@ import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.ChannelInfo;
 import com.hteck.playtube.databinding.ListViewBinding;
+import com.hteck.playtube.service.CustomCallback;
 import com.hteck.playtube.service.YoutubeHelper;
-import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
@@ -102,7 +102,7 @@ public class ChannelListView extends FrameLayout implements
         String url = String
                 .format(PlayTubeController.getConfigInfo().searchChannelUrl, _nextPageToken,
                         Utils.urlEncode(_query));
-        _httpOk = new CustomHttpOk(url, new Callback() {
+        _httpOk = new CustomHttpOk(url, new CustomCallback() {
             @Override
             public void onFailure(Request request, IOException e) {
                 MainActivity.getInstance().runOnUiThread(new Runnable() {
@@ -134,7 +134,7 @@ public class ChannelListView extends FrameLayout implements
                         try {
                             String s = response.body().string();
                             AbstractMap.SimpleEntry<ArrayList<ChannelInfo>, String> searchResult = YoutubeHelper
-                                    .getChannelList(s);
+                                    .getChannelListInfo(s);
                             _nextPageToken = searchResult.getValue();
                             ArrayList<ChannelInfo> channels = searchResult.getKey();
 
@@ -209,7 +209,7 @@ public class ChannelListView extends FrameLayout implements
         String url = String
                 .format(PlayTubeController.getConfigInfo().loadChannelsInfoUrl,
                         ids);
-        _httpOk = new CustomHttpOk(url, new Callback() {
+        _httpOk = new CustomHttpOk(url, new CustomCallback() {
             @Override
             public void onFailure(Request request, IOException e) {
                 MainActivity.getInstance().runOnUiThread(new Runnable() {

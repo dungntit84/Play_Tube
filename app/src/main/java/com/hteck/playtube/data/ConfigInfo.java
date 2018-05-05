@@ -24,4 +24,9 @@ public class ConfigInfo {
     public String likesSectionMark;
     public String recentActivitySectionMark;
     public String loadActivitiesInChannelUrl;
+    public String loadPlaylistsDetailsUrl;
+    public String loadPlaylistsInChannelUrl;
+    public String loadVideosInChannelSortByUrl;
+    public String loadVideosInChannelUrl;
+    public String loadVideosInPlaylistUrl;
 }

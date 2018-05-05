@@ -15,6 +15,7 @@ public class Constants {
     public final static String PLAYLIST_DATA = "playlist_data";
     public final static String HISTORY_DATA = "history_data";
     public final static String NO_USES_SETTING = "no_uses_setting";
+    public final static int MAX_SIZE_FOR_LOADING_YOUTUBE_DATA = 50;
     public final static int PAGE_SIZE = 20;
 
     public class ItemConstants {

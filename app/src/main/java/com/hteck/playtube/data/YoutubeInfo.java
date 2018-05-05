@@ -1,7 +1,5 @@
 package com.hteck.playtube.data;
 
-import com.hteck.playtube.common.Constants;
-
 public class YoutubeInfo {
     public String id;
     public String title;
@@ -16,4 +14,5 @@ public class YoutubeInfo {
     public String description;
     public String imageUrl;
     public boolean isLive;
+    public String playlistItemId;
 }

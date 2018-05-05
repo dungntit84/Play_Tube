@@ -1,5 +1,6 @@
 package com.hteck.playtube.common;
 
+import com.hteck.playtube.service.CustomCallback;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
@@ -12,11 +13,11 @@ import java.util.List;
 
 public class CustomHttpOk extends Thread {
     private String _url;
-    private Callback _callback;
+    private CustomCallback _callback;
     private Call _call;
     public List<AbstractMap.SimpleEntry<String, String>> mHeaders;
 
-    public CustomHttpOk(String url, Callback callback) {
+    public CustomHttpOk(String url, CustomCallback callback) {
         this._url = url;
         this._callback = callback;
     }
