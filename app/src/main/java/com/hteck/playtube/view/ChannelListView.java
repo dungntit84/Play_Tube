@@ -17,6 +17,7 @@ import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.ChannelInfo;
 import com.hteck.playtube.databinding.ListViewBinding;
+import com.hteck.playtube.fragment.UserActivityFragment;
 import com.hteck.playtube.service.CustomCallback;
 import com.hteck.playtube.service.YoutubeHelper;
 import com.squareup.okhttp.Request;
@@ -197,9 +198,9 @@ public class ChannelListView extends FrameLayout implements
 //        loadChannelsInfo();
 //    }
 
-    private void loadChannelsInfo(ArrayList<ChannelInfo> channels) {
+    private void loadChannelsInfo(final ArrayList<ChannelInfo> channelList) {
         String ids = "";
-        for (ChannelInfo channelInfo : channels) {
+        for (ChannelInfo channelInfo : channelList) {
             if (Objects.equals(ids, "")) {
                 ids = channelInfo.id;
             } else {
@@ -244,7 +245,7 @@ public class ChannelListView extends FrameLayout implements
 //                            if (Utils.haveMoreChannels(_channelList)) {
 //                                _channelList = YoutubeHelper.getChannels(s);
 //                            } else {
-                            ArrayList<ChannelInfo> channels = YoutubeHelper.getChannels(s);
+                            ArrayList<ChannelInfo> channels = YoutubeHelper.getChannelList(s, channelList);
 
                             if (_channelList.size() > 0
                                     && _channelList
@@ -298,6 +299,8 @@ public class ChannelListView extends FrameLayout implements
 //            UserDetails userDetails = UserDetails
 //                    .newInstance(channelInfo);
 //            MainActivity.getInstance().launchFragment(userDetails);
+            UserActivityFragment userActivityFragment = UserActivityFragment.newInstance(channelInfo);
+            MainActivity.getInstance().addFragment(userActivityFragment);
         }
     }
 

@@ -22,6 +22,7 @@ import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.CommentInfo;
 import com.hteck.playtube.data.YoutubeInfo;
 import com.hteck.playtube.databinding.FrameLayoutViewBinding;
+import com.hteck.playtube.service.CustomCallback;
 import com.hteck.playtube.service.YoutubeHelper;
 import com.hteck.playtube.view.LoadingView;
 import com.squareup.okhttp.Callback;
@@ -155,7 +156,7 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
                 .format(PlayTubeController.getConfigInfo().loadCommentsOfYoutubeUrl,
                         _youtubeInfo.id, _nextPageToken);
 
-        CustomHttpOk httpOk = new CustomHttpOk(url, new Callback() {
+        CustomHttpOk httpOk = new CustomHttpOk(url, new CustomCallback() {
             @Override
             public void onFailure(Request request, IOException e) {
                 MainActivity.getInstance().runOnUiThread(new Runnable() {

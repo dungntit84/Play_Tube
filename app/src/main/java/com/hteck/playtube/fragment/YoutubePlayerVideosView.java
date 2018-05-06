@@ -18,6 +18,7 @@ import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.YoutubeInfo;
 import com.hteck.playtube.databinding.ListViewBinding;
+import com.hteck.playtube.service.CustomCallback;
 import com.hteck.playtube.service.YoutubeHelper;
 import com.hteck.playtube.view.LoadingView;
 import com.squareup.okhttp.Callback;
@@ -114,7 +115,7 @@ public class YoutubePlayerVideosView extends Fragment implements
                     pageToken);
         }
 
-        CustomHttpOk httpOk = new CustomHttpOk(url, new Callback() {
+        CustomHttpOk httpOk = new CustomHttpOk(url, new CustomCallback() {
             @Override
             public void onFailure(Request request, IOException e) {
                 MainActivity.getInstance().runOnUiThread(new Runnable() {
@@ -204,7 +205,7 @@ public class YoutubePlayerVideosView extends Fragment implements
                 .format(PlayTubeController.getConfigInfo().loadVideosInfoUrl,
                         ids);
 
-        CustomHttpOk httpOk = new CustomHttpOk(url, new Callback() {
+        CustomHttpOk httpOk = new CustomHttpOk(url, new CustomCallback() {
             @Override
             public void onFailure(Request request, IOException e) {
                 MainActivity.getInstance().runOnUiThread(new Runnable() {

@@ -18,6 +18,7 @@ public class CustomHttpOk extends Thread {
     public List<AbstractMap.SimpleEntry<String, String>> mHeaders;
 
     public CustomHttpOk(String url, CustomCallback callback) {
+        System.out.println("url=" + url);
         this._url = url;
         this._callback = callback;
     }
@@ -41,6 +42,7 @@ public class CustomHttpOk extends Thread {
             e.printStackTrace();
         }
     }
+
     public void cancel() {
         _call.cancel();
     }

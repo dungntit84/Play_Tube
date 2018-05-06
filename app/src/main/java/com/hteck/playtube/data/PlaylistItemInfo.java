@@ -13,7 +13,7 @@ public class PlaylistItemInfo {
 	public ArrayList<YoutubeInfo> getYoutubeList() {
 		ArrayList<YoutubeInfo> results = new ArrayList<>();
 		try {
-			switch (activityInfo.userActivityType) {
+			switch (activityInfo.activityType) {
 				case Constants.UserActivityType.SINGLEPLAYLIST: {
 					return ((PlaylistInfo) activityInfo.dataInfo).youtubeList;
 				}

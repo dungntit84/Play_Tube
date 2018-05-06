@@ -38,7 +38,7 @@ public class ChannelAdapter extends BaseAdapter {
 
     public static View getDetailsView(LayoutInflater inflater, View convertView, ViewGroup group, ChannelInfo channelInfo) {
         BaseViewHolder holder;
-        holder = ViewHelper.getViewHolder(inflater, convertView, R.layout.item_channel, group);
+        holder = ViewHelper.getViewHolder(inflater, convertView, group, R.layout.item_channel);
         ItemChannelBinding binding = (ItemChannelBinding) holder.binding;
 
         binding.textViewTitle.setText(channelInfo.title);

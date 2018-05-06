@@ -27,10 +27,11 @@ import com.hteck.playtube.databinding.HeaderTemplateViewBinding;
 import com.hteck.playtube.fragment.UserActivityFragment;
 import com.hteck.playtube.holder.BaseViewHolder;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 public class YoutubePlaylistItemAdapter extends BaseAdapter {
-    protected Vector<PlaylistItemInfo> _items = new Vector<>();
+    protected ArrayList<PlaylistItemInfo> _items = new ArrayList<>();
     private ChannelInfo mChannel;
     private ChannelInfo mSubscriptionInfo;
     public boolean mIsSubscribed;
@@ -41,7 +42,7 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
     UserActivityFragment _channelHomeTab;
     protected Context _context;
 
-    public YoutubePlaylistItemAdapter(Context context, UserActivityFragment channelHomeTab, ChannelInfo channelInfo, Vector<PlaylistItemInfo> items) {
+    public YoutubePlaylistItemAdapter(Context context, UserActivityFragment channelHomeTab, ChannelInfo channelInfo, ArrayList<PlaylistItemInfo> items) {
         super();
         _context = context;
         _items = items;
@@ -51,7 +52,7 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
         checkChannelSubscribed(true);
     }
 
-    public void setDataSource(Vector<PlaylistItemInfo> items) {
+    public void setDataSource(ArrayList<PlaylistItemInfo> items) {
         _items = items;
         notifyDataSetChanged();
     }
@@ -63,7 +64,7 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        return _items.elementAt(position);
+        return _items.get(position);
     }
 
     @Override
@@ -79,7 +80,7 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
         }
         int otherPosition = position - 1;
         PlaylistItemInfo playlistItemViewInfo = _items
-                .elementAt(otherPosition);
+                .get(otherPosition);
         LayoutInflater inflater = LayoutInflater.from(_context);
         View v;
         if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.NAME) {

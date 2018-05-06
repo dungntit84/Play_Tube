@@ -29,6 +29,7 @@ import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.CategoryInfo;
 import com.hteck.playtube.data.YoutubeInfo;
+import com.hteck.playtube.service.CustomCallback;
 import com.hteck.playtube.service.YoutubeHelper;
 import com.hteck.playtube.view.CategoryListView;
 import com.hteck.playtube.view.LoadingView;
@@ -231,7 +232,7 @@ public class PopularView extends BaseFragment implements
             }
         }
 
-        _httpOk = new CustomHttpOk(url, new Callback() {
+        _httpOk = new CustomHttpOk(url, new CustomCallback() {
             @Override
             public void onFailure(Request request, IOException e) {
                 MainActivity.getInstance().runOnUiThread(new Runnable() {
@@ -300,7 +301,7 @@ public class PopularView extends BaseFragment implements
         String url = String.format(PlayTubeController.getConfigInfo().loadVideosInfoUrl,
                 videoIds);
 
-        _httpOk = new CustomHttpOk(url, new Callback() {
+        _httpOk = new CustomHttpOk(url, new CustomCallback() {
             @Override
             public void onFailure(Request request, IOException e) {
                 MainActivity.getInstance().runOnUiThread(new Runnable() {

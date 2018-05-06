@@ -19,6 +19,7 @@ import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.databinding.TabsSearchViewBinding;
 import com.hteck.playtube.databinding.TabsViewBinding;
+import com.hteck.playtube.service.CustomCallback;
 import com.hteck.playtube.view.YoutubeListView;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
@@ -246,7 +247,7 @@ public class SearchView extends BaseFragment {
         if (_httpOk != null) {
             _httpOk.cancel();
         }
-        _httpOk = new CustomHttpOk(url, new Callback() {
+        _httpOk = new CustomHttpOk(url, new CustomCallback() {
             @Override
             public void onFailure(Request request, IOException e) {
 

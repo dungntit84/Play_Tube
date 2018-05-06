@@ -22,7 +22,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import static com.hteck.playtube.common.Constants.ItemConstants.TITLE;
 import static com.hteck.playtube.common.Constants.YoutubeField.BULLETIN;
@@ -151,6 +151,22 @@ public class YoutubeHelper {
                 youtubeList.remove(i);
             }
         }
+    }
+
+    public static ArrayList<YoutubeInfo> getYoutubeList(String data) throws JSONException {
+        ArrayList<YoutubeInfo> youtubeList = new ArrayList<>();
+        JSONObject jObjectData = new JSONObject(data);
+        JSONArray items = jObjectData.getJSONArray(ITEMS);
+        for (int i = 0; i < items.length(); ++i) {
+            JSONObject jObjectItem = (JSONObject) items.get(i);
+
+            YoutubeInfo videoInfo = new YoutubeInfo();
+            if (populateVideoItem(videoInfo, jObjectItem)) {
+                youtubeList.add(videoInfo);
+            }
+        }
+
+        return youtubeList;
     }
 
     private static boolean populateVideoItem(YoutubeInfo youtubeInfo,
@@ -296,32 +312,6 @@ public class YoutubeHelper {
         return result;
     }
 
-    public static ArrayList<ChannelInfo> getChannels(String data) throws JSONException {
-        ArrayList<ChannelInfo> channels = new ArrayList<>();
-        JSONObject jObjectData = new JSONObject(data);
-        JSONArray items = jObjectData.getJSONArray(ITEMS);
-        for (int i = 0; i < items.length(); ++i) {
-            JSONObject jObjectItem = (JSONObject) items.get(i);
-            JSONObject jObjectSnippet = jObjectItem
-                    .getJSONObject(SNIPPET);
-            String id = jObjectItem.getString(ID);
-            ChannelInfo channelInfo = new ChannelInfo();
-            channelInfo.id = id;
-            if (jObjectItem.has(STATISTICS)) {
-                JSONObject jobjStatistics = jObjectItem.getJSONObject(STATISTICS);
-                channelInfo.subscriberCount = jobjStatistics.getInt(SUBSCRIBERCOUNT);
-                channelInfo.videoCount = jobjStatistics.getInt(VIDEOCOUNT);
-            }
-
-            channelInfo.uploadPlaylistId = getString(jObjectItem, CONTENTDETAILS, RELATEDPLAYLISTS, UPLOADS);
-
-            channelInfo.imageUrl = getString(jObjectSnippet, THUMBNAILS, MEDIUM, URL);
-            channelInfo.title = jObjectSnippet.getString(TITLE);
-            channels.add(channelInfo);
-        }
-        return channels;
-    }
-
     public static ArrayList<ChannelSectionInfo> getActivityInfos(String data) throws JSONException {
         ArrayList<ChannelSectionInfo> results = new ArrayList<>();
         JSONObject jObjectData = new JSONObject(data);
@@ -401,7 +391,7 @@ public class YoutubeHelper {
             } else if (isValidForMark(
                     type,
                     PlayTubeController.getConfigInfo().multiPlaylistsSectionMark)) {
-                Vector<YoutubePlaylistInfo> playlists = new Vector<>();
+                ArrayList<YoutubePlaylistInfo> playlists = new ArrayList<>();
                 JSONObject jObjectContentDetails = jObjectItem
                         .getJSONObject(CONTENTDETAILS);
                 JSONArray jArray = jObjectContentDetails
@@ -422,7 +412,7 @@ public class YoutubeHelper {
             } else if (isValidForMark(
                     type,
                     PlayTubeController.getConfigInfo().multiChannelsSectionMark)) {
-                Vector<ChannelInfo> channels = new Vector<>();
+                ArrayList<ChannelInfo> channels = new ArrayList<>();
                 JSONObject jObjectContentDetails = jObjectItem
                         .getJSONObject(CONTENTDETAILS);
                 JSONArray jArray = jObjectContentDetails
@@ -553,18 +543,18 @@ public class YoutubeHelper {
             String data, boolean isCustomPlaylist, boolean isMine) throws JSONException {
         ArrayList<YoutubePlaylistInfo> playlists = new ArrayList<>();
         String nextPageToken = "";
-            JSONObject jObjectData = new JSONObject(data);
-            JSONArray items = jObjectData.getJSONArray(ITEMS);
-            for (int i = 0; i < items.length(); ++i) {
-                YoutubePlaylistInfo playlistInfo = !isCustomPlaylist ? populateYoutubePlaylistInfo((JSONObject) items.get(i)) : populateCustomYoutubePlaylist(
-                        (JSONObject) items.get(i), isMine);
-                if (playlistInfo != null) {
-                    playlists.add(playlistInfo);
-                }
+        JSONObject jObjectData = new JSONObject(data);
+        JSONArray items = jObjectData.getJSONArray(ITEMS);
+        for (int i = 0; i < items.length(); ++i) {
+            YoutubePlaylistInfo playlistInfo = !isCustomPlaylist ? populateYoutubePlaylistInfo((JSONObject) items.get(i)) : populateCustomYoutubePlaylist(
+                    (JSONObject) items.get(i), isMine);
+            if (playlistInfo != null) {
+                playlists.add(playlistInfo);
             }
-            if (jObjectData.has(NEXTPAGETOKEN)) {
-                nextPageToken = jObjectData.getString(NEXTPAGETOKEN);
-            }
+        }
+        if (jObjectData.has(NEXTPAGETOKEN)) {
+            nextPageToken = jObjectData.getString(NEXTPAGETOKEN);
+        }
 
         return new AbstractMap.SimpleEntry<>(nextPageToken,
                 playlists);
@@ -617,43 +607,55 @@ public class YoutubeHelper {
         return youtubePlaylistInfo;
     }
 
+    public static ArrayList<ChannelInfo> getChannelList(String data, ArrayList<ChannelInfo> originalChannels) throws JSONException {
+        ArrayList<ChannelInfo> channels = new ArrayList<>();
+        JSONObject jObjectData = new JSONObject(data);
+        JSONArray items = jObjectData.getJSONArray(ITEMS);
+        for (ChannelInfo c : originalChannels) {
+            for (int i = 0; i < items.length(); ++i) {
+                JSONObject jObjectItem = (JSONObject) items.get(i);
+                String id = jObjectItem.getString(ID);
+                if (c.id.equals(id)) {
+                    ChannelInfo channelInfo = getChannel(jObjectItem);
+                    channels.add(channelInfo);
+                    break;
+                }
+            }
+        }
+        return channels;
+    }
+
     public static ArrayList<ChannelInfo> getChannelList(String data) throws JSONException {
         ArrayList<ChannelInfo> channels = new ArrayList<>();
         JSONObject jObjectData = new JSONObject(data);
         JSONArray items = jObjectData.getJSONArray(ITEMS);
         for (int i = 0; i < items.length(); ++i) {
-            ChannelInfo channelInfo = new ChannelInfo();
             JSONObject jObjectItem = (JSONObject) items.get(i);
-            String id = jObjectItem.getString(ID);
-            JSONObject jObjectSnippet = jObjectItem
-                    .getJSONObject(SNIPPET);
-            channelInfo.title = jObjectSnippet.getString(TITLE);
-            channelInfo.id = id;
-            if (jObjectItem.has(STATISTICS)) {
-                JSONObject jobjStatistics = jObjectItem
-                        .getJSONObject(STATISTICS);
-                channelInfo.subscriberCount = jobjStatistics
-                        .getInt(SUBSCRIBERCOUNT);
-                channelInfo.videoCount = jobjStatistics
-                        .getInt(VIDEOCOUNT);
-            }
-
-            channelInfo.uploadPlaylistId = getString(jObjectItem,
-                    CONTENTDETAILS,
-                    RELATEDPLAYLISTS, UPLOADS);
-
-            channelInfo.likePlaylistId = getString(jObjectItem,
-                    CONTENTDETAILS,
-                    RELATEDPLAYLISTS, LIKES);
-
-            channelInfo.imageUrl = getString(jObjectSnippet,
-                    THUMBNAILS, MEDIUM,
-                    URL);
+            ChannelInfo channelInfo = getChannel(jObjectItem);
             channels.add(channelInfo);
+        }
+        return channels;
+    }
 
+    private static ChannelInfo getChannel(JSONObject jObject) throws JSONException {
+        ChannelInfo channelInfo = new ChannelInfo();
+        String id = jObject.getString(ID);
+        JSONObject jObjectSnippet = jObject
+                .getJSONObject(SNIPPET);
+        channelInfo.title = jObjectSnippet.getString(TITLE);
+        channelInfo.id = id;
+        if (jObject.has(STATISTICS)) {
+            JSONObject jobjStatistics = jObject.getJSONObject(STATISTICS);
+            channelInfo.subscriberCount = jobjStatistics.getInt(SUBSCRIBERCOUNT);
+            channelInfo.videoCount = jobjStatistics.getInt(VIDEOCOUNT);
         }
 
-        return channels;
+        channelInfo.uploadPlaylistId = getString(jObject, CONTENTDETAILS, RELATEDPLAYLISTS, UPLOADS);
+
+        channelInfo.likePlaylistId = getString(jObject, CONTENTDETAILS, RELATEDPLAYLISTS, LIKES);
+
+        channelInfo.imageUrl = getString(jObjectSnippet, THUMBNAILS, MEDIUM, URL);
+        return channelInfo;
     }
 
     public static AbstractMap.SimpleEntry<String, ArrayList<YoutubeInfo>> getVideosInAccount(

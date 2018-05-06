@@ -23,7 +23,7 @@ import java.util.Vector;
 public class YoutubePlaylistItemByPageAdapter extends YoutubePlaylistItemAdapter {
     private boolean _isNetworkError;
 
-    public YoutubePlaylistItemByPageAdapter(Context context, UserActivityFragment channelHomeTab, ChannelInfo channelInfo, Vector<PlaylistItemInfo> items) {
+    public YoutubePlaylistItemByPageAdapter(Context context, UserActivityFragment channelHomeTab, ChannelInfo channelInfo, ArrayList<PlaylistItemInfo> items) {
         super(context, channelHomeTab, channelInfo, items);
     }
 
@@ -39,7 +39,7 @@ public class YoutubePlaylistItemByPageAdapter extends YoutubePlaylistItemAdapter
     public View getView(int position, View convertView, ViewGroup group) {
         BaseViewHolder holder;
         if (position == getCount() - 1) {
-            if (_items.get(_items.size() - 1) == null) {
+            if (_items.size() > 0 && _items.get(_items.size() - 1) == null) {
                 if (!_isNetworkError) {
                     holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.loading_view);
                 } else {
