@@ -23,9 +23,9 @@
     <recentActivitySectionMark value="recentActivity" />
     <loadActivitiesInChannelUrl value="https://www.googleapis.com/youtube/v3/activities?pageToken=%s&amp;part=contentDetails,snippet&amp;channelId=%s&amp;maxResults=20&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
     <loadPlaylistsDetailsUrl value="https://www.googleapis.com/youtube/v3/playlists?id=%s&amp;part=contentDetails,snippet&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
-    <loadPlaylistsInChannelUrl value="https://www.googleapis.com/youtube/v3/playlists?pageToken=%s&amp;part=contentDetails,snippet&amp;channelId=%s&amp;maxResults=20&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
-    <loadVideosInChannelSortByUrl value="https://www.googleapis.com/youtube/v3/search?pageToken=%s&amp;part=snippet&amp;channelId=%s&amp;maxResults=20&amp;order=%s&amp;type=video&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
-    <loadVideosInChannelUrl value="https://www.googleapis.com/youtube/v3/search?pageToken=%s&amp;part=snippet&amp;channelId=%s&amp;maxResults=20&amp;type=video&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
+    <loadPlaylistsInChannelUrl value="https://www.googleapis.com/youtube/v3/playlists?pageToken=%s&amp;part=contentDetails,snippet&amp;channelId=%s&amp;maxResults=%d&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
+    <loadVideosInChannelSortByUrl value="https://www.googleapis.com/youtube/v3/search?pageToken=%s&amp;part=snippet&amp;channelId=%s&amp;maxResults=%d&amp;order=%s&amp;type=video&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
+    <loadVideosInChannelUrl value="https://www.googleapis.com/youtube/v3/search?pageToken=%s&amp;part=snippet&amp;channelId=%s&amp;maxResults=%d&amp;type=video&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
     <loadVideosInPlaylistUrl value="https://www.googleapis.com/youtube/v3/playlistItems?pageToken=%s&amp;part=contentDetails&amp;videoEmbeddable=true&amp;playlistId=%s&amp;maxResults=20&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
 
 

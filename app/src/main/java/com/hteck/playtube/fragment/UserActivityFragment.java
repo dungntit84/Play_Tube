@@ -549,7 +549,7 @@ public class UserActivityFragment extends Fragment implements
         ChannelInfo channelInfo = (ChannelInfo) activityInfo.dataInfo;
         String url = String.format(
                 PlayTubeController.getConfigInfo().loadPlaylistsInChannelUrl, "",
-                channelInfo.id);
+                channelInfo.id, PAGESIZE);
         CustomCallback callback = buildAllPlaylistsCompletedListener();
         callback.setDataContext(activityInfo);
         CustomHttpOk httpOk = new CustomHttpOk(url, callback);
@@ -771,19 +771,19 @@ public class UserActivityFragment extends Fragment implements
             case Constants.SortBy.MOSTVIEWED: {
                 url = String.format(
                         PlayTubeController.getConfigInfo().loadVideosInChannelSortByUrl,
-                        "", channelInfo.id, "viewCount");
+                        "", channelInfo.id, PAGESIZE, "viewCount");
                 break;
             }
             case Constants.SortBy.MOSTRECENT: {
                 url = String.format(
                         PlayTubeController.getConfigInfo().loadVideosInChannelSortByUrl,
-                        "", channelInfo.id, "date");
+                        "", channelInfo.id, PAGESIZE, "date");
                 break;
             }
             default: {
                 url = String.format(
                         PlayTubeController.getConfigInfo().loadVideosInChannelUrl,
-                        "", channelInfo.id);
+                        "", channelInfo.id, PAGESIZE);
                 break;
             }
         }
@@ -1205,7 +1205,7 @@ public class UserActivityFragment extends Fragment implements
 
     public void hideBusyAnimation() {
         _isShowingBusy = false;
-        _busyView = Utils.showProgressBar(_binding.layoutMain, _busyView);
+        Utils.hideProgressBar(_binding.layoutMain, _busyView);
     }
 
     public void showBusyAnimation() {
@@ -1213,7 +1213,7 @@ public class UserActivityFragment extends Fragment implements
             return;
         }
         _isShowingBusy = true;
-        Utils.hideProgressBar(_binding.layoutMain, _busyView);
+        _busyView = Utils.showProgressBar(_binding.layoutMain, _busyView);
     }
 
     private void initReloadEvent() {
