@@ -68,7 +68,7 @@ public class EncryptUtils {
                 String result1 = new String(rc4.decrypt(result), "UTF-16LE");
                 return result1;
             } catch (InvalidKeyException e) {
-                System.err.println(e.getMessage());
+                e.printStackTrace();
             }
             return "";
         }

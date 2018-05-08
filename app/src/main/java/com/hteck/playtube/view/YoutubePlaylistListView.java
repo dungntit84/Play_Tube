@@ -5,13 +5,10 @@ import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
-import android.widget.ListView;
-
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.adapter.YoutubePlaylistByPageAdapter;
@@ -36,7 +33,6 @@ public class YoutubePlaylistListView extends FrameLayout implements
 
     private String _nextPageToken = "";
     private ArrayList<YoutubePlaylistInfo> _playlists = new ArrayList<>();
-    private ArrayList<YoutubePlaylistInfo> _playlistsSearching = new ArrayList<>();
     private YoutubePlaylistByPageAdapter _adapterPlaylist;
     private String _query;
     private LoadingView _busyView;
@@ -102,7 +98,7 @@ public class YoutubePlaylistListView extends FrameLayout implements
         cancelAllRequests();
 
         search();
-        showBusyAnimation();
+        showProgressBar();
     }
 
     private void cancelAllRequests() {
@@ -119,7 +115,7 @@ public class YoutubePlaylistListView extends FrameLayout implements
                 public void run() {
                     Utils.showMessage(Utils
                             .getString(R.string.network_error));
-                    hideBusyAnimation();
+                    hideProgressBar();
                     _isLoading = false;
                     if (_playlists.size() == 0) {
                         initReloadEvent();
@@ -143,9 +139,9 @@ public class YoutubePlaylistListView extends FrameLayout implements
                         AbstractMap.SimpleEntry<String, ArrayList<YoutubePlaylistInfo>> searchResult = YoutubeHelper
                                 .getPlaylists(s, isChannelPlaylists, false);
                         _nextPageToken = searchResult.getKey();
-                        _playlistsSearching = searchResult.getValue();
+                        ArrayList<YoutubePlaylistInfo> playlists = searchResult.getValue();
 
-                        if (_playlistsSearching.size() == 0
+                        if (playlists.size() == 0
                                 || isChannelPlaylists) {
                             if (_playlists.size() > 0
                                     && _playlists.get(_playlists
@@ -153,21 +149,21 @@ public class YoutubePlaylistListView extends FrameLayout implements
                                 _playlists.remove(_playlists.size() - 1);
                             }
                             if (isChannelPlaylists) {
-                                _playlists.addAll(_playlistsSearching);
+                                _playlists.addAll(playlists);
                                 if (!Utils.stringIsNullOrEmpty(_nextPageToken)) {
                                     _playlists.add(null);
                                 }
                             }
                             setDataSource(_playlists, false);
-                            hideBusyAnimation();
+                            hideProgressBar();
                             _isLoading = false;
                         } else {
-                            loadPlaylistsInfo();
+                            loadPlaylistsInfo(playlists);
                         }
 
                     } catch (Throwable e) {
                         e.printStackTrace();
-                        hideBusyAnimation();
+                        hideProgressBar();
                         _isLoading = false;
                     }
 
@@ -175,15 +171,6 @@ public class YoutubePlaylistListView extends FrameLayout implements
             });
         }
     };
-//	IEventHandler() {
-//
-//		@Override
-//		public void returnResult(Object sender, final ResultType resultType,
-//				final byte[] data) {
-//
-//		}
-//	};
-
     private void search() {
         String url = String
                 .format(PlayTubeController.getConfigInfo().searchPlaylistUrl, _nextPageToken,
@@ -207,12 +194,12 @@ public class YoutubePlaylistListView extends FrameLayout implements
         _isLoading = true;
 
         String url = String
-                .format(PlayTubeController.getConfigInfo().loadPlaylistsInChannelUrl,_nextPageToken,
-                        _channelId,  Constants.PAGE_SIZE);
+                .format(PlayTubeController.getConfigInfo().loadPlaylistsInChannelUrl, _nextPageToken,
+                        _channelId, Constants.PAGE_SIZE);
         _httpOk = new CustomHttpOk(url, eventDownloadCompleted);
         _httpOk.start();
         if (_playlists.size() == 0) {
-            showBusyAnimation();
+            showProgressBar();
         }
     }
 
@@ -221,23 +208,23 @@ public class YoutubePlaylistListView extends FrameLayout implements
             return;
         }
         _isLoading = true;
-        _playlistsSearching = new ArrayList<>();
+        ArrayList<YoutubePlaylistInfo> playlists = new ArrayList<>();
         int count = 0;
         for (YoutubePlaylistInfo p : _playlists) {
             if (Utils.stringIsNullOrEmpty(p.title)) {
                 count++;
-                _playlistsSearching.add(p);
+                playlists.add(p);
                 if (count == Constants.PAGE_SIZE) {
                     break;
                 }
             }
         }
-        loadPlaylistsInfo();
+        loadPlaylistsInfo(playlists);
     }
 
-    private void loadPlaylistsInfo() {
+    private void loadPlaylistsInfo(ArrayList<YoutubePlaylistInfo> playlists) {
         String ids = "";
-        for (YoutubePlaylistInfo playlistInfo : _playlistsSearching) {
+        for (YoutubePlaylistInfo playlistInfo : playlists) {
             if (ids == "") {
                 ids = playlistInfo.id;
             } else {
@@ -247,54 +234,25 @@ public class YoutubePlaylistListView extends FrameLayout implements
         String url = String
                 .format(PlayTubeController.getConfigInfo().loadPlaylistsDetailsUrl,
                         ids);
-        _httpOk = new CustomHttpOk(url, new CustomCallback() {
+        _httpOk = new CustomHttpOk(url, new CustomCallback(playlists) {
             @Override
             public void onFailure(Request request, IOException e) {
                 MainActivity.getInstance().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (resultType == ResultType.Success) {
-                            try {
-
-                                String s = new String(data);
-                                if (Utils.isLoadMorePlaylists(_playlists)) {
-                                    YoutubeHelper.populatePlaylistsInfo(_playlists,
-                                            s);
-                                } else {
-                                    YoutubeHelper.populatePlaylistsInfo(
-                                            _playlistsSearching, s);
-
-                                    if (_playlists.size() > 0
-                                            && _playlists.get(_playlists
-                                            .size() - 1) == null) {
-                                        _playlists.remove(_playlists.size() - 1);
-                                    }
-                                    _playlists.addAll(_playlistsSearching);
-                                    if (!Utils.stringIsNullOrEmpty(_nextPageToken)) {
-                                        _playlists.add(null);
-                                    }
-                                }
-                                setDataSource(_playlists, false);
-
-                            } catch (Throwable e) {
-                                e.printStackTrace();
-                            }
-                            hideBusyAnimation();
-                            _isLoading = false;
-                        }
-
-                        if (resultType == ResultType.NetworkError) {
-                            Utils.showMessageToast(MainActivity.getInstance()
+                        try {
+                            Utils.showMessage(MainActivity.getInstance()
                                     .getString(R.string.network_error));
-                            hideBusyAnimation();
+                            hideProgressBar();
                             _isLoading = false;
                             if (_playlists.size() == 0) {
                                 initReloadEvent();
                             } else {
-                                _isNetworkError = true;
-                                _adapterPlaylist.mIsNetworkError = true;
+                                _adapterPlaylist.setIsNetworkError(true);
                                 _adapterPlaylist.notifyDataSetChanged();
                             }
+                        } catch (Throwable e) {
+                            e.printStackTrace();
                         }
                     }
                 });
@@ -302,58 +260,58 @@ public class YoutubePlaylistListView extends FrameLayout implements
 
             @Override
             public void onResponse(final Response response) throws IOException {
+                final ArrayList<YoutubePlaylistInfo> originPlaylists = (ArrayList<YoutubePlaylistInfo>) this.getDataContext();
                 MainActivity.getInstance().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                            try {
+                        try {
 
-                                String s = response.body().string();
-                                if (Utils.isLoadMorePlaylists(_playlists)) {
-                                    YoutubeHelper.getPlaylists().populatePlaylistsInfo(_playlists,
-                                            s);
-                                } else {
-                                    YoutubeHelper.populatePlaylistsInfo(
-                                            _playlistsSearching, s);
+                            String s = response.body().string();
+                            if (Utils.isLoadMorePlaylists(_playlists)) {
+                                YoutubeHelper.fillDataToPlaylists(s, _playlists);
+                            } else {
+                                ArrayList<YoutubePlaylistInfo> playlists = YoutubeHelper.getPlaylists(s,
+                                        originPlaylists);
 
-                                    if (_playlists.size() > 0
-                                            && _playlists.get(_playlists
-                                            .size() - 1) == null) {
-                                        _playlists.remove(_playlists.size() - 1);
-                                    }
-                                    _playlists.addAll(_playlistsSearching);
-                                    if (!Utils.stringIsNullOrEmpty(_nextPageToken)) {
-                                        _playlists.add(null);
-                                    }
+                                if (_playlists.size() > 0
+                                        && _playlists.get(_playlists
+                                        .size() - 1) == null) {
+                                    _playlists.remove(_playlists.size() - 1);
                                 }
-                                setDataSource(_playlists, false);
-
-                            } catch (Throwable e) {
-                                e.printStackTrace();
+                                _playlists.addAll(playlists);
+                                if (!Utils.stringIsNullOrEmpty(_nextPageToken)) {
+                                    _playlists.add(null);
+                                }
                             }
-                            hideBusyAnimation();
-                            _isLoading = false;
+                            setDataSource(_playlists, false);
+
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                        }
+                        hideProgressBar();
+                        _isLoading = false;
 
                     }
                 });
             }
         });
+        _httpOk.start();
     }
 
-    private void hideBusyAnimation() {
-        Utils.hideBusyAnimation(_contentView, _busyView);
+    private void hideProgressBar() {
+        Utils.hideProgressBar(_binding.layoutMain, _busyView);
     }
 
-    private void showBusyAnimation() {
-        _busyView = Utils.showBusyAnimation(_contentView, _busyView);
+    private void showProgressBar() {
+        _busyView = Utils.showProgressBar(_binding.layoutMain, _busyView);
     }
 
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
         int index = (int) arg3;
-        if (index == _playlists.size() - 1 && _playlists.lastElement() == null) {
-            if (_isNetworkError) {
-                _isNetworkError = false;
-                _adapterPlaylist.mIsNetworkError = false;
+        if (index == _playlists.size() - 1 && _playlists.get(_playlists.size() - 1) == null) {
+            if (_adapterPlaylist.getIsNetworkError()) {
+                _adapterPlaylist.setIsNetworkError(false);
                 _adapterPlaylist.notifyDataSetChanged();
                 if (Utils.stringIsNullOrEmpty(_channelId)) {
                     searchMore();
@@ -366,27 +324,27 @@ public class YoutubePlaylistListView extends FrameLayout implements
             if (playlistInfo == null) {
                 return;
             }
-            YoutubePlaylistVideosView youtubePlaylistDetails = YoutubePlaylistVideosView
-                    .newInstance(playlistInfo, VideoListType.Normal);
-            MainActivity.getInstance().launchFragment(youtubePlaylistDetails);
+//            YoutubePlaylistVideosView youtubePlaylistDetails = YoutubePlaylistVideosView
+//                    .newInstance(playlistInfo, VideoListType.Normal);
+//            MainActivity.getInstance().launchFragment(youtubePlaylistDetails);
         }
     }
 
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem,
                          int visibleItemCount, int totalItemCount) {
-        // TODO Auto-generated method stub
+
 
     }
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
         if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
-            if (_listView.getLastVisiblePosition() == _listView.getAdapter()
+            if (_binding.listView.getLastVisiblePosition() == _binding.listView.getAdapter()
                     .getCount() - 1) {
                 if (Utils.isLoadMorePlaylists(_playlists)
-                        || (_playlists.size() > 0 && _playlists.lastElement() == null)) {
-                    if (!_isNetworkError) {
+                        || (_playlists.size() > 0 && _playlists.get(_playlists.size() - 1) == null)) {
+                    if (!_adapterPlaylist.getIsNetworkError()) {
                         if (Utils.isLoadMorePlaylists(_playlists)) {
                             loadMorePlaylistsInfo();
                         } else {
@@ -402,20 +360,19 @@ public class YoutubePlaylistListView extends FrameLayout implements
 
             }
         }
-
     }
 
     private void initReloadEvent() {
         LayoutInflater inflater = MainActivity.getInstance()
                 .getLayoutInflater();
-        _viewReload = (ViewGroup) inflater.inflate(R.layout.reload_view, null);
-        _contentView.addView(_viewReload);
+        _viewReload = inflater.inflate(R.layout.retry_view, null);
+        _binding.layoutMain.addView(_viewReload);
         _viewReload.setOnTouchListener(new OnTouchListener() {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (_viewReload != null) {
-                    _contentView.removeView(_viewReload);
+                    _binding.layoutMain.removeView(_viewReload);
                     _viewReload = null;
                 }
                 if (Utils.stringIsNullOrEmpty(_channelId)) {

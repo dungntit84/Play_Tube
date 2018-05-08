@@ -50,6 +50,7 @@
     <string name="no_playlist_found">No Playlist found!</string>
     <string name="video">VIDEO</string>
     <string name="channel">CHANNEL</string>
+    <string name="playlist">PLAYLIST</string>
     <string name="show_all">Show all</string>
     <string name="uploaded">uploaded</string>
     <string name="liked">liked</string>

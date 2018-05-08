@@ -34,6 +34,7 @@ public class SearchView extends BaseFragment {
     private static String _query = "";
     private static SearchVideoFragment _searchVideoFragment;
     private static SearchChannelFragment _searchChannelFragment;
+    private static SearchPlaylistFragment _searchPlaylistFragment;
     private String[] _suggestions = new String[]{};
     private MatrixCursor mSearchCursor;
     private SearchCursorAdapter _adapter;
@@ -65,9 +66,11 @@ public class SearchView extends BaseFragment {
 
         _searchVideoFragment = SearchVideoFragment.newInstance();
         _searchChannelFragment = SearchChannelFragment.newInstance();
+        _searchPlaylistFragment = SearchPlaylistFragment.newInstance();
 
         pagerAdapter.addFragment(_searchVideoFragment, Utils.getString(R.string.video));
         pagerAdapter.addFragment(_searchChannelFragment, Utils.getString(R.string.channel));
+        pagerAdapter.addFragment(_searchPlaylistFragment, Utils.getString(R.string.playlist));
         _binding.pager.setAdapter(pagerAdapter);
         _binding.tabs.setupWithViewPager(_binding.pager);
         _binding.tabs.setTabMode(TabLayout.MODE_FIXED);
@@ -197,11 +200,17 @@ public class SearchView extends BaseFragment {
                 }
                 break;
             }
-
-            default: {
+            case 1: {
                 if (!_searchChannelFragment.getView().mIsSearched) {
                     _searchChannelFragment.getView().mIsSearched = true;
                     _searchChannelFragment.getView().search(_query);
+                }
+                break;
+            }
+            default: {
+                if (!_searchPlaylistFragment.getView().mIsSearched) {
+                    _searchPlaylistFragment.getView().mIsSearched = true;
+                    _searchPlaylistFragment.getView().search(_query);
                 }
                 break;
             }
@@ -212,6 +221,7 @@ public class SearchView extends BaseFragment {
         try {
             _searchVideoFragment.getView().mIsSearched = false;
             _searchChannelFragment.getView().mIsSearched = false;
+            _searchPlaylistFragment.getView().mIsSearched = false;
 
             _query = "";
         } catch (Throwable e) {

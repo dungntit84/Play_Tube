@@ -539,22 +539,45 @@ public class YoutubeHelper {
     }
 
     public static ArrayList<YoutubePlaylistInfo> getPlaylists(String data,
-                                                              ArrayList<YoutubePlaylistInfo> playlists) throws JSONException {
+                                                              ArrayList<YoutubePlaylistInfo> originalPlaylists) throws JSONException {
         ArrayList<YoutubePlaylistInfo> result = new ArrayList<>();
 
         JSONObject jObjectData = new JSONObject(data);
         JSONArray items = jObjectData.getJSONArray(ITEMS);
-        for (int i = 0; i < items.length(); ++i) {
-            YoutubePlaylistInfo playlistInfo = populateYoutubePlaylistFull(
-                    (JSONObject) items.get(i))
+        for (YoutubePlaylistInfo p : originalPlaylists) {
+            for (int i = 0; i < items.length(); ++i) {
+                JSONObject jObjectItem = (JSONObject) items.get(i);
 
-            if (playlistInfo != null) {
-                result.add(playlistInfo);
+                String id = jObjectItem.getString(ID);
+                if (p.id.equals(id)) {
+                    YoutubePlaylistInfo playlistInfo = populateYoutubePlaylistFull(
+                            (JSONObject) items.get(i));
+
+                    result.add(playlistInfo);
+                }
             }
         }
+
         return result;
     }
 
+    public static void fillDataToPlaylists(String data, ArrayList<YoutubePlaylistInfo> originalPlaylists) throws JSONException {
+        JSONObject jObjectData = new JSONObject(data);
+        JSONArray items = jObjectData.getJSONArray(ITEMS);
+        for (int i = 0; i < originalPlaylists.size(); ++i) {
+            for (int k = 0; k < items.length(); ++k) {
+                JSONObject jObjectItem = (JSONObject) items.get(k);
+
+                String id = jObjectItem.getString(ID);
+                if (originalPlaylists.get(i).id.equals(id)) {
+                    YoutubePlaylistInfo playlistInfo = populateYoutubePlaylistFull(
+                            (JSONObject) items.get(k));
+
+                    originalPlaylists.set(i, playlistInfo);
+                }
+            }
+        }
+    }
     public static AbstractMap.SimpleEntry<String, ArrayList<YoutubePlaylistInfo>> getPlaylists(
             String data, boolean isCustomPlaylist, boolean isMine) throws JSONException {
         ArrayList<YoutubePlaylistInfo> playlists = new ArrayList<>();

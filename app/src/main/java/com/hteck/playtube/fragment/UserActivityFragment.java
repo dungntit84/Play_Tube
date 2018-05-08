@@ -350,8 +350,6 @@ public class UserActivityFragment extends Fragment implements
                                 hideBusyAnimation();
                                 _isLoading = false;
                             }
-
-
                         }
                     });
                 }
