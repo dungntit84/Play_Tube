@@ -17,7 +17,8 @@
                 android:id="@+id/item_playlist_img_thumb"
                 android:layout_width="@dimen/row_thumb_width"
                 android:layout_height="@dimen/row_thumb_height"
-                android:src="@drawable/ic_thumb" />
+                android:src="@drawable/ic_thumb"
+                android:scaleType="centerCrop"/>
 
             <ImageView
                 android:layout_width="24dip"

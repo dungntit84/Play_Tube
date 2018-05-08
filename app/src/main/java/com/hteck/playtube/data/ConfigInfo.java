@@ -29,4 +29,5 @@ public class ConfigInfo {
     public String loadVideosInChannelSortByUrl;
     public String loadVideosInChannelUrl;
     public String loadVideosInPlaylistUrl;
+    public String searchPlaylistUrl;
 }

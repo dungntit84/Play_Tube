@@ -22,7 +22,6 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.ArrayList;
 
 import static com.hteck.playtube.common.Constants.ItemConstants.TITLE;
 import static com.hteck.playtube.common.Constants.YoutubeField.BULLETIN;
@@ -528,8 +527,8 @@ public class YoutubeHelper {
         JSONObject jObjectData = new JSONObject(data);
         JSONArray items = jObjectData.getJSONArray(ITEMS);
         for (int i = 0; i < items.length(); ++i) {
-            YoutubePlaylistInfo playlistInfo = isFullData ? populateCustomYoutubePlaylist(
-                    (JSONObject) items.get(i), false)
+            YoutubePlaylistInfo playlistInfo = isFullData ? populateYoutubePlaylistFull(
+                    (JSONObject) items.get(i))
                     : populatePlaylistInChannelSection((JSONObject) items
                     .get(i));
             if (playlistInfo != null) {
@@ -539,6 +538,23 @@ public class YoutubeHelper {
         return playlists;
     }
 
+    public static ArrayList<YoutubePlaylistInfo> getPlaylists(String data,
+                                                              ArrayList<YoutubePlaylistInfo> playlists) throws JSONException {
+        ArrayList<YoutubePlaylistInfo> result = new ArrayList<>();
+
+        JSONObject jObjectData = new JSONObject(data);
+        JSONArray items = jObjectData.getJSONArray(ITEMS);
+        for (int i = 0; i < items.length(); ++i) {
+            YoutubePlaylistInfo playlistInfo = populateYoutubePlaylistFull(
+                    (JSONObject) items.get(i))
+
+            if (playlistInfo != null) {
+                result.add(playlistInfo);
+            }
+        }
+        return result;
+    }
+
     public static AbstractMap.SimpleEntry<String, ArrayList<YoutubePlaylistInfo>> getPlaylists(
             String data, boolean isCustomPlaylist, boolean isMine) throws JSONException {
         ArrayList<YoutubePlaylistInfo> playlists = new ArrayList<>();
@@ -546,8 +562,8 @@ public class YoutubeHelper {
         JSONObject jObjectData = new JSONObject(data);
         JSONArray items = jObjectData.getJSONArray(ITEMS);
         for (int i = 0; i < items.length(); ++i) {
-            YoutubePlaylistInfo playlistInfo = !isCustomPlaylist ? populateYoutubePlaylistInfo((JSONObject) items.get(i)) : populateCustomYoutubePlaylist(
-                    (JSONObject) items.get(i), isMine);
+            YoutubePlaylistInfo playlistInfo = !isCustomPlaylist ? populateYoutubePlaylistInfo((JSONObject) items.get(i)) : populateYoutubePlaylistFull(
+                    (JSONObject) items.get(i));
             if (playlistInfo != null) {
                 playlists.add(playlistInfo);
             }
@@ -573,8 +589,7 @@ public class YoutubeHelper {
         return youtubePlaylistInfo;
     }
 
-    public static YoutubePlaylistInfo populateCustomYoutubePlaylist(JSONObject jObject,
-                                                                    boolean isMine) throws JSONException {
+    public static YoutubePlaylistInfo populateYoutubePlaylistFull(JSONObject jObject) throws JSONException {
         YoutubePlaylistInfo youtubePlaylistInfo = new YoutubePlaylistInfo();
 
         JSONObject jObjectSnippet = jObject
@@ -585,11 +600,6 @@ public class YoutubeHelper {
                 MEDIUM, URL);
         youtubePlaylistInfo.videoCount = Utils.getInt(jObject, CONTENTDETAILS,
                 ITEMCOUNT);
-//            if (isMine) {
-//                String status = getString(jObject, STATUS,
-//                        PRIVACYSTATUS);
-//                youtubePlaylistInfo.isPrivate = status.equalsIgnoreCase("private");
-//            }
 
         return youtubePlaylistInfo;
     }

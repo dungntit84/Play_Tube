@@ -16,8 +16,8 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import java.util.ArrayList;
 
 public class YoutubePlaylistAdapter extends BaseAdapter {
-    private Context _context;
-    public ArrayList<YoutubePlaylistInfo> _playlists = new ArrayList<>();
+    protected Context _context;
+    protected ArrayList<YoutubePlaylistInfo> _playlists = new ArrayList<>();
 
     public YoutubePlaylistAdapter(Context context, ArrayList<YoutubePlaylistInfo> playlists) {
         super();

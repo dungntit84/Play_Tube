@@ -17,6 +17,7 @@ import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.data.ChannelInfo;
 import com.hteck.playtube.data.YoutubeInfo;
+import com.hteck.playtube.data.YoutubePlaylistInfo;
 import com.hteck.playtube.view.LoadingView;
 
 import org.json.JSONObject;
@@ -703,5 +704,15 @@ public class Utils {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public static boolean isLoadMorePlaylists(ArrayList<YoutubePlaylistInfo> playlists) {
+        for (YoutubePlaylistInfo p : playlists) {
+            if (p != null && Utils.stringIsNullOrEmpty(p.title)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
