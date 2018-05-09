@@ -26,7 +26,7 @@
     <loadPlaylistsInChannelUrl value="https://www.googleapis.com/youtube/v3/playlists?pageToken=%s&amp;part=contentDetails,snippet&amp;channelId=%s&amp;maxResults=%d&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
     <loadVideosInChannelSortByUrl value="https://www.googleapis.com/youtube/v3/search?pageToken=%s&amp;part=snippet&amp;channelId=%s&amp;maxResults=%d&amp;order=%s&amp;type=video&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
     <loadVideosInChannelUrl value="https://www.googleapis.com/youtube/v3/search?pageToken=%s&amp;part=snippet&amp;channelId=%s&amp;maxResults=%d&amp;type=video&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
-    <loadVideosInPlaylistUrl value="https://www.googleapis.com/youtube/v3/playlistItems?pageToken=%s&amp;part=contentDetails&amp;videoEmbeddable=true&amp;playlistId=%s&amp;maxResults=20&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
+    <loadVideosInPlaylistUrl value="https://www.googleapis.com/youtube/v3/playlistItems?pageToken=%s&amp;part=contentDetails&amp;videoEmbeddable=true&amp;playlistId=%s&amp;maxResults=%d&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
     <searchPlaylistUrl value="https://www.googleapis.com/youtube/v3/search?maxResults=20&amp;pageToken=%s&amp;q=%s&amp;type=playlist&amp;part=snippet&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
 
 

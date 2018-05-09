@@ -8,7 +8,6 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
-
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.adapter.ChannelByPageAdapter;
@@ -17,7 +16,7 @@ import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.ChannelInfo;
 import com.hteck.playtube.databinding.ListViewBinding;
-import com.hteck.playtube.fragment.UserActivityFragment;
+import com.hteck.playtube.fragment.UserDetailsFragment;
 import com.hteck.playtube.service.CustomCallback;
 import com.hteck.playtube.service.YoutubeHelper;
 import com.squareup.okhttp.Request;
@@ -296,11 +295,8 @@ public class ChannelListView extends FrameLayout implements
                 return;
             }
 
-//            UserDetails userDetails = UserDetails
-//                    .newInstance(channelInfo);
-//            MainActivity.getInstance().launchFragment(userDetails);
-            UserActivityFragment userActivityFragment = UserActivityFragment.newInstance(channelInfo);
-            MainActivity.getInstance().addFragment(userActivityFragment);
+            UserDetailsFragment userDetailsFragment = UserDetailsFragment.newInstance(channelInfo);
+            MainActivity.getInstance().addFragment(userDetailsFragment);
         }
     }
 

@@ -9,6 +9,7 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
+
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.adapter.YoutubePlaylistByPageAdapter;
@@ -18,6 +19,7 @@ import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.YoutubePlaylistInfo;
 import com.hteck.playtube.databinding.ListViewBinding;
+import com.hteck.playtube.fragment.YoutubePlaylistVideosFragment;
 import com.hteck.playtube.service.CustomCallback;
 import com.hteck.playtube.service.YoutubeHelper;
 import com.squareup.okhttp.Request;
@@ -171,6 +173,7 @@ public class YoutubePlaylistListView extends FrameLayout implements
             });
         }
     };
+
     private void search() {
         String url = String
                 .format(PlayTubeController.getConfigInfo().searchPlaylistUrl, _nextPageToken,
@@ -324,9 +327,8 @@ public class YoutubePlaylistListView extends FrameLayout implements
             if (playlistInfo == null) {
                 return;
             }
-//            YoutubePlaylistVideosView youtubePlaylistDetails = YoutubePlaylistVideosView
-//                    .newInstance(playlistInfo, VideoListType.Normal);
-//            MainActivity.getInstance().launchFragment(youtubePlaylistDetails);
+            YoutubePlaylistVideosFragment playlistVideosFragment = YoutubePlaylistVideosFragment.newInstance(playlistInfo);
+            MainActivity.getInstance().addFragment(playlistVideosFragment);
         }
     }
 
