@@ -64,6 +64,8 @@ public class Constants {
         public final static String DURATION = "duration";
         public final static String STATISTICS = "statistics";
         public final static String VIEWCOUNT = "viewCount";
+        public final static String VIEWCOUNT_SORTBY = "viewcount";
+        public final static String DATE_SORTBY = "date";
         public final static String LIVEBROADCASTCONTENT = "liveBroadcastContent";
         public final static String LIKECOUNT = "likeCount";
         public final static String DISLIKECOUNT = "dislikeCount";
@@ -119,9 +121,8 @@ public class Constants {
     }
 
     public class SortBy {
-        public final static int NONE = 0;
+        public final static int MOSTRECENT = 0;
         public final static int MOSTVIEWED = 1;
-        public final static int MOSTRECENT = 2;
     }
 
     public class YoutubeState {

@@ -11,7 +11,6 @@ public class ConfigInfo {
     public String youtubeDevID;
     public String loadCommentsOfYoutubeUrl;
     public String loadRelatedOfYoutubeUrl;
-    public String loadYoutubesOfChannelUrl;
     public String loadSuggestionsUrl;
     public String searchChannelUrl;
     public String loadChannelsInfoUrl;
@@ -27,7 +26,6 @@ public class ConfigInfo {
     public String loadPlaylistsDetailsUrl;
     public String loadPlaylistsInChannelUrl;
     public String loadVideosInChannelSortByUrl;
-    public String loadVideosInChannelUrl;
     public String loadVideosInPlaylistUrl;
     public String searchPlaylistUrl;
 }

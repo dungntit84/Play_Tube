@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import static com.hteck.playtube.common.Constants.PAGE_SIZE;
+import static com.hteck.playtube.common.Constants.YoutubeField.DATE_SORTBY;
+import static com.hteck.playtube.common.Constants.YoutubeField.VIEWCOUNT_SORTBY;
 
 public class UserActivityFragment extends Fragment implements
         AdapterView.OnItemClickListener, OnScrollListener {
@@ -771,19 +773,13 @@ public class UserActivityFragment extends Fragment implements
             case Constants.SortBy.MOSTVIEWED: {
                 url = String.format(
                         PlayTubeController.getConfigInfo().loadVideosInChannelSortByUrl,
-                        "", channelInfo.id, PAGESIZE, "viewCount");
-                break;
-            }
-            case Constants.SortBy.MOSTRECENT: {
-                url = String.format(
-                        PlayTubeController.getConfigInfo().loadVideosInChannelSortByUrl,
-                        "", channelInfo.id, PAGESIZE, "date");
+                        "", channelInfo.id, PAGESIZE, VIEWCOUNT_SORTBY);
                 break;
             }
             default: {
                 url = String.format(
-                        PlayTubeController.getConfigInfo().loadVideosInChannelUrl,
-                        "", channelInfo.id, PAGESIZE);
+                        PlayTubeController.getConfigInfo().loadVideosInChannelSortByUrl,
+                        "", channelInfo.id, PAGESIZE, DATE_SORTBY);
                 break;
             }
         }
@@ -1292,7 +1288,7 @@ public class UserActivityFragment extends Fragment implements
                                 youtubePlaylistDetails);
                     } else if (channelSectionInfo.activityType == Constants.UserActivityType.UPLOADS) {
                         ChannelVideosFragment userVideosView = ChannelVideosFragment
-                                .newInstance(_channelInfo);
+                                .newInstance(_channelInfo, channelSectionInfo.sortBy);
                         MainActivity.getInstance().addFragment(
                                 userVideosView);
                     }

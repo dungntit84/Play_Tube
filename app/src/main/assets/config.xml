@@ -9,7 +9,6 @@
     <youtubeDevID value="AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
     <loadCommentsOfYoutubeUrl value="https://www.googleapis.com/youtube/v3/commentThreads?key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs&amp;videoId=%s&amp;part=snippet&amp;pageToken=%s&amp;maxResults=20"/>
     <loadRelatedOfYoutubeUrl value="https://www.googleapis.com/youtube/v3/search?part=snippet&amp;relatedToVideoId=%s&amp;pageToken=%s&amp;type=video&amp;videoEmbeddable=true&amp;maxResults=20&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs"/>
-    <loadYoutubesOfChannelUrl value="https://www.googleapis.com/youtube/v3/search?part=snippet&amp;channelId=%s&amp;pageToken=%s&amp;maxResults=20&amp;type=video&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs"/>
     <loadSuggestionsUrl value="http://suggestqueries.google.com/complete/search?hl=vi&amp;client=youtube&amp;ds=yt&amp;q=%s"/>
     <searchChannelUrl value="https://www.googleapis.com/youtube/v3/search?type=channel&amp;pageToken=%s&amp;maxResults=20&amp;part=snippet&amp;q=%s&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
     <loadChannelsInfoUrl value="https://www.googleapis.com/youtube/v3/channels?id=%s&amp;part=contentDetails,snippet,statistics&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
@@ -25,7 +24,6 @@
     <loadPlaylistsDetailsUrl value="https://www.googleapis.com/youtube/v3/playlists?id=%s&amp;part=contentDetails,snippet&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
     <loadPlaylistsInChannelUrl value="https://www.googleapis.com/youtube/v3/playlists?pageToken=%s&amp;part=contentDetails,snippet&amp;channelId=%s&amp;maxResults=%d&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
     <loadVideosInChannelSortByUrl value="https://www.googleapis.com/youtube/v3/search?pageToken=%s&amp;part=snippet&amp;channelId=%s&amp;maxResults=%d&amp;order=%s&amp;type=video&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
-    <loadVideosInChannelUrl value="https://www.googleapis.com/youtube/v3/search?pageToken=%s&amp;part=snippet&amp;channelId=%s&amp;maxResults=%d&amp;type=video&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
     <loadVideosInPlaylistUrl value="https://www.googleapis.com/youtube/v3/playlistItems?pageToken=%s&amp;part=contentDetails&amp;videoEmbeddable=true&amp;playlistId=%s&amp;maxResults=%d&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
     <searchPlaylistUrl value="https://www.googleapis.com/youtube/v3/search?maxResults=20&amp;pageToken=%s&amp;q=%s&amp;type=playlist&amp;part=snippet&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
 

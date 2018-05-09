@@ -6,7 +6,7 @@ public class ChannelSectionInfo implements Cloneable {
 	public int activityType;
 	public Object dataInfo;
 	public String title;
-	public int sortBy = Constants.SortBy.NONE;
+	public int sortBy = Constants.SortBy.MOSTRECENT;
 	public int youtubeState = Constants.YoutubeState.QUEUE;
 
 	public Object clone() throws CloneNotSupportedException {

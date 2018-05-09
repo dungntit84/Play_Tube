@@ -46,10 +46,11 @@ public class ChannelVideosFragment extends BaseFragment implements OnScrollListe
     private ListViewBinding _binding;
     private CustomHttpOk _httpOk;
     private ChannelInfo _channelInfo;
-    private int _sortBy = Constants.SortBy.NONE;
-    public static ChannelVideosFragment newInstance(ChannelInfo channelInfo) {
+    private int _sortBy = Constants.SortBy.MOSTRECENT;
+    public static ChannelVideosFragment newInstance(ChannelInfo channelInfo, int sortBy) {
         ChannelVideosFragment channelVideosFragment = new ChannelVideosFragment();
         channelVideosFragment._channelInfo = channelInfo;
+        channelVideosFragment._sortBy = sortBy;
         return channelVideosFragment;
     }
 
@@ -147,19 +148,13 @@ public class ChannelVideosFragment extends BaseFragment implements OnScrollListe
             case Constants.SortBy.MOSTVIEWED: {
                 url = String.format(
                         PlayTubeController.getConfigInfo().loadVideosInChannelSortByUrl,
-                        "", channelInfo.id, PAGE_SIZE, "viewCount");
-                break;
-            }
-            case Constants.SortBy.MOSTRECENT: {
-                url = String.format(
-                        PlayTubeController.getConfigInfo().loadVideosInChannelSortByUrl,
-                        "", channelInfo.id, PAGE_SIZE, "date");
+                        _nextPageToken, channelInfo.id, PAGE_SIZE, "viewCount");
                 break;
             }
             default: {
                 url = String.format(
-                        PlayTubeController.getConfigInfo().loadVideosInChannelUrl,
-                        "", channelInfo.id, PAGE_SIZE);
+                        PlayTubeController.getConfigInfo().loadVideosInChannelSortByUrl,
+                        _nextPageToken, channelInfo.id, PAGE_SIZE, "date");
                 break;
             }
         }

@@ -15,7 +15,7 @@ public class PlaylistItemInfo {
 		try {
 			switch (activityInfo.activityType) {
 				case Constants.UserActivityType.SINGLEPLAYLIST: {
-					return ((PlaylistInfo) activityInfo.dataInfo).youtubeList;
+					return ((YoutubePlaylistInfo) activityInfo.dataInfo).youtubeList;
 				}
 				case Constants.UserActivityType.UPLOADS: {
 					return ((ChannelInfo) activityInfo.dataInfo).youtubeList;

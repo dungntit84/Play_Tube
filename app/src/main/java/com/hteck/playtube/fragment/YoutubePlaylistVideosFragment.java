@@ -142,7 +142,7 @@ public class YoutubePlaylistVideosFragment extends BaseFragment implements OnScr
 
     private void loadData(YoutubePlaylistInfo playlistInfo) {
         String url = String
-                .format(PlayTubeController.getConfigInfo().loadVideosInPlaylistUrl, "",
+                .format(PlayTubeController.getConfigInfo().loadVideosInPlaylistUrl, _nextPageToken,
                         playlistInfo.id, PAGE_SIZE);
         _httpOk = new CustomHttpOk(url, new CustomCallback() {
             @Override
@@ -171,7 +171,7 @@ public class YoutubePlaylistVideosFragment extends BaseFragment implements OnScr
                             String s = response.body().string();
 
                             AbstractMap.SimpleEntry<String, ArrayList<YoutubeInfo>> searchResult = YoutubeHelper
-                                    .getVideoListInfo(s);
+                                    .getVideosInPlaylist(s, 0);
                             _videoListLoading = searchResult.getValue();
                             _nextPageToken = searchResult.getKey();
 

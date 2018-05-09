@@ -37,13 +37,12 @@ public class YoutubePlaylistByPageAdapter extends YoutubePlaylistAdapter {
         BaseViewHolder holder;
         if (position == getCount() - 1) {
             if (_playlists.size() > 0 && _playlists.get(_playlists.size() - 1) == null) {
-                holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.item_playlist);
-//                if (!_isNetworkError) {
-//                    holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.loading_view);
-//                } else {
-//                    holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.item_load_more);
-//                    ((ItemLoadMoreBinding) holder.binding).itemLoadMoreTvMsg.setText(Utils.getString(R.string.network_error_info));
-//                }
+                if (!_isNetworkError) {
+                    holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.loading_view);
+                } else {
+                    holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.item_load_more);
+                    ((ItemLoadMoreBinding) holder.binding).itemLoadMoreTvMsg.setText(Utils.getString(R.string.network_error_info));
+                }
                 return holder.view;
             }
         }

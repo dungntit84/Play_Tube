@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.adapter.PagerAdapter;
+import com.hteck.playtube.common.Constants;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.ChannelInfo;
 import com.hteck.playtube.databinding.TabsSearchViewBinding;
@@ -43,7 +44,7 @@ public class UserDetailsFragment extends BaseFragment {
         _binding = DataBindingUtil.inflate(inflater, R.layout.tabs_search_view, group, false);
         PagerAdapter pagerAdapter = new PagerAdapter(getChildFragmentManager());
 
-        _channelVideosFragment = ChannelVideosFragment.newInstance(_channelInfo);
+        _channelVideosFragment = ChannelVideosFragment.newInstance(_channelInfo, Constants.SortBy.MOSTRECENT);
         _userActivityFragment = UserActivityFragment.newInstance(_channelInfo);
 
         pagerAdapter.addFragment(_channelVideosFragment, Utils.getString(R.string.video));

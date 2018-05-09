@@ -29,6 +29,9 @@ import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 
+import static com.hteck.playtube.common.Constants.PAGE_SIZE;
+import static com.hteck.playtube.common.Constants.YoutubeField.DATE_SORTBY;
+
 public class YoutubePlayerVideosView extends Fragment implements
         AdapterView.OnItemClickListener, OnScrollListener {
     private String pageToken = "";
@@ -111,8 +114,9 @@ public class YoutubePlayerVideosView extends Fragment implements
             url = String.format(PlayTubeController.getConfigInfo().loadRelatedOfYoutubeUrl, PlayTubeController.getPlayingInfo().getCurrentYoutubeInfo().id,
                     pageToken);
         } else {
-            url = String.format(PlayTubeController.getConfigInfo().loadYoutubesOfChannelUrl, uploaderId,
-                    pageToken);
+            url = String.format(
+                    PlayTubeController.getConfigInfo().loadVideosInChannelSortByUrl,
+                    "", uploaderId, PAGE_SIZE, DATE_SORTBY);
         }
 
         CustomHttpOk httpOk = new CustomHttpOk(url, new CustomCallback() {
