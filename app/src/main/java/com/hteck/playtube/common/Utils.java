@@ -33,6 +33,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -714,5 +715,56 @@ public class Utils {
         }
 
         return false;
+    }
+
+    public static String getIds(ArrayList<YoutubePlaylistInfo> playlists, int maxCount) {
+        String ids = "";
+        int count = 0;
+        for (YoutubePlaylistInfo p : playlists) {
+            if (Objects.equals(ids, "")) {
+                ids = p.id;
+            } else {
+                ids = ids + "," + p.id;
+            }
+            count++;
+            if (maxCount > 0 && count == maxCount) {
+                break;
+            }
+        }
+        return ids;
+    }
+
+    public static String getIds(ArrayList<YoutubeInfo> youtubeList, int maxCount) {
+        String ids = "";
+        int count = 0;
+        for (YoutubeInfo y : youtubeList) {
+            if (Objects.equals(ids, "")) {
+                ids = y.id;
+            } else {
+                ids = ids + "," + y.id;
+            }
+            count++;
+            if (maxCount > 0 && count == maxCount) {
+                break;
+            }
+        }
+        return ids;
+    }
+
+    public static String getIds(ArrayList<ChannelInfo> channelList, int maxCount) {
+        String ids = "";
+        int count = 0;
+        for (ChannelInfo c : channelList) {
+            if (Objects.equals(ids, "")) {
+                ids = c.id;
+            } else {
+                ids = ids + "," + c.id;
+            }
+            count++;
+            if (maxCount > 0 && count == maxCount) {
+                break;
+            }
+        }
+        return ids;
     }
 }

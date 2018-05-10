@@ -562,15 +562,7 @@ public class UserActivityFragment extends Fragment implements
         ArrayList<YoutubePlaylistInfo> playlists = (ArrayList<YoutubePlaylistInfo>) activityInfo.dataInfo;
 
         int count = 0;
-        String ids = "";
-        for (YoutubePlaylistInfo playlistInfo : playlists) {
-            ids = ids == "" ? playlistInfo.id : (ids + "," + playlistInfo.id);
-
-            count++;
-            if (count == Constants.MAX_SIZE_FOR_LOADING_YOUTUBE_DATA) {
-                break;
-            }
-        }
+        String ids = Utils.getIds(playlists, Constants.MAX_SIZE_FOR_LOADING_YOUTUBE_DATA);
         String url = String.format(
                 PlayTubeController.getConfigInfo().loadPlaylistsDetailsUrl, ids);
         CustomCallback callback = buildAllPlaylistsCompletedListener();
@@ -1287,7 +1279,7 @@ public class UserActivityFragment extends Fragment implements
                         MainActivity.getInstance().addFragment(
                                 youtubePlaylistDetails);
                     } else if (channelSectionInfo.activityType == Constants.UserActivityType.UPLOADS) {
-                        ChannelVideosFragment userVideosView = ChannelVideosFragment
+                        UserVideosFragment userVideosView = UserVideosFragment
                                 .newInstance(_channelInfo, channelSectionInfo.sortBy);
                         MainActivity.getInstance().addFragment(
                                 userVideosView);

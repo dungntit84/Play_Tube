@@ -198,17 +198,9 @@ public class ChannelListView extends FrameLayout implements
 //    }
 
     private void loadChannelsInfo(final ArrayList<ChannelInfo> channelList) {
-        String ids = "";
-        for (ChannelInfo channelInfo : channelList) {
-            if (Objects.equals(ids, "")) {
-                ids = channelInfo.id;
-            } else {
-                ids = ids + "," + channelInfo.id;
-            }
-        }
         String url = String
                 .format(PlayTubeController.getConfigInfo().loadChannelsInfoUrl,
-                        ids);
+                        Utils.getIds(channelList, 0));
         _httpOk = new CustomHttpOk(url, new CustomCallback() {
             @Override
             public void onFailure(Request request, IOException e) {

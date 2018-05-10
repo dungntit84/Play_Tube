@@ -196,17 +196,9 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
     }
 
     private void loadVideosInfo() {
-        String videoIds = "";
-        for (YoutubeInfo y : _videoListLoading) {
-            if (Objects.equals(videoIds, "")) {
-                videoIds = y.id;
-            } else {
-                videoIds = videoIds + "," + y.id;
-            }
-        }
         String url = String
                 .format(PlayTubeController.getConfigInfo().loadVideosInfoUrl,
-                        videoIds);
+                        Utils.getIds(_videoListLoading, 0));
         _httpOk = new CustomHttpOk(url, new CustomCallback() {
             @Override
             public void onFailure(Request request, IOException e) {

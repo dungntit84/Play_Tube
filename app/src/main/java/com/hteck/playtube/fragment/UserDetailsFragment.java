@@ -15,7 +15,7 @@ import com.hteck.playtube.data.ChannelInfo;
 import com.hteck.playtube.databinding.TabsSearchViewBinding;
 
 public class UserDetailsFragment extends BaseFragment {
-    private static ChannelVideosFragment _channelVideosFragment;
+    private static UserVideosFragment _userVideosFragment;
     private static UserActivityFragment _userActivityFragment;
     private TabsSearchViewBinding _binding;
     private ChannelInfo _channelInfo;
@@ -44,10 +44,10 @@ public class UserDetailsFragment extends BaseFragment {
         _binding = DataBindingUtil.inflate(inflater, R.layout.tabs_search_view, group, false);
         PagerAdapter pagerAdapter = new PagerAdapter(getChildFragmentManager());
 
-        _channelVideosFragment = ChannelVideosFragment.newInstance(_channelInfo, Constants.SortBy.MOSTRECENT);
+        _userVideosFragment = UserVideosFragment.newInstance(_channelInfo, Constants.SortBy.MOSTRECENT);
         _userActivityFragment = UserActivityFragment.newInstance(_channelInfo);
 
-        pagerAdapter.addFragment(_channelVideosFragment, Utils.getString(R.string.video));
+        pagerAdapter.addFragment(_userVideosFragment, Utils.getString(R.string.video));
         pagerAdapter.addFragment(_userActivityFragment, Utils.getString(R.string.channel));
         _binding.pager.setAdapter(pagerAdapter);
         _binding.tabs.setupWithViewPager(_binding.pager);
@@ -78,7 +78,7 @@ public class UserDetailsFragment extends BaseFragment {
         if (_binding.pager.getCurrentItem() == 0) {
             if (!_isPlaylistsTabLoaded) {
                 _isPlaylistsTabLoaded = true;
-                _channelVideosFragment.loadData();
+                _userVideosFragment.loadData();
             }
         }
     }

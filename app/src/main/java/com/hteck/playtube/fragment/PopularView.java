@@ -290,16 +290,8 @@ public class PopularView extends BaseFragment implements
     }
 
     private void loadVideosInfo() {
-        String videoIds = "";
-        for (YoutubeInfo y : _youtubeListLoading) {
-            if (videoIds == "") {
-                videoIds = y.id;
-            } else {
-                videoIds = videoIds + "," + y.id;
-            }
-        }
         String url = String.format(PlayTubeController.getConfigInfo().loadVideosInfoUrl,
-                videoIds);
+                Utils.getIds(_youtubeListLoading, 0));
 
         _httpOk = new CustomHttpOk(url, new CustomCallback() {
             @Override

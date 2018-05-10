@@ -1,7 +1,6 @@
 package com.hteck.playtube.fragment;
 
 
-import android.support.v4.app.Fragment;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,15 +10,18 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.adapter.YoutubeByPageAdapter;
+import com.hteck.playtube.adapter.YoutubePlaylistByPageAdapter;
 import com.hteck.playtube.common.Constants;
 import com.hteck.playtube.common.CustomHttpOk;
 import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.ChannelInfo;
 import com.hteck.playtube.data.YoutubeInfo;
+import com.hteck.playtube.data.YoutubePlaylistInfo;
 import com.hteck.playtube.databinding.ListViewBinding;
 import com.hteck.playtube.service.CustomCallback;
 import com.hteck.playtube.service.YoutubeHelper;
@@ -35,23 +37,21 @@ import java.util.Objects;
 import static com.hteck.playtube.common.Constants.PAGE_SIZE;
 
 
-public class ChannelVideosFragment extends BaseFragment implements OnScrollListener {
+public class UserPlaylistsFragment extends BaseFragment implements OnScrollListener {
 
-    private YoutubeByPageAdapter _adapter;
-    private ArrayList<YoutubeInfo> _videoList = new ArrayList<>(),
-            _videoListLoading;
+    private YoutubePlaylistByPageAdapter _adapter;
+    private ArrayList<YoutubePlaylistInfo> _playlists = new ArrayList<>();
     private String _nextPageToken = "";
     private boolean _isLoading = false;
     private LoadingView _busyView;
     private ListViewBinding _binding;
     private CustomHttpOk _httpOk;
     private ChannelInfo _channelInfo;
-    private int _sortBy = Constants.SortBy.MOSTRECENT;
-    public static ChannelVideosFragment newInstance(ChannelInfo channelInfo, int sortBy) {
-        ChannelVideosFragment channelVideosFragment = new ChannelVideosFragment();
-        channelVideosFragment._channelInfo = channelInfo;
-        channelVideosFragment._sortBy = sortBy;
-        return channelVideosFragment;
+
+    public static UserPlaylistsFragment newInstance(ChannelInfo channelInfo) {
+        UserPlaylistsFragment userVideosFragment = new UserPlaylistsFragment();
+        userVideosFragment._channelInfo = channelInfo;
+        return userVideosFragment;
     }
 
     @Override
@@ -67,9 +67,9 @@ public class ChannelVideosFragment extends BaseFragment implements OnScrollListe
     private View createView(ViewGroup container) {
         _binding = DataBindingUtil.inflate(MainActivity.getInstance()
                 .getLayoutInflater(), R.layout.list_view, container, false);
-        _binding.textViewMsg.setText(Utils.getString(R.string.no_youtube));
+        _binding.textViewMsg.setText(Utils.getString(R.string.no_playlist_found));
 
-        _adapter = new YoutubeByPageAdapter(_videoList);
+        _adapter = new YoutubePlaylistByPageAdapter(getContext(), _playlists);
         _binding.listView.setAdapter(_adapter);
         _binding.listView.setOnScrollListener(this);
         _binding.listView.setOnItemClickListener(new OnItemClickListener() {
@@ -78,22 +78,18 @@ public class ChannelVideosFragment extends BaseFragment implements OnScrollListe
             public void onItemClick(AdapterView<?> arg0, View arg1, int index,
                                     long arg3) {
 
-                if (index == _videoList.size() - 1
-                        && _videoList.get(index) == null) {
+                if (index == _playlists.size() - 1
+                        && _playlists.get(index) == null) {
                     if (_adapter.getIsNetworkError()) {
                         _adapter.setIsNetworkError(false);
                         _adapter.notifyDataSetChanged();
                         loadMore();
                     }
                 } else {
-                    YoutubeInfo youtubeInfo = _videoList.get(index);
+                    YoutubePlaylistInfo playlistInfo = _playlists.get(index);
                     ArrayList<YoutubeInfo> youtubeList = new ArrayList<>();
-                    for (YoutubeInfo y : _videoList) {
-                        if (y != null) {
-                            youtubeList.add(y);
-                        }
-                    }
-                    MainActivity.getInstance().playYoutube(youtubeInfo, youtubeList, true);
+
+                    // TODO:
                 }
             }
         });
@@ -101,7 +97,7 @@ public class ChannelVideosFragment extends BaseFragment implements OnScrollListe
         return _binding.getRoot();
     }
 
-    private void setDataSource(ArrayList<YoutubeInfo> videoList) {
+    private void setDataSource(ArrayList<YoutubePlaylistInfo> videoList) {
         _binding.listView.setEmptyView(_binding.textViewMsg);
         if (videoList.size() > 0) {
             _binding.textViewMsg.setVisibility(View.GONE);
@@ -109,15 +105,15 @@ public class ChannelVideosFragment extends BaseFragment implements OnScrollListe
             _binding.textViewMsg.setVisibility(View.VISIBLE);
         }
 
-        _videoList = videoList;
-        _adapter.setDataSource(_videoList);
+        _playlists = videoList;
+        _adapter.setDataSource(_playlists);
     }
 
     private void resetDataSource() {
         _binding.listView.setSelectionFromTop(0, 0);
 
-        _videoList = new ArrayList<>();
-        _adapter.setDataSource(_videoList);
+        _playlists = new ArrayList<>();
+        _adapter.setDataSource(_playlists);
         _binding.textViewMsg.setVisibility(View.GONE);
         _nextPageToken = "";
     }
@@ -143,21 +139,9 @@ public class ChannelVideosFragment extends BaseFragment implements OnScrollListe
     }
 
     private void loadData(ChannelInfo channelInfo) {
-        String url;
-        switch (_sortBy) {
-            case Constants.SortBy.MOSTVIEWED: {
-                url = String.format(
-                        PlayTubeController.getConfigInfo().loadVideosInChannelSortByUrl,
-                        _nextPageToken, channelInfo.id, PAGE_SIZE, "viewCount");
-                break;
-            }
-            default: {
-                url = String.format(
-                        PlayTubeController.getConfigInfo().loadVideosInChannelSortByUrl,
-                        _nextPageToken, channelInfo.id, PAGE_SIZE, "date");
-                break;
-            }
-        }
+        String url = String.format(
+                PlayTubeController.getConfigInfo().loadPlaylistsInChannelUrl, _nextPageToken,
+                channelInfo.id, PAGE_SIZE);
         _httpOk = new CustomHttpOk(url, new CustomCallback() {
             @Override
             public void onFailure(Request request, IOException e) {
@@ -168,7 +152,7 @@ public class ChannelVideosFragment extends BaseFragment implements OnScrollListe
                                 .getString(R.string.network_error));
                         hideProgressBar();
                         _isLoading = false;
-                        if (_videoList.size() != 0) {
+                        if (_playlists.size() != 0) {
                             _adapter.setIsNetworkError(true);
                             _adapter.notifyDataSetChanged();
                         }
@@ -184,23 +168,23 @@ public class ChannelVideosFragment extends BaseFragment implements OnScrollListe
                         try {
                             String s = response.body().string();
 
-                            AbstractMap.SimpleEntry<String, ArrayList<YoutubeInfo>> searchResult = YoutubeHelper
-                                    .getVideoListInfo(s);
-                            _videoListLoading = searchResult.getValue();
+                            AbstractMap.SimpleEntry<String, ArrayList<YoutubePlaylistInfo>> searchResult = YoutubeHelper
+                                    .getPlaylists(s, true, false);
+                            ArrayList<YoutubePlaylistInfo> playlists = searchResult.getValue();
                             _nextPageToken = searchResult.getKey();
 
-                            if (_videoListLoading.size() == 0) {
-                                if (_videoList.size() > 0
-                                        && _videoList.get(_videoList
+                            if (playlists.size() == 0) {
+                                if (_playlists.size() > 0
+                                        && _playlists.get(_playlists
                                         .size() - 1) == null) {
-                                    _videoList.remove(_videoList.size() - 1);
+                                    _playlists.remove(_playlists.size() - 1);
                                 }
 
-                                setDataSource(_videoList);
+                                setDataSource(_playlists);
                                 hideProgressBar();
                                 _isLoading = false;
                             } else {
-                                loadVideosInfo();
+                                loadPlaylistsInfo(playlists);
                             }
 
                         } catch (Throwable e) {
@@ -215,23 +199,16 @@ public class ChannelVideosFragment extends BaseFragment implements OnScrollListe
         });
         _httpOk.start();
 
-        if (_videoList.size() == 0) {
+        if (_playlists.size() == 0) {
             showProgressBar();
         }
     }
 
-    private void loadVideosInfo() {
-        String videoIds = "";
-        for (YoutubeInfo y : _videoListLoading) {
-            if (Objects.equals(videoIds, "")) {
-                videoIds = y.id;
-            } else {
-                videoIds = videoIds + "," + y.id;
-            }
-        }
+    private void loadPlaylistsInfo(ArrayList<YoutubePlaylistInfo> playlists) {
+        String playlistIds = Utils.getIds(playlists);
         String url = String
-                .format(PlayTubeController.getConfigInfo().loadVideosInfoUrl,
-                        videoIds);
+                .format(PlayTubeController.getConfigInfo().loadPlaylistsDetailsUrl,
+                        playlistIds);
         _httpOk = new CustomHttpOk(url, new CustomCallback() {
             @Override
             public void onFailure(Request request, IOException e) {
@@ -241,7 +218,7 @@ public class ChannelVideosFragment extends BaseFragment implements OnScrollListe
                         Utils.showMessage(Utils.getString(R.string.network_error));
                         hideProgressBar();
                         _isLoading = false;
-                        if (_videoList.size() != 0) {
+                        if (_playlists.size() != 0) {
                             _adapter.setIsNetworkError(true);
                             _adapter.notifyDataSetChanged();
                         }
@@ -260,17 +237,17 @@ public class ChannelVideosFragment extends BaseFragment implements OnScrollListe
                             YoutubeHelper.populateYoutubeListInfo(_videoListLoading,
                                     s);
 
-                            if (_videoList.size() > 0
-                                    && _videoList.get(_videoList.size() - 1) == null) {
-                                _videoList.remove(_videoList.size() - 1);
+                            if (_playlists.size() > 0
+                                    && _playlists.get(_playlists.size() - 1) == null) {
+                                _playlists.remove(_playlists.size() - 1);
                             }
 
-                            _videoList.addAll(YoutubeHelper
+                            _playlists.addAll(YoutubeHelper
                                     .getAvailableVideos(_videoListLoading));
                             if (!Utils.stringIsNullOrEmpty(_nextPageToken)) {
-                                _videoList.add(null);
+                                _playlists.add(null);
                             }
-                            setDataSource(_videoList);
+                            setDataSource(_playlists);
 
                         } catch (Throwable e) {
                             e.printStackTrace();
@@ -304,8 +281,8 @@ public class ChannelVideosFragment extends BaseFragment implements OnScrollListe
         if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
             if (_binding.listView.getLastVisiblePosition() == _binding.listView.getAdapter()
                     .getCount() - 1) {
-                if (_videoList.size() > 0
-                        && _videoList.get(_videoList.size() - 1) == null) {
+                if (_playlists.size() > 0
+                        && _playlists.get(_playlists.size() - 1) == null) {
                     if (!_adapter.getIsNetworkError()) {
                         loadMore();
                     }
