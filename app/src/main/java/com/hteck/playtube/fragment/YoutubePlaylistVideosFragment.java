@@ -29,7 +29,6 @@ import com.squareup.okhttp.Response;
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Objects;
 
 import static com.hteck.playtube.common.Constants.PAGE_SIZE;
 
@@ -209,7 +208,7 @@ public class YoutubePlaylistVideosFragment extends BaseFragment implements OnScr
     private void loadVideosInfo() {
         String url = String
                 .format(PlayTubeController.getConfigInfo().loadVideosInfoUrl,
-                        Utils.getIds(_videoListLoading, 0));
+                        Utils.getYoutubeIds(_videoListLoading, 0));
         _httpOk = new CustomHttpOk(url, new CustomCallback() {
             @Override
             public void onFailure(Request request, IOException e) {

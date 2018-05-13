@@ -204,8 +204,8 @@ public class UserPlaylistsFragment extends BaseFragment implements OnScrollListe
         }
     }
 
-    private void loadPlaylistsInfo(ArrayList<YoutubePlaylistInfo> playlists) {
-        String playlistIds = Utils.getIds(playlists);
+    private void loadPlaylistsInfo(final ArrayList<YoutubePlaylistInfo> playlists) {
+        String playlistIds = Utils.getPlaylistIds(playlists, 0);
         String url = String
                 .format(PlayTubeController.getConfigInfo().loadPlaylistsDetailsUrl,
                         playlistIds);
@@ -234,16 +234,14 @@ public class UserPlaylistsFragment extends BaseFragment implements OnScrollListe
                         try {
                             String s = response.body().string();
 
-                            YoutubeHelper.populateYoutubeListInfo(_videoListLoading,
-                                    s);
+                            YoutubeHelper.fillDataToPlaylists(s, playlists);
 
                             if (_playlists.size() > 0
                                     && _playlists.get(_playlists.size() - 1) == null) {
                                 _playlists.remove(_playlists.size() - 1);
                             }
 
-                            _playlists.addAll(YoutubeHelper
-                                    .getAvailableVideos(_videoListLoading));
+                            _playlists.addAll(playlists);
                             if (!Utils.stringIsNullOrEmpty(_nextPageToken)) {
                                 _playlists.add(null);
                             }

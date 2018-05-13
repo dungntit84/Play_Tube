@@ -28,4 +28,19 @@ public class ConfigInfo {
     public String loadVideosInChannelSortByUrl;
     public String loadVideosInPlaylistUrl;
     public String searchPlaylistUrl;
+    public String clientID;
+    public String secretID;
+    public String scopes;
+    public String authUrl;
+    public String tokenUrl;
+    public String redirectUrl;
+    public String loadUserProfileUrl;
+    public String loadMyWhatToWatchUrl;
+    public String loadVideosInMyPlaylistUrl;
+    public String loadMyChannelDetailsUrl;
+    public String loadMySubscribedChannelsUrl;
+    public String checkChannelSubscribedUrl;
+    public String loadMyPlaylistsUrl;
+    public String signedUpYoutubeUrl;
+    public String confirmRegisterYoutubeAccountUrl;
 }

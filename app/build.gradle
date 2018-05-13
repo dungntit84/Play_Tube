@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 android {
     dataBinding {
@@ -26,6 +27,7 @@ android {
     sourceSets {
         main {
             java {
+                exclude '**/MyVideosFragment.java'
             }
         }
     }
@@ -35,7 +37,6 @@ android {
 dependencies {
     def supportVersion = '26.0.2'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-
     implementation "com.android.support:appcompat-v7:$supportVersion"
     implementation "com.android.support:recyclerview-v7:$supportVersion"
     implementation "com.android.support:cardview-v7:$supportVersion"
@@ -48,4 +49,17 @@ dependencies {
     implementation files('libs/YouTubeAndroidPlayerApi.jar')
     implementation files('libs/gson-2.2.2.jar')
     compile 'com.squareup.okhttp:okhttp:2.5.0'
+    implementation 'com.google.android.gms:play-services:11.+'
+    implementation files('libs/google-http-client-1.23.0.jar')
+    implementation files('libs/google-api-client-android-1.23.0.jar')
+    implementation files('libs/google-http-client-jackson-1.23.0.jar')
+    implementation files('libs/google-oauth-client-1.23.0.jar')
+    implementation files('libs/google-api-services-oauth2-v2-rev91-1.20.0.jar')
+    implementation files('libs/google-http-client-jackson2-1.23.0.jar')
+    implementation files('libs/google-api-services-youtube-v3-rev134-1.20.0.jar')
+    implementation files('libs/google-api-client-1.23.0.jar')
+    implementation "com.android.support:customtabs:$supportVersion"
+}
+repositories {
+    mavenCentral()
 }

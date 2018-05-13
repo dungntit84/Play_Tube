@@ -25,7 +25,6 @@ import com.squareup.okhttp.Response;
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class ChannelListView extends FrameLayout implements
         AdapterView.OnItemClickListener, OnScrollListener {
@@ -200,7 +199,7 @@ public class ChannelListView extends FrameLayout implements
     private void loadChannelsInfo(final ArrayList<ChannelInfo> channelList) {
         String url = String
                 .format(PlayTubeController.getConfigInfo().loadChannelsInfoUrl,
-                        Utils.getIds(channelList, 0));
+                        Utils.getChannelIds(channelList, 0));
         _httpOk = new CustomHttpOk(url, new CustomCallback() {
             @Override
             public void onFailure(Request request, IOException e) {

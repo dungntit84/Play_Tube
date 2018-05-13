@@ -19,14 +19,12 @@ import com.hteck.playtube.data.YoutubeInfo;
 import com.hteck.playtube.databinding.ListViewBinding;
 import com.hteck.playtube.service.CustomCallback;
 import com.hteck.playtube.service.YoutubeHelper;
-import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Objects;
 
 
 public class YoutubeListView extends FrameLayout implements OnScrollListener {
@@ -198,7 +196,7 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
     private void loadVideosInfo() {
         String url = String
                 .format(PlayTubeController.getConfigInfo().loadVideosInfoUrl,
-                        Utils.getIds(_videoListLoading, 0));
+                        Utils.getYoutubeIds(_videoListLoading, 0));
         _httpOk = new CustomHttpOk(url, new CustomCallback() {
             @Override
             public void onFailure(Request request, IOException e) {

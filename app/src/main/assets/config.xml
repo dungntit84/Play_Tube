@@ -23,9 +23,24 @@
     <loadActivitiesInChannelUrl value="https://www.googleapis.com/youtube/v3/activities?pageToken=%s&amp;part=contentDetails,snippet&amp;channelId=%s&amp;maxResults=20&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
     <loadPlaylistsDetailsUrl value="https://www.googleapis.com/youtube/v3/playlists?id=%s&amp;part=contentDetails,snippet&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
     <loadPlaylistsInChannelUrl value="https://www.googleapis.com/youtube/v3/playlists?pageToken=%s&amp;part=contentDetails,snippet&amp;channelId=%s&amp;maxResults=%d&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
-    <loadVideosInChannelSortByUrl value="https://www.googleapis.com/youtube/v3/search?pageToken=%s&amp;part=snippet&amp;channelId=%s&amp;maxResults=%d&amp;order=%s&amp;type=video&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
-    <loadVideosInPlaylistUrl value="https://www.googleapis.com/youtube/v3/playlistItems?pageToken=%s&amp;part=contentDetails&amp;videoEmbeddable=true&amp;playlistId=%s&amp;maxResults=%d&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
-    <searchPlaylistUrl value="https://www.googleapis.com/youtube/v3/search?maxResults=20&amp;pageToken=%s&amp;q=%s&amp;type=playlist&amp;part=snippet&amp;key=AIzaSyABDcwfV2wHscHcvOFmiql91N8R6ALvCgs" />
+    <loadVideosInChannelSortByUrl value="https://www.googleapis.com/youtube/v3/search?pageToken=%s&amp;part=snippet&amp;channelId=%s&amp;maxResults=%d&amp;order=%s&amp;type=video&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
+    <loadVideosInPlaylistUrl value="https://www.googleapis.com/youtube/v3/playlistItems?pageToken=%s&amp;part=contentDetails&amp;videoEmbeddable=true&amp;playlistId=%s&amp;maxResults=%d&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
+    <searchPlaylistUrl value="https://www.googleapis.com/youtube/v3/search?maxResults=20&amp;pageToken=%s&amp;q=%s&amp;type=playlist&amp;part=snippet&amp;key=AIzaSyAFdgjUKpIcWTHRwXq0T8eI1X48qwoXOcs" />
+    <clientID value="831969715672-iflm14kkq1fpvumvuqig1koe7p6nn6fg.apps.googleusercontent.com" />
+    <secretID value="56QCNoHtVbeyAJ-AAznTSnQT" />
+    <scopes value="https://gdata.youtube.com https://www.googleapis.com/auth/userinfo.profile" />
+    <authUrl value="https://accounts.google.com/o/oauth2/auth" />
+    <tokenUrl value="https://accounts.google.com/o/oauth2/token" />
+    <redirectUrl value="http://localhost" />
+    <loadUserProfileUrl value="https://www.googleapis.com/youtube/v3/channels?mine=true&amp;part=contentDetails,snippet,statistics&amp;maxResults=3" />
+    <loadMyWhatToWatchUrl value="https://www.googleapis.com/youtube/v3/activities?pageToken=%s&amp;part=snippet,contentDetails&amp;chart=mostPopular&amp;home=true&amp;maxResults=20" />
+    <loadVideosInMyPlaylistUrl value="https://www.googleapis.com/youtube/v3/playlistItems?pageToken=%s&amp;part=contentDetails&amp;videoEmbeddable=true&amp;playlistId=%s&amp;maxResults=20" />
+    <loadMyChannelDetailsUrl value="https://www.googleapis.com/youtube/v3/channels?part=snippet,contentDetails,statistics&amp;mine=true" />
+    <loadMySubscribedChannelsUrl value="https://www.googleapis.com/youtube/v3/subscriptions?pageToken=%s&amp;part=contentDetails,snippet,id,subscriberSnippet&amp;maxResults=20&amp;mine=true" />
+    <checkChannelSubscribedUrl value="https://www.googleapis.com/youtube/v3/subscriptions?forChannelId=%s&amp;part=contentDetails,snippet,id,subscriberSnippet&amp;maxResults=20&amp;mine=true" />
+    <loadMyPlaylistsUrl value="https://www.googleapis.com/youtube/v3/playlists?part=contentDetails,snippet,status&amp;pageToken=%s&amp;maxResults=20&amp;mine=true" />
+    <signedUpYoutubeUrl value="https://m.youtube.com/channel_creation_done" />
+    <confirmRegisterYoutubeAccountUrl value="https://m.youtube.com/create_channel?chromeless=1&amp;next=/channel_creation_done" />
 
 
 </Root>

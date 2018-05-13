@@ -2,6 +2,8 @@ package com.hteck.playtube.service;
 
 import android.annotation.SuppressLint;
 
+import com.google.api.services.youtube.model.Subscription;
+import com.google.api.services.youtube.model.SubscriptionSnippet;
 import com.hteck.playtube.common.Constants;
 import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
@@ -31,6 +33,7 @@ import static com.hteck.playtube.common.Constants.YoutubeField.CHANNELS;
 import static com.hteck.playtube.common.Constants.YoutubeField.COMMENT;
 import static com.hteck.playtube.common.Constants.YoutubeField.CONTENTDETAILS;
 import static com.hteck.playtube.common.Constants.YoutubeField.FAVOURITE;
+import static com.hteck.playtube.common.Constants.YoutubeField.HIGH;
 import static com.hteck.playtube.common.Constants.YoutubeField.ID;
 import static com.hteck.playtube.common.Constants.YoutubeField.ITEMCOUNT;
 import static com.hteck.playtube.common.Constants.YoutubeField.ITEMS;
@@ -51,6 +54,7 @@ import static com.hteck.playtube.common.Constants.YoutubeField.STATISTICS;
 import static com.hteck.playtube.common.Constants.YoutubeField.SUBSCRIBERCOUNT;
 import static com.hteck.playtube.common.Constants.YoutubeField.SUBSCRIPTION;
 import static com.hteck.playtube.common.Constants.YoutubeField.THUMBNAILS;
+import static com.hteck.playtube.common.Constants.YoutubeField.TOTALITEMCOUNT;
 import static com.hteck.playtube.common.Constants.YoutubeField.TYPE;
 import static com.hteck.playtube.common.Constants.YoutubeField.UPLOAD;
 import static com.hteck.playtube.common.Constants.YoutubeField.UPLOADS;
@@ -58,6 +62,7 @@ import static com.hteck.playtube.common.Constants.YoutubeField.URL;
 import static com.hteck.playtube.common.Constants.YoutubeField.VIDEOCOUNT;
 import static com.hteck.playtube.common.Constants.YoutubeField.VIDEOID;
 import static com.hteck.playtube.common.Constants.YoutubeField.VIDEOPUBLISHEDAT;
+import static com.hteck.playtube.common.Utils.getInt;
 import static com.hteck.playtube.common.Utils.getString;
 
 public class YoutubeHelper {
@@ -578,6 +583,7 @@ public class YoutubeHelper {
             }
         }
     }
+
     public static AbstractMap.SimpleEntry<String, ArrayList<YoutubePlaylistInfo>> getPlaylists(
             String data, boolean isCustomPlaylist, boolean isMine) throws JSONException {
         ArrayList<YoutubePlaylistInfo> playlists = new ArrayList<>();
@@ -621,7 +627,7 @@ public class YoutubeHelper {
         youtubePlaylistInfo.id = jObject.getString(ID);
         youtubePlaylistInfo.imgeUrl = getString(jObjectSnippet, THUMBNAILS,
                 MEDIUM, URL);
-        youtubePlaylistInfo.videoCount = Utils.getInt(jObject, CONTENTDETAILS,
+        youtubePlaylistInfo.videoCount = getInt(jObject, CONTENTDETAILS,
                 ITEMCOUNT);
 
         return youtubePlaylistInfo;
@@ -730,5 +736,40 @@ public class YoutubeHelper {
 
         return new AbstractMap.SimpleEntry<>(nextPageToken,
                 clipList);
+    }
+
+    public static ChannelInfo getSubscriptionInfo(JSONObject jObject) throws JSONException {
+        ChannelInfo result = new ChannelInfo();
+
+        JSONObject jObjectSnippet = jObject
+                .getJSONObject(SNIPPET);
+        result.id = getString(jObjectSnippet, RESOURCEID,
+                CHANNELID);
+        result.title = jObjectSnippet.getString(TITLE);
+        result.subscriptionItemId = jObject.getString(ID);
+        result.imageUrl = getString(jObjectSnippet, THUMBNAILS,
+                HIGH, URL);
+        result.videoCount = getInt(jObject, CONTENTDETAILS,
+                TOTALITEMCOUNT);
+        return result;
+    }
+
+    public static ChannelInfo getSubscriptionInfo(Subscription subscription) {
+        ChannelInfo result = new ChannelInfo();
+
+        SubscriptionSnippet jObjectSnippet = subscription.getSnippet();
+        result.id = jObjectSnippet.getChannelId();
+        result.title = jObjectSnippet.getTitle();
+        result.subscriptionItemId = subscription.getId();
+        if (jObjectSnippet.getThumbnails().getHigh() != null) {
+            result.imageUrl = jObjectSnippet.getThumbnails().getHigh()
+                    .getUrl();
+        } else {
+            result.imageUrl = jObjectSnippet.getThumbnails().getDefault()
+                    .getUrl();
+        }
+        result.videoCount = subscription.getContentDetails()
+                .getTotalItemCount().intValue();
+        return result;
     }
 }

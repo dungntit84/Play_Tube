@@ -717,7 +717,7 @@ public class Utils {
         return false;
     }
 
-    public static String getIds(ArrayList<YoutubePlaylistInfo> playlists, int maxCount) {
+    public static String getPlaylistIds(ArrayList<YoutubePlaylistInfo> playlists, int maxCount) {
         String ids = "";
         int count = 0;
         for (YoutubePlaylistInfo p : playlists) {
@@ -734,7 +734,7 @@ public class Utils {
         return ids;
     }
 
-    public static String getIds(ArrayList<YoutubeInfo> youtubeList, int maxCount) {
+    public static String getYoutubeIds(ArrayList<YoutubeInfo> youtubeList, int maxCount) {
         String ids = "";
         int count = 0;
         for (YoutubeInfo y : youtubeList) {
@@ -751,7 +751,7 @@ public class Utils {
         return ids;
     }
 
-    public static String getIds(ArrayList<ChannelInfo> channelList, int maxCount) {
+    public static String getChannelIds(ArrayList<ChannelInfo> channelList, int maxCount) {
         String ids = "";
         int count = 0;
         for (ChannelInfo c : channelList) {

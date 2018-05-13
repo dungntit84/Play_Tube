@@ -17,6 +17,9 @@ public class Constants {
     public final static String NO_USES_SETTING = "no_uses_setting";
     public final static int MAX_SIZE_FOR_LOADING_YOUTUBE_DATA = 50;
     public final static int PAGE_SIZE = 20;
+    public final static String PAGE_ID = "page_id";
+    public final static String ACCOUNT_INFO = "account_info";
+    public final static int REQUEST_CODE_LOGIN_YOUTUBE = 1;
 
     public class ItemConstants {
         public final static String VERSION = "version";
@@ -132,5 +135,13 @@ public class Constants {
         public final static int LOADINGIDS = 53;
         public final static int IDSLOADED = 54;
         public final static int DONE = 55;
+    }
+
+    public class AccountViewType {
+        public final static int Likes = 22;
+        public final static int WhatToWatch = 25;
+        public final static int Favourites = 26;
+        public final static int Uploads = 23;
+        public final static int WatchLater = 24;
     }
 }

@@ -33,7 +33,6 @@ import com.hteck.playtube.service.CustomCallback;
 import com.hteck.playtube.service.YoutubeHelper;
 import com.hteck.playtube.view.CategoryListView;
 import com.hteck.playtube.view.LoadingView;
-import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
@@ -291,7 +290,7 @@ public class PopularView extends BaseFragment implements
 
     private void loadVideosInfo() {
         String url = String.format(PlayTubeController.getConfigInfo().loadVideosInfoUrl,
-                Utils.getIds(_youtubeListLoading, 0));
+                Utils.getYoutubeIds(_youtubeListLoading, 0));
 
         _httpOk = new CustomHttpOk(url, new CustomCallback() {
             @Override

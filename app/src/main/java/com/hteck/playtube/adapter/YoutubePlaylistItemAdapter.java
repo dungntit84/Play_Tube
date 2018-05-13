@@ -201,7 +201,7 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
 //            return;
 //        }
 //        _isCheckingSubscribed = true;
-//        YoutubeService ys = new YoutubeService(new IYoutubeService() {
+//        YoutubeService ys = new YoutubeService(new IYoutubeAccountService() {
 //
 //            @Override
 //            public void onServiceDoneSuccess(Object sender, int param1,
@@ -256,7 +256,7 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
 //            } else {
 //                _isCheckingSubscribed = true;
 //                YoutubeService ys = new YoutubeService(
-//                        new IYoutubeService() {
+//                        new IYoutubeAccountService() {
 //
 //                            @Override
 //                            public void onServiceDoneSuccess(Object sender,
@@ -322,7 +322,7 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
 //            return;
 //        }
 //        _channelHomeTab.showBusyAnimation();
-//        YoutubeService ys = new YoutubeService(new IYoutubeService() {
+//        YoutubeService ys = new YoutubeService(new IYoutubeAccountService() {
 //
 //            @Override
 //            public void onServiceDoneSuccess(Object userToken, int param1,
@@ -373,7 +373,7 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
 //            return;
 //        }
 //        _channelHomeTab.showBusyAnimation();
-//        YoutubeService ys = new YoutubeService(new IYoutubeService() {
+//        YoutubeService ys = new YoutubeService(new IYoutubeAccountService() {
 //
 //            @Override
 //            public void onServiceDoneSuccess(Object userToken, int param1,

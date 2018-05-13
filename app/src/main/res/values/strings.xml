@@ -65,4 +65,7 @@
     <string name="popular_uploads">Popular Uploads</string>
     <string name="created_playlists">Created playlists</string>
     <string name="recent_activities">Recent Activities</string>
+    <string name="sign_up_confirm_msg">You have not registered this account on Youtube. register now?</string>
+    <string name="sign_up_title">Youtube - Register</string>
+    <string name="register_channel">Register Channel</string>
 </resources>

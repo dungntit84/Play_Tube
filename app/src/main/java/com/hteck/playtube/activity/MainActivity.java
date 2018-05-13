@@ -41,7 +41,7 @@ import java.util.Date;
 
 import static com.hteck.playtube.common.PlayTubeController.showRateAndReview;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private static MainActivity _this;
 

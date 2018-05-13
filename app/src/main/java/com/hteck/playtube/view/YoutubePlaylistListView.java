@@ -228,7 +228,7 @@ public class YoutubePlaylistListView extends FrameLayout implements
     private void loadPlaylistsInfo(ArrayList<YoutubePlaylistInfo> playlists) {
         String url = String
                 .format(PlayTubeController.getConfigInfo().loadPlaylistsDetailsUrl,
-                        Utils.getIds(playlists, 0));
+                        Utils.getPlaylistIds(playlists, 0));
         _httpOk = new CustomHttpOk(url, new CustomCallback(playlists) {
             @Override
             public void onFailure(Request request, IOException e) {

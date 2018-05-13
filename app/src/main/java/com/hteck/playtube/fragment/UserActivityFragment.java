@@ -562,7 +562,7 @@ public class UserActivityFragment extends Fragment implements
         ArrayList<YoutubePlaylistInfo> playlists = (ArrayList<YoutubePlaylistInfo>) activityInfo.dataInfo;
 
         int count = 0;
-        String ids = Utils.getIds(playlists, Constants.MAX_SIZE_FOR_LOADING_YOUTUBE_DATA);
+        String ids = Utils.getPlaylistIds(playlists, Constants.MAX_SIZE_FOR_LOADING_YOUTUBE_DATA);
         String url = String.format(
                 PlayTubeController.getConfigInfo().loadPlaylistsDetailsUrl, ids);
         CustomCallback callback = buildAllPlaylistsCompletedListener();
