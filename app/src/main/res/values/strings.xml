@@ -68,4 +68,7 @@
     <string name="sign_up_confirm_msg">You have not registered this account on Youtube. register now?</string>
     <string name="sign_up_title">Youtube - Register</string>
     <string name="register_channel">Register Channel</string>
+    <string name="what_to_watch">What to Watch</string>
+    <string name="uploads">Uploads</string>
+    <string name="likes">Likes</string>
 </resources>

@@ -1,37 +1,27 @@
 package com.hteck.playtube.auth;
 
 
-import com.google.api.client.auth.oauth2.StoredCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import android.util.Log;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
+
+import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
+import com.google.api.client.auth.oauth2.ClientParametersAuthentication;
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.auth.oauth2.CredentialStore;
+import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.YouTubeScopes;
-import com.google.android.gms.common.Scopes;
-import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
-import com.google.api.client.auth.oauth2.ClientParametersAuthentication;
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.auth.oauth2.CredentialStore;
-import com.google.api.client.auth.oauth2.TokenResponse;
 import com.hteck.playtube.activity.MainActivity;
-import com.hteck.playtube.data.ChannelInfo;
-import com.hteck.playtube.service.AccountContext;
-import com.hteck.playtube.service.AccountHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-
-import android.content.SharedPreferences;
-import android.util.Log;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
-
-import java.util.Vector;
 
 public class OAuthHelper {
     private CredentialStore credentialStore;

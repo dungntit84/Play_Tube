@@ -1289,7 +1289,8 @@ public class UserActivityFragment extends Fragment implements
 //                                .newInstance((ChannelInfo) channelSectionInfo.dataInfo);
 //                        MainActivity.getInstance().launchFragment(
 //                                channelVideosView);
-//                    } else if (channelSectionInfo.activityType == Constants.UserActivityType.ALLPLAYLISTS
+//                    }
+// else if (channelSectionInfo.activityType == Constants.UserActivityType.ALLPLAYLISTS
 //                            || channelSectionInfo.activityType == Constants.UserActivityType.MULTIPLEPLAYLISTS) {
 //                        UserPlaylistsView userPlaylistsView = UserPlaylistsView
 //                                .newInstance(_channelInfo.id,
