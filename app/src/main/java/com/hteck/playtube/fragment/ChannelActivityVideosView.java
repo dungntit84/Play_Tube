@@ -2,10 +2,10 @@ package com.hteck.playtube.fragment;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -21,10 +21,8 @@ import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.ChannelInfo;
 import com.hteck.playtube.data.YoutubeInfo;
-import com.hteck.playtube.databinding.SwipeRefreshViewBinding;
-import com.hteck.playtube.service.AccountContext;
+import com.hteck.playtube.databinding.ListViewBinding;
 import com.hteck.playtube.service.CustomCallback;
-import com.hteck.playtube.service.YoutubeAccountService;
 import com.hteck.playtube.service.YoutubeHelper;
 import com.hteck.playtube.view.LoadingView;
 import com.squareup.okhttp.Request;
@@ -34,7 +32,7 @@ import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 
-public class MyVideosFragment extends BaseFragment implements
+public class ChannelActivityVideosView extends BaseFragment implements
         AdapterView.OnItemClickListener, OnScrollListener {
 
     private String _nextPageToken = "";
@@ -42,18 +40,20 @@ public class MyVideosFragment extends BaseFragment implements
     YoutubeByPageAdapter _adapter;
     private LoadingView _busyView;
     private boolean _isLoading = false;
-    private int _accountViewType;
-    String _playlistId;
+    private ChannelInfo _channelInfo;
     private View _viewReload;
     private boolean _isLoadMore;
-    private SwipeRefreshViewBinding _binding;
+    private ListViewBinding _binding;
 
-    public static MyVideosFragment newInstance(int accountViewType) {
-        MyVideosFragment v = new MyVideosFragment();
+    public static ChannelActivityVideosView newInstance(ChannelInfo channelInfo) {
+        ChannelActivityVideosView myVideosView = new ChannelActivityVideosView();
 
-        v._accountViewType = accountViewType;
+        myVideosView._channelInfo = channelInfo;
+        Bundle args = new Bundle();
+        args.putString(Constants.PAGE_ID, channelInfo.id.toString());
+        myVideosView.setArguments(args);
 
-        return v;
+        return myVideosView;
     }
 
     @Override
@@ -68,30 +68,17 @@ public class MyVideosFragment extends BaseFragment implements
     }
 
     private void loadData() {
-        if (_accountViewType == Constants.AccountViewType.WhatToWatch) {
-            loadData(false);
-        } else {
-            loadChannelInfo();
-        }
+        loadData(false);
     }
 
     private void createMainView(ViewGroup container) {
         _binding = DataBindingUtil.inflate(MainActivity.getInstance()
-                .getLayoutInflater(), R.layout.swipe_refresh_view, container, false);
+                .getLayoutInflater(), R.layout.list_view, container, false);
 
         _adapter = new YoutubeByPageAdapter(_youtubeList);
         _binding.listView.setAdapter(_adapter);
         _binding.listView.setOnItemClickListener(this);
         _binding.listView.setOnScrollListener(this);
-
-        _binding.swipeRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
-
-            @Override
-            public void onRefresh() {
-                loadData();
-                _binding.swipeRefreshLayout.setRefreshing(false);
-            }
-        });
     }
 
     public void setDataSource(ArrayList<YoutubeInfo> songList) {
@@ -112,29 +99,6 @@ public class MyVideosFragment extends BaseFragment implements
         _nextPageToken = "";
     }
 
-    private void loadChannelInfo() {
-        if (_isLoading) {
-            return;
-        }
-
-        if (AccountContext.getInstance().getAccountInfo() != null) {
-            _playlistId = getPlaylistId(AccountContext.getInstance().getAccountInfo());
-            if (!Utils.stringIsNullOrEmpty(_playlistId)) {
-                loadData(false);
-            }
-        }
-    }
-
-    private String getPlaylistId(ChannelInfo channelInfo) {
-        if (_accountViewType == Constants.AccountViewType.Uploads) {
-            return channelInfo.uploadPlaylistId;
-        } else if (_accountViewType == Constants.AccountViewType.Favourites) {
-            return channelInfo.favouritePlaylistId;
-        } else {
-            return channelInfo.likePlaylistId;
-        }
-    }
-
     private void loadData(boolean isLoadMore) {
         if (_isLoading) {
             return;
@@ -149,61 +113,53 @@ public class MyVideosFragment extends BaseFragment implements
             showBusyAnimation();
         }
         _isLoadMore = isLoadMore;
-        YoutubeAccountService youtubeService = new YoutubeAccountService(
-                new YoutubeAccountService.IYoutubeAccountService() {
 
+        String url = String
+                .format(PlayTubeController.getConfigInfo().loadActivitiesInChannelUrl, _nextPageToken,
+                        _channelInfo.id,
+                        Constants.PAGE_SIZE);
+        CustomHttpOk httpOk = new CustomHttpOk(url, new CustomCallback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+                MainActivity.getInstance().runOnUiThread(new Runnable() {
                     @Override
-                    public void onServiceSuccess(Object userToken, final Object data) {
-                        MainActivity.getInstance().runOnUiThread(
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            processVideoData(data
-                                                    .toString());
-                                        } catch (Throwable e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                });
-                    }
-
-                    @Override
-                    public void onServiceFailed(Object userToken, final String error) {
-                        _isLoading = false;
-                        MainActivity.getInstance().runOnUiThread(
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        hideBusyAnimation();
-                                        Utils.showMessage(error);
-                                        if (_youtubeList.size() == 0) {
-                                            initReloadEvent();
-                                        } else {
-                                            _adapter.setIsNetworkError(true);
-                                            _adapter.notifyDataSetChanged();
-                                        }
-                                    }
-                                });
+                    public void run() {
+                        hideBusyAnimation();
+                        Utils.showMessage(MainActivity.getInstance()
+                                .getString(R.string.network_error));
+                        if (_youtubeList.size() == 0) {
+                            initReloadEvent();
+                        } else {
+                            _adapter.setIsNetworkError(true);
+                            _adapter.notifyDataSetChanged();
+                        }
                     }
                 });
-        if (_accountViewType == Constants.AccountViewType.WhatToWatch) {
-            youtubeService.loadWhatToWatch(_nextPageToken);
-        } else {
-            youtubeService
-                    .loadMyPlaylistVideos(_playlistId, _nextPageToken);
-        }
+            }
 
+            @Override
+            public void onResponse(final Response response) throws IOException {
+                MainActivity.getInstance().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            String s = response.body().string();
+                            processVideoData(s);
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                            hideBusyAnimation();
+                            _isLoading = false;
+                        }
+                    }
+                });
+            }
+        });
+        httpOk.start();
     }
 
     private void processVideoData(String s) {
         try {
-            AbstractMap.SimpleEntry<String, ArrayList<YoutubeInfo>> searchResult;
-            if (_accountViewType == Constants.AccountViewType.WhatToWatch) {
-                searchResult = YoutubeHelper.getVideosInAccount(s);
-            } else {
-                searchResult = YoutubeHelper.getVideosInPlaylist(s, 0);
-            }
+            AbstractMap.SimpleEntry<String, ArrayList<YoutubeInfo>> searchResult = YoutubeHelper.getVideosInAccount(s);
 
             ArrayList<YoutubeInfo> songList = searchResult.getValue();
             _nextPageToken = searchResult.getKey();
@@ -299,7 +255,6 @@ public class MyVideosFragment extends BaseFragment implements
 
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int index, long arg3) {
-
         if (index == _youtubeList.size() - 1 && _youtubeList.get(_youtubeList.size() - 1) == null) {
             if (_adapter.getIsNetworkError()) {
                 _adapter.setIsNetworkError(false);
@@ -362,16 +317,6 @@ public class MyVideosFragment extends BaseFragment implements
 
     @Override
     public String getTitle() {
-        String title = "";
-        if (_accountViewType == Constants.AccountViewType.WhatToWatch) {
-            title = Utils.getString(R.string.what_to_watch);
-        } else if (_accountViewType == Constants.AccountViewType.Uploads) {
-            title = Utils.getString(R.string.uploads);
-        } else if (_accountViewType == Constants.AccountViewType.Favourites) {
-            title = Utils.getString(R.string.favourites);
-        } else if (_accountViewType == Constants.AccountViewType.Likes) {
-            title = Utils.getString(R.string.likes);
-        }
-        return title;
+        return Utils.getString(R.string.recent_activities);
     }
 }

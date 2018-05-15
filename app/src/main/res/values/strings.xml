@@ -59,7 +59,7 @@
     <string name="subscribed">subscribed</string>
     <string name="recommended">recommended</string>
     <string name="had_an_action_on">had an action on</string>
-    <string name="user_action_description"> %s a video %s</string>
+    <string name="user_action_description">&#160;%s a video %s</string>
     <string name="unsubscribe_confirm">unsubscribe?</string>
     <string name="recent_uploads">Recent Uploads</string>
     <string name="popular_uploads">Popular Uploads</string>

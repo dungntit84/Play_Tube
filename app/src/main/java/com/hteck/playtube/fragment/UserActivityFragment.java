@@ -30,6 +30,7 @@ import com.hteck.playtube.service.YoutubeHelper;
 import com.hteck.playtube.view.LoadingView;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -858,8 +859,8 @@ public class UserActivityFragment extends Fragment implements
         ChannelInfo channelInfo = (ChannelInfo) activityInfo.dataInfo;
 
         String url = String.format(
-                PlayTubeController.getConfigInfo().loadActivitiesInChannelUrl,
-                channelInfo.id, "", PAGESIZE);
+                PlayTubeController.getConfigInfo().loadActivitiesInChannelUrl, "",
+                channelInfo.id, PAGESIZE);
         CustomCallback callback = buildChannelActivitiesCompletedListener();
         callback.setDataContext(activityInfo);
         CustomHttpOk httpOk = new CustomHttpOk(url, callback);
@@ -1283,13 +1284,12 @@ public class UserActivityFragment extends Fragment implements
                                 .newInstance(_channelInfo, channelSectionInfo.sortBy);
                         MainActivity.getInstance().addFragment(
                                 userVideosView);
+                    } else if (channelSectionInfo.activityType == Constants.UserActivityType.RECENTACTIVIY) {
+                        ChannelActivityVideosView channelVideosView = ChannelActivityVideosView
+                                .newInstance((ChannelInfo) channelSectionInfo.dataInfo);
+                        MainActivity.getInstance().addFragment(
+                                channelVideosView);
                     }
-//                    else if (channelSectionInfo.activityType == Constants.UserActivityType.RECENTACTIVIY) {
-//                        MyVideosView channelVideosView = MyVideosView
-//                                .newInstance((ChannelInfo) channelSectionInfo.dataInfo);
-//                        MainActivity.getInstance().launchFragment(
-//                                channelVideosView);
-//                    }
 // else if (channelSectionInfo.activityType == Constants.UserActivityType.ALLPLAYLISTS
 //                            || channelSectionInfo.activityType == Constants.UserActivityType.MULTIPLEPLAYLISTS) {
 //                        UserPlaylistsView userPlaylistsView = UserPlaylistsView
