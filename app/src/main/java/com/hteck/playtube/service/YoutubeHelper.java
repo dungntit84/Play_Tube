@@ -706,21 +706,18 @@ public class YoutubeHelper {
         for (int i = 0; i < items.length(); ++i) {
             try {
                 YoutubeInfo videoInfo = new YoutubeInfo();
-                JSONObject jObjectContentDetails = ((JSONObject) items
-                        .get(i)).getJSONObject(CONTENTDETAILS);
+                JSONObject jObjectContentDetails = ((JSONObject) items.get(i)).getJSONObject(CONTENTDETAILS);
 
                 JSONObject objResourceDetails = getResourceDetails(jObjectContentDetails);
                 if (objResourceDetails != null) {
                     if (!objResourceDetails.isNull(VIDEOID)) {
-                        videoInfo.id = objResourceDetails
-                                .getString(VIDEOID);
+                        videoInfo.id = objResourceDetails.getString(VIDEOID);
                         clipList.add(videoInfo);
-                    } else if (!objResourceDetails
-                            .isNull(RESOURCEID)) {
-                        videoInfo.id = objResourceDetails.getJSONObject(
-                                RESOURCEID).getString(
-                                VIDEOID);
-                        clipList.add(videoInfo);
+                    } else if (!objResourceDetails.isNull(RESOURCEID)) {
+                        if(!objResourceDetails.getJSONObject(RESOURCEID).isNull(VIDEOID)) {
+                            videoInfo.id = objResourceDetails.getJSONObject(RESOURCEID).getString(VIDEOID);
+                            clipList.add(videoInfo);
+                        }
                     }
                 }
 

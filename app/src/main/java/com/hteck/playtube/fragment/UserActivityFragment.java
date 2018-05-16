@@ -158,7 +158,7 @@ public class UserActivityFragment extends Fragment implements
             showBusyAnimation();
         }
         String url = String.format(
-                PlayTubeController.getConfigInfo().loadActivitiesInChannelUrl, _nextPageToken, _channelInfo.id);
+                PlayTubeController.getConfigInfo().loadActivitiesInChannelUrl, _nextPageToken, _channelInfo.id, Constants.PAGE_SIZE);
 
         CustomHttpOk httpOk = new CustomHttpOk(url, buildChannelActivitiesCompletedListener());
         httpOk.start();

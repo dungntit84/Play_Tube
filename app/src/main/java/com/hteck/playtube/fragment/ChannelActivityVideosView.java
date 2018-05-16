@@ -250,7 +250,7 @@ public class ChannelActivityVideosView extends BaseFragment implements
     }
 
     private void showBusyAnimation() {
-        Utils.showProgressBar(_binding.layoutMain, _busyView);
+        _busyView = Utils.showProgressBar(_binding.layoutMain, _busyView);
     }
 
     @Override
