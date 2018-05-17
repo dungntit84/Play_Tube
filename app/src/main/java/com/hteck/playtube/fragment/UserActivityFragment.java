@@ -1289,20 +1289,17 @@ public class UserActivityFragment extends Fragment implements
                                 .newInstance((ChannelInfo) channelSectionInfo.dataInfo);
                         MainActivity.getInstance().addFragment(
                                 channelVideosView);
+                    } else if (channelSectionInfo.activityType == Constants.UserActivityType.ALLPLAYLISTS
+                            || channelSectionInfo.activityType == Constants.UserActivityType.MULTIPLEPLAYLISTS) {
+                        UserPlaylistsFragment userPlaylistsView = UserPlaylistsFragment
+                                .newInstance(_channelInfo, playlistItemViewInfo.activityInfo);
+                        MainActivity.getInstance().addFragment(userPlaylistsView);
+                    } else if (channelSectionInfo.activityType == Constants.UserActivityType.MULTIPLECHANNELS) {
+                        UserChanelsFragment userChanelsFragment = UserChanelsFragment
+                                .newInstance(_channelInfo.id,
+                                        playlistItemViewInfo.activityInfo);
+                        MainActivity.getInstance().addFragment(userChanelsFragment);
                     }
-// else if (channelSectionInfo.activityType == Constants.UserActivityType.ALLPLAYLISTS
-//                            || channelSectionInfo.activityType == Constants.UserActivityType.MULTIPLEPLAYLISTS) {
-//                        UserPlaylistsView userPlaylistsView = UserPlaylistsView
-//                                .newInstance(_channelInfo.id,
-//                                        playlistItemViewInfo.activityInfo);
-//                        MainActivity.getInstance().launchFragment(
-//                                userPlaylistsView);
-//                    } else if (channelSectionInfo.activityType == Constants.UserActivityType.MULTIPLECHANNELS) {
-//                        UserChanelsView chanelsView = UserChanelsView
-//                                .newInstance(_channelInfo.id,
-//                                        playlistItemViewInfo.activityInfo);
-//                        MainActivity.getInstance().launchFragment(chanelsView);
-//                    }
                 } else if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.PLAYLIST) {
                     YoutubePlaylistInfo playlistInfo = (YoutubePlaylistInfo) playlistItemViewInfo.dataInfo;
                     YoutubePlaylistVideosFragment youtubePlaylistDetails = YoutubePlaylistVideosFragment

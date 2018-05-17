@@ -20,6 +20,7 @@ import com.hteck.playtube.common.CustomHttpOk;
 import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
 import com.hteck.playtube.data.ChannelInfo;
+import com.hteck.playtube.data.ChannelSectionInfo;
 import com.hteck.playtube.data.YoutubeInfo;
 import com.hteck.playtube.data.YoutubePlaylistInfo;
 import com.hteck.playtube.databinding.ListViewBinding;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Vector;
 
 import static com.hteck.playtube.common.Constants.PAGE_SIZE;
 
@@ -47,10 +49,12 @@ public class UserPlaylistsFragment extends BaseFragment implements OnScrollListe
     private ListViewBinding _binding;
     private CustomHttpOk _httpOk;
     private ChannelInfo _channelInfo;
+    private ChannelSectionInfo _activityInfo;
 
-    public static UserPlaylistsFragment newInstance(ChannelInfo channelInfo) {
+    public static UserPlaylistsFragment newInstance(ChannelInfo channelInfo, ChannelSectionInfo activityInfo) {
         UserPlaylistsFragment userVideosFragment = new UserPlaylistsFragment();
         userVideosFragment._channelInfo = channelInfo;
+        userVideosFragment._activityInfo = activityInfo;
         return userVideosFragment;
     }
 
@@ -60,7 +64,11 @@ public class UserPlaylistsFragment extends BaseFragment implements OnScrollListe
 
         createView(container);
 
-        loadData();
+        if (_activityInfo.activityType == Constants.UserActivityType.MULTIPLEPLAYLISTS) {
+            setDataSource((ArrayList<YoutubePlaylistInfo>) _activityInfo.dataInfo);
+        } else {
+            loadData();
+        }
         return _binding.getRoot();
     }
 
@@ -291,6 +299,9 @@ public class UserPlaylistsFragment extends BaseFragment implements OnScrollListe
 
     @Override
     public String getTitle() {
+        if (_activityInfo.activityType == Constants.UserActivityType.MULTIPLEPLAYLISTS) {
+            return Utils.getString(R.string.created_playlists);
+        }
         return _channelInfo.title;
     }
 }
