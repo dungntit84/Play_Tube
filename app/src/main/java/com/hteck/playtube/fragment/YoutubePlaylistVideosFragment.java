@@ -14,6 +14,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.adapter.YoutubeByPageAdapter;
+import com.hteck.playtube.common.Constants;
 import com.hteck.playtube.common.CustomHttpOk;
 import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
@@ -45,10 +46,13 @@ public class YoutubePlaylistVideosFragment extends BaseFragment implements OnScr
     private CustomHttpOk _httpOk;
     private YoutubePlaylistInfo _playlistInfo;
 
-    public static YoutubePlaylistVideosFragment newInstance(YoutubePlaylistInfo _playlistInfo) {
-        YoutubePlaylistVideosFragment channelVideosFragment = new YoutubePlaylistVideosFragment();
-        channelVideosFragment._playlistInfo = _playlistInfo;
-        return channelVideosFragment;
+    public static YoutubePlaylistVideosFragment newInstance(YoutubePlaylistInfo playlistInfo) {
+        YoutubePlaylistVideosFragment v = new YoutubePlaylistVideosFragment();
+        v._playlistInfo = playlistInfo;
+        Bundle args = new Bundle();
+        args.putString(Constants.PAGE_ID, playlistInfo.id.toString());
+        v.setArguments(args);
+        return v;
     }
 
     @Override

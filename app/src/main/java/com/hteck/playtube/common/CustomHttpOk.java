@@ -44,6 +44,8 @@ public class CustomHttpOk extends Thread {
     }
 
     public void cancel() {
-        _call.cancel();
+        if(_call != null) {
+            _call.cancel();
+        }
     }
 }

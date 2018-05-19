@@ -285,9 +285,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         String loadingFragment = fragment.getClass().getName();
         if (fragment.getArguments() != null
                 && fragment.getArguments().containsKey(
-                Constants.MAIN_VIEW_ID)) {
+                Constants.PAGE_ID)) {
             loadingFragment += fragment.getArguments().getString(
-                    Constants.MAIN_VIEW_ID);
+                    Constants.PAGE_ID);
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
 

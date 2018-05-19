@@ -12,6 +12,7 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 
+import com.google.gson.Gson;
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.adapter.YoutubePlaylistItemByPageAdapter;
@@ -30,13 +31,10 @@ import com.hteck.playtube.service.YoutubeHelper;
 import com.hteck.playtube.view.LoadingView;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
-
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Objects;
-
-import static com.hteck.playtube.common.Constants.PAGE_SIZE;
 import static com.hteck.playtube.common.Constants.YoutubeField.DATE_SORTBY;
 import static com.hteck.playtube.common.Constants.YoutubeField.VIEWCOUNT_SORTBY;
 
@@ -780,7 +778,8 @@ public class UserActivityFragment extends Fragment implements
     }
 
     private CustomCallback getDownloadVideosInfoListener(Object dataContext) {
-        return new CustomCallback(dataContext) {
+        Exception ex = new Exception();
+        return new CustomCallback(dataContext, ex) {
             @Override
             public void onFailure(Request request, IOException e) {
                 MainActivity.getInstance().runOnUiThread(new Runnable() {
@@ -814,7 +813,6 @@ public class UserActivityFragment extends Fragment implements
                             String s = response.body().string();
                             ChannelSectionInfo channelSectionInfo = (ChannelSectionInfo) callback.getDataContext();
 
-
                             AbstractMap.SimpleEntry<String, ArrayList<YoutubeInfo>> searchResult;
                             if (channelSectionInfo.activityType == Constants.UserActivityType.SINGLEPLAYLIST) {
                                 searchResult = YoutubeHelper
@@ -833,6 +831,7 @@ public class UserActivityFragment extends Fragment implements
                                         .stringIsNullOrEmpty(searchResult.getKey());
                                 channelSectionInfo.youtubeState = Constants.YoutubeState.IDSLOADED;
 
+                                System.out.println(callback._test.getStackTrace());
                                 loadDataItems();
                             } else {
                                 ChannelInfo channelInfo = (ChannelInfo) channelSectionInfo.dataInfo;
@@ -868,17 +867,18 @@ public class UserActivityFragment extends Fragment implements
     }
 
     private void loadDataItems() {
+
         for (int i = 0; i < _activityListToLoadData.size(); ++i) {
             ChannelSectionInfo channelSectionInfo = _activityListToLoadData
                     .get(i);
             if (channelSectionInfo.activityType == Constants.UserActivityType.SINGLEPLAYLIST) {
-                if (channelSectionInfo.youtubeState < Constants.YoutubeState.IDSLOADED) {
+                if (channelSectionInfo.youtubeState < Constants.YoutubeState.LOADINGIDS) {
                     YoutubePlaylistInfo playlistInfo = (YoutubePlaylistInfo) channelSectionInfo.dataInfo;
                     if (playlistInfo.videoCount > 0) {
                         channelSectionInfo.youtubeState = Constants.YoutubeState.LOADINGIDS;
                         String url = String
                                 .format(PlayTubeController.getConfigInfo().loadVideosInPlaylistUrl, "",
-                                        ((YoutubePlaylistInfo) channelSectionInfo.dataInfo).id, PAGE_SIZE);
+                                        ((YoutubePlaylistInfo) channelSectionInfo.dataInfo).id, PAGESIZE);
 
                         new CustomHttpOk(url, getDownloadVideosInfoListener(channelSectionInfo)).start();
                     } else {

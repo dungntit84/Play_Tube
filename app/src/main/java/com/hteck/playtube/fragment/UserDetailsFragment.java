@@ -26,6 +26,9 @@ public class UserDetailsFragment extends BaseFragment {
             ChannelInfo channelInfo) {
         UserDetailsFragment v = new UserDetailsFragment();
         v._channelInfo = channelInfo;
+        Bundle args = new Bundle();
+        args.putString(Constants.PAGE_ID, channelInfo.id.toString());
+        v.setArguments(args);
         return v;
     }
 

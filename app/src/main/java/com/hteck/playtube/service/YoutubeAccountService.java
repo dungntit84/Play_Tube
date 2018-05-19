@@ -54,7 +54,6 @@ public class YoutubeAccountService {
                 }
                 try {
                     String profile = AccountContext.getInstance().getOAuthHelper().executeRequestApiCall(PlayTubeController.getConfigInfo().loadUserProfileUrl);
-                    System.out.println("user details:" + profile);
                     ArrayList<ChannelInfo> channelList = YoutubeHelper.getChannelList(profile);
                     if (channelList.size() > 0) {
                         ChannelInfo channelInfo = channelList.get(0);
