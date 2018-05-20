@@ -8,9 +8,11 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
+
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.adapter.ChannelByPageAdapter;
+import com.hteck.playtube.common.Constants;
 import com.hteck.playtube.common.CustomHttpOk;
 import com.hteck.playtube.common.PlayTubeController;
 import com.hteck.playtube.common.Utils;
@@ -177,24 +179,25 @@ public class ChannelListView extends FrameLayout implements
         search();
     }
 
-//    private void loadMoreChannelsInfo() {
-//        if (_isLoading) {
-//            return;
-//        }
-//        _isLoading = true;
-//        _channelListSearching = new ArrayList<>();
-//        int count = 0;
-//        for (ChannelInfo c : _channelList) {
-//            if (Utils.stringIsNullOrEmpty(c.title)) {
-//                count++;
-//                _channelListSearching.add(c);
-//                if (count == Constants.PAGE_SIZE) {
-//                    break;
-//                }
-//            }
-//        }
-//        loadChannelsInfo();
-//    }
+    private void loadMoreChannelsInfo() {
+        if (_isLoading) {
+            return;
+        }
+        _isLoading = true;
+        ArrayList<ChannelInfo> channelList = new ArrayList<>();
+        int count = 0;
+        for (ChannelInfo c : _channelList) {
+            if (Utils.stringIsNullOrEmpty(c.title)) {
+                count++;
+                c.isDataLoaded = true;
+                channelList.add(c);
+                if (count == Constants.PAGE_SIZE) {
+                    break;
+                }
+            }
+        }
+        loadChannelsInfo(channelList);
+    }
 
     private void loadChannelsInfo(final ArrayList<ChannelInfo> channelList) {
         String url = String
@@ -232,22 +235,22 @@ public class ChannelListView extends FrameLayout implements
                         try {
 
                             String s = response.body().string();
-//                            if (Utils.haveMoreChannels(_channelList)) {
-//                                _channelList = YoutubeHelper.getChannels(s);
-//                            } else {
-                            ArrayList<ChannelInfo> channels = YoutubeHelper.getChannelList(s, channelList);
+                            if (Utils.haveMoreChannels(_channelList)) {
+                                YoutubeHelper.fillDataToChannels(s, _channelList);
+                            } else {
+                                ArrayList<ChannelInfo> channels = YoutubeHelper.getChannelList(s, channelList);
 
-                            if (_channelList.size() > 0
-                                    && _channelList
-                                    .get(_channelList
-                                            .size() - 1) == null) {
-                                _channelList.remove(_channelList.size() - 1);
+                                if (_channelList.size() > 0
+                                        && _channelList
+                                        .get(_channelList
+                                                .size() - 1) == null) {
+                                    _channelList.remove(_channelList.size() - 1);
+                                }
+                                _channelList.addAll(channels);
+                                if (!Utils.stringIsNullOrEmpty(_nextPageToken)) {
+                                    _channelList.add(null);
+                                }
                             }
-                            _channelList.addAll(channels);
-                            if (!Utils.stringIsNullOrEmpty(_nextPageToken)) {
-                                _channelList.add(null);
-                            }
-//                            }
                             setDataSource(false, _channelList);
 
                         } catch (Throwable e) {
@@ -307,11 +310,11 @@ public class ChannelListView extends FrameLayout implements
                         || (_channelList.size() > 0 && _channelList
                         .get(_channelList.size() - 1) == null)) {
                     if (!_adapterChannel.getIsNetworkError()) {
-//                        if (Utils.haveMoreChannels(_channelList)) {
-//                            loadMoreChannelsInfo();
-//                        } else {
-                        searchMore();
-//                        }
+                        if (Utils.haveMoreChannels(_channelList)) {
+                            loadMoreChannelsInfo();
+                        } else {
+                            searchMore();
+                        }
                     }
                 }
             }

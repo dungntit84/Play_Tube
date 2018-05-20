@@ -36,7 +36,7 @@ public class YoutubePlaylistByPageAdapter extends YoutubePlaylistAdapter {
     public View getView(int position, View convertView, ViewGroup group) {
         BaseViewHolder holder;
         if (position == getCount() - 1) {
-            if (_playlists.size() > 0 && _playlists.get(_playlists.size() - 1) == null) {
+            if (Utils.isLoadMorePlaylists(_playlists) || (_playlists.size() > 0 && _playlists.get(_playlists.size() - 1) == null)) {
                 if (!_isNetworkError) {
                     holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.loading_view);
                 } else {
@@ -47,5 +47,21 @@ public class YoutubePlaylistByPageAdapter extends YoutubePlaylistAdapter {
             }
         }
         return super.getView(position, convertView, group);
+    }
+
+    @Override
+    public int getCount() {
+        if (Utils.isLoadMorePlaylists(_playlists)) {
+            int size = 0;
+            for (YoutubePlaylistInfo p : _playlists) {
+                if (!Utils.stringIsNullOrEmpty(p.title)) {
+                    size++;
+                } else {
+                    break;
+                }
+            }
+            return size + 1;
+        }
+        return _playlists.size();
     }
 }

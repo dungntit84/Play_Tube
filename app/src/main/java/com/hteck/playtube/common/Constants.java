@@ -14,7 +14,7 @@ public class Constants {
     public final static String PLAYLIST_DATA = "playlist_data";
     public final static String HISTORY_DATA = "history_data";
     public final static String NO_USES_SETTING = "no_uses_setting";
-    public final static int MAX_SIZE_FOR_LOADING_YOUTUBE_DATA = 50;
+    public final static int MAX_YOUYUBTE_PAGE_SIZE = 50;
     public final static int PAGE_SIZE = 20;
     public final static String PAGE_ID = "page_id";
     public final static String ACCOUNT_INFO = "account_info";
@@ -92,8 +92,6 @@ public class Constants {
         public final static String RELATEDPLAYLISTS = "relatedPlaylists";
         public final static String UPLOADS = "uploads";
         public final static String CHANNELS = "channels";
-
-
     }
 
     public class PlaylistItemType {

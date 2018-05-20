@@ -574,12 +574,45 @@ public class YoutubeHelper {
                 JSONObject jObjectItem = (JSONObject) items.get(k);
 
                 String id = jObjectItem.getString(ID);
+
                 if (originalPlaylists.get(i).id.equals(id)) {
                     YoutubePlaylistInfo playlistInfo = populateYoutubePlaylistFull(
                             (JSONObject) items.get(k));
 
                     originalPlaylists.set(i, playlistInfo);
+                    break;
                 }
+            }
+        }
+
+        for (int i = originalPlaylists.size() - 1; i >= 0; --i) {
+            if (Utils.stringIsNullOrEmpty(originalPlaylists.get(i).title) && originalPlaylists.get(i).isDataLoaded) {
+                originalPlaylists.remove(i);
+            }
+        }
+    }
+
+    public static void fillDataToChannels(String data, ArrayList<ChannelInfo> originalChannels) throws JSONException {
+        JSONObject jObjectData = new JSONObject(data);
+        JSONArray items = jObjectData.getJSONArray(ITEMS);
+        for (int i = 0; i < originalChannels.size(); ++i) {
+            for (int k = 0; k < items.length(); ++k) {
+                JSONObject jObjectItem = (JSONObject) items.get(k);
+
+                String id = jObjectItem.getString(ID);
+
+                if (originalChannels.get(i).id.equals(id)) {
+                    ChannelInfo channelInfo = getChannel((JSONObject) items.get(k));
+
+                    originalChannels.set(i, channelInfo);
+                    break;
+                }
+            }
+        }
+
+        for (int i = originalChannels.size() - 1; i >= 0; --i) {
+            if (Utils.stringIsNullOrEmpty(originalChannels.get(i).title) && originalChannels.get(i).isDataLoaded) {
+                originalChannels.remove(i);
             }
         }
     }
@@ -629,7 +662,7 @@ public class YoutubeHelper {
                 MEDIUM, URL);
         youtubePlaylistInfo.videoCount = getInt(jObject, CONTENTDETAILS,
                 ITEMCOUNT);
-
+        youtubePlaylistInfo.isDataLoaded = true;
         return youtubePlaylistInfo;
     }
 
@@ -694,6 +727,7 @@ public class YoutubeHelper {
         channelInfo.likePlaylistId = getString(jObject, CONTENTDETAILS, RELATEDPLAYLISTS, LIKES);
 
         channelInfo.imageUrl = getString(jObjectSnippet, THUMBNAILS, MEDIUM, URL);
+        channelInfo.isDataLoaded = true;
         return channelInfo;
     }
 
@@ -714,7 +748,7 @@ public class YoutubeHelper {
                         videoInfo.id = objResourceDetails.getString(VIDEOID);
                         clipList.add(videoInfo);
                     } else if (!objResourceDetails.isNull(RESOURCEID)) {
-                        if(!objResourceDetails.getJSONObject(RESOURCEID).isNull(VIDEOID)) {
+                        if (!objResourceDetails.getJSONObject(RESOURCEID).isNull(VIDEOID)) {
                             videoInfo.id = objResourceDetails.getJSONObject(RESOURCEID).getString(VIDEOID);
                             clipList.add(videoInfo);
                         }

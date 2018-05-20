@@ -23,6 +23,7 @@ public class ChannelInfo {
     public ArrayList<YoutubeInfo> youtubeList = new ArrayList<>();
     public ArrayList<PlaylistItemInfo> activities = new ArrayList<PlaylistItemInfo>();
     public boolean hasMoreVideos;
+    public boolean isDataLoaded;
     public String getDisplayVideoCount() {
         return Utils.formatNumber(videoCount, true) + (videoCount > 1 ? " videos" : " video");
     }

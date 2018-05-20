@@ -12,7 +12,6 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 
-import com.google.gson.Gson;
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.adapter.YoutubePlaylistItemByPageAdapter;
@@ -31,10 +30,12 @@ import com.hteck.playtube.service.YoutubeHelper;
 import com.hteck.playtube.view.LoadingView;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Objects;
+
 import static com.hteck.playtube.common.Constants.YoutubeField.DATE_SORTBY;
 import static com.hteck.playtube.common.Constants.YoutubeField.VIEWCOUNT_SORTBY;
 
@@ -63,7 +64,6 @@ public class UserActivityFragment extends Fragment implements
     ArrayList<ChannelSectionInfo> _activityListToLoadData = new ArrayList<>();
     boolean _hasVideoActivityOnly;
     private boolean _isNewRound;
-    private boolean _isParentScrollable = true;
     private boolean _isShowingBusy;
 
     public static UserActivityFragment newInstance(ChannelInfo channelInfo) {
@@ -82,10 +82,6 @@ public class UserActivityFragment extends Fragment implements
         return _binding.getRoot();
     }
 
-    public void setParentScrollable(boolean isScrollable) {
-        _isParentScrollable = isScrollable;
-    }
-
     private void loadData() {
         if (_isLoading) {
             return;
@@ -99,25 +95,7 @@ public class UserActivityFragment extends Fragment implements
         CustomHttpOk httpOk = new CustomHttpOk(url, new CustomCallback() {
             @Override
             public void onFailure(Request request, IOException e) {
-                MainActivity.getInstance().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Utils.showMessage(Utils
-                                    .getString(R.string.network_error));
-                            hideBusyAnimation();
-                            _isLoading = false;
-                            if (_playlistItemViewInfos.size() == 0) {
-                                initReloadEvent();
-                            } else {
-                                _adapter.setIsNetworkError(true);
-                                _adapter.notifyDataSetChanged();
-                            }
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+                handleLoadingMainSectionFailed();
             }
 
             @Override
@@ -166,24 +144,7 @@ public class UserActivityFragment extends Fragment implements
         return new CustomCallback() {
             @Override
             public void onFailure(Request request, IOException e) {
-                MainActivity.getInstance().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Utils.showMessage(Utils.getString(R.string.network_error));
-                            hideBusyAnimation();
-                            _isLoading = false;
-                            if (_playlistItemViewInfos.size() == 0) {
-                                initReloadEvent();
-                            } else {
-                                _adapter.setIsNetworkError(true);
-                                _adapter.notifyDataSetChanged();
-                            }
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+                handleLoadingMainSectionFailed();
             }
 
             @Override
@@ -291,25 +252,7 @@ public class UserActivityFragment extends Fragment implements
             CustomHttpOk httpOk = new CustomHttpOk(url, new CustomCallback() {
                 @Override
                 public void onFailure(Request request, IOException e) {
-                    MainActivity.getInstance().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                Utils.showMessage(Utils
-                                        .getString(R.string.network_error));
-                                hideBusyAnimation();
-                                _isLoading = false;
-                                if (_playlistItemViewInfos.size() == 0) {
-                                    initReloadEvent();
-                                } else {
-                                    _adapter.setIsNetworkError(true);
-                                    _adapter.notifyDataSetChanged();
-                                }
-                            } catch (Throwable e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
+                    handleLoadingMainSectionFailed();
                 }
 
                 @Override
@@ -397,7 +340,6 @@ public class UserActivityFragment extends Fragment implements
                 }
                 count += videoCount;
                 _activityListToLoadData.add(activityInfo);
-
             } else if (activityInfo.activityType == Constants.UserActivityType.UPLOADS) {
                 ChannelInfo channelInfo = (ChannelInfo) activityInfo.dataInfo;
                 int videoCount = channelInfo.youtubeList.size() > PAGESIZE ? PAGESIZE
@@ -418,6 +360,7 @@ public class UserActivityFragment extends Fragment implements
                 }
                 count += videoCount;
                 _activityListToLoadData.add(activityInfo);
+
             } else if (activityInfo.activityType == Constants.UserActivityType.ALLPLAYLISTS) {
                 ChannelInfo channelInfo = (ChannelInfo) activityInfo.dataInfo;
                 int playlistCount = channelInfo.playlists.size() > PAGESIZE ? PAGESIZE
@@ -428,6 +371,7 @@ public class UserActivityFragment extends Fragment implements
                 }
                 count += playlistCount;
                 _activityListToLoadData.add(activityInfo);
+
             } else if (activityInfo.activityType == Constants.UserActivityType.MULTIPLEPLAYLISTS) {
                 ArrayList<YoutubePlaylistInfo> playlists = (ArrayList<YoutubePlaylistInfo>) activityInfo.dataInfo;
                 int playlistCount = playlists.size() > PAGESIZE ? PAGESIZE
@@ -438,6 +382,7 @@ public class UserActivityFragment extends Fragment implements
                 }
                 count += playlistCount;
                 _activityListToLoadData.add(activityInfo);
+
             } else if (activityInfo.activityType == Constants.UserActivityType.MULTIPLECHANNELS) {
                 ArrayList<ChannelInfo> channels = (ArrayList<ChannelInfo>) activityInfo.dataInfo;
                 int channelCount = channels.size() > PAGESIZE ? PAGESIZE
@@ -463,6 +408,7 @@ public class UserActivityFragment extends Fragment implements
         } else {
             loadDataItems();
         }
+
     }
 
     private void loadMoreData() {
@@ -473,7 +419,7 @@ public class UserActivityFragment extends Fragment implements
         if (!_hasVideoActivityOnly) {
             _isDataBinded = false;
             _isLoadedByPage = false;
-            _activityListToLoadData = new ArrayList<ChannelSectionInfo>();
+            _activityListToLoadData = new ArrayList<>();
             _loadingIndex = _loadingIndexOld;
             _loadingIndexPerPage = _loadingIndexPerPageOld;
             loadDataByPage();
@@ -490,26 +436,7 @@ public class UserActivityFragment extends Fragment implements
         CustomCallback callback = new CustomCallback(activityInfo) {
             @Override
             public void onFailure(Request request, IOException e) {
-                MainActivity.getInstance().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Utils.showMessage(Utils
-                                    .getString(R.string.network_error));
-                            hideBusyAnimation();
-                            _isLoading = false;
-                            if (_playlistItemViewInfos.size() == 0) {
-                                initReloadEvent();
-                            } else {
-
-                                _adapter.setIsNetworkError(true);
-                                _adapter.notifyDataSetChanged();
-                            }
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+                handleLoadingMainSectionFailed();
             }
 
             @Override
@@ -560,8 +487,7 @@ public class UserActivityFragment extends Fragment implements
     public void loadPlaylistsOfMulti(ChannelSectionInfo activityInfo) {
         ArrayList<YoutubePlaylistInfo> playlists = (ArrayList<YoutubePlaylistInfo>) activityInfo.dataInfo;
 
-        int count = 0;
-        String ids = Utils.getPlaylistIds(playlists, Constants.MAX_SIZE_FOR_LOADING_YOUTUBE_DATA);
+        String ids = Utils.getPlaylistIds(playlists, Constants.MAX_YOUYUBTE_PAGE_SIZE);
         String url = String.format(
                 PlayTubeController.getConfigInfo().loadPlaylistsDetailsUrl, ids);
         CustomCallback callback = buildAllPlaylistsCompletedListener();
@@ -640,9 +566,16 @@ public class UserActivityFragment extends Fragment implements
                                 channelSectionInfo.youtubeState = Constants.YoutubeState.ITEMCOUNTLOADED;
                                 loadDataByPage();
                             } else {
+                                ArrayList<YoutubePlaylistInfo> sectionPlaylists = (ArrayList<YoutubePlaylistInfo>) channelSectionInfo.dataInfo;
                                 populatePlaylists(
                                         playlists,
-                                        (ArrayList<YoutubePlaylistInfo>) channelSectionInfo.dataInfo);
+                                        sectionPlaylists);
+                                for (int i = sectionPlaylists.size() - 1; i >= 0; --i) {
+                                    if (Utils.stringIsNullOrEmpty(sectionPlaylists.get(i).title) && sectionPlaylists.get(i).isDataLoaded) {
+                                        sectionPlaylists.remove(i);
+                                    }
+                                }
+
                                 channelSectionInfo.youtubeState = Constants.YoutubeState.DONE;
                                 loadDataItems();
                             }
@@ -661,19 +594,8 @@ public class UserActivityFragment extends Fragment implements
     public void loadChannelsOfMulti(ChannelSectionInfo activityInfo) {
         ArrayList<ChannelInfo> channels = (ArrayList<ChannelInfo>) activityInfo.dataInfo;
 
-        String ids = "";
-        int count = 0;
-        for (ChannelInfo channelInfo : channels) {
-            if (ids == "") {
-                ids = channelInfo.id;
-            } else {
-                ids = ids + "," + channelInfo.id;
-            }
-            count++;
-            if (count == Constants.MAX_SIZE_FOR_LOADING_YOUTUBE_DATA) {
-                break;
-            }
-        }
+        String ids = Utils.getChannelIds(channels, Constants.MAX_YOUYUBTE_PAGE_SIZE);
+
         String url = String.format(
                 PlayTubeController.getConfigInfo().loadChannelsInfoUrl, ids);
         new CustomHttpOk(url, new CustomCallback(activityInfo) {
@@ -751,7 +673,7 @@ public class UserActivityFragment extends Fragment implements
                     break;
                 }
             }
-            if (!isPopulated) {
+            if (c1.isDataLoaded && !isPopulated) {
                 target.remove(i);
             }
         }
@@ -778,29 +700,10 @@ public class UserActivityFragment extends Fragment implements
     }
 
     private CustomCallback getDownloadVideosInfoListener(Object dataContext) {
-        Exception ex = new Exception();
-        return new CustomCallback(dataContext, ex) {
+        return new CustomCallback(dataContext) {
             @Override
             public void onFailure(Request request, IOException e) {
-                MainActivity.getInstance().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Utils.showMessage(Utils.getString(R.string.network_error));
-                            hideBusyAnimation();
-                            _isLoading = false;
-                            if (_playlistItemViewInfos.size() == 0) {
-                                initReloadEvent();
-                            } else {
-
-                                _adapter.setIsNetworkError(true);
-                                _adapter.notifyDataSetChanged();
-                            }
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+                handleLoadingMainSectionFailed();
             }
 
             @Override
@@ -814,40 +717,51 @@ public class UserActivityFragment extends Fragment implements
                             ChannelSectionInfo channelSectionInfo = (ChannelSectionInfo) callback.getDataContext();
 
                             AbstractMap.SimpleEntry<String, ArrayList<YoutubeInfo>> searchResult;
-                            if (channelSectionInfo.activityType == Constants.UserActivityType.SINGLEPLAYLIST) {
-                                searchResult = YoutubeHelper
-                                        .getVideosInPlaylist(s, PAGESIZE);
-                            } else if (channelSectionInfo.activityType == Constants.UserActivityType.UPLOADS) {
-                                searchResult = YoutubeHelper.getVideoListInfo(s);
-                            } else {
-                                searchResult = YoutubeHelper.getVideosInAccount(s);
+                            switch (channelSectionInfo.activityType) {
+                                case Constants.UserActivityType.SINGLEPLAYLIST: {
+                                    searchResult = YoutubeHelper
+                                            .getVideosInPlaylist(s, PAGESIZE);
+                                    break;
+                                }
+                                case Constants.UserActivityType.UPLOADS: {
+                                    searchResult = YoutubeHelper.getVideoListInfo(s);
+                                    break;
+                                }
+                                default: {
+                                    searchResult = YoutubeHelper.getVideosInAccount(s);
+                                    break;
+                                }
                             }
-                            if (channelSectionInfo.activityType == Constants.UserActivityType.SINGLEPLAYLIST) {
-                                YoutubePlaylistInfo playlistInfo = (YoutubePlaylistInfo) channelSectionInfo.dataInfo;
-                                playlistInfo.youtubeList = searchResult
-                                        .getValue();
 
-                                playlistInfo.hasMoreVideos = !Utils
-                                        .stringIsNullOrEmpty(searchResult.getKey());
-                                channelSectionInfo.youtubeState = Constants.YoutubeState.IDSLOADED;
+                            switch (channelSectionInfo.activityType) {
+                                case Constants.UserActivityType.SINGLEPLAYLIST: {
+                                    YoutubePlaylistInfo playlistInfo = (YoutubePlaylistInfo) channelSectionInfo.dataInfo;
+                                    playlistInfo.youtubeList = searchResult
+                                            .getValue();
 
-                                System.out.println(callback._test.getStackTrace());
-                                loadDataItems();
-                            } else {
-                                ChannelInfo channelInfo = (ChannelInfo) channelSectionInfo.dataInfo;
-                                channelInfo.youtubeList = searchResult.getValue();
-                                channelInfo.hasMoreVideos = !Utils
-                                        .stringIsNullOrEmpty(searchResult.getKey());
+                                    playlistInfo.hasMoreVideos = !Utils
+                                            .stringIsNullOrEmpty(searchResult.getKey());
+                                    channelSectionInfo.youtubeState = Constants.YoutubeState.IDSLOADED;
 
-                                channelSectionInfo.youtubeState = Constants.YoutubeState.ITEMCOUNTLOADED;
-                                loadDataByPage();
+                                    loadDataItems();
+                                    break;
+                                }
+                                default: {
+                                    ChannelInfo channelInfo = (ChannelInfo) channelSectionInfo.dataInfo;
+                                    channelInfo.youtubeList = searchResult.getValue();
+                                    channelInfo.hasMoreVideos = !Utils
+                                            .stringIsNullOrEmpty(searchResult.getKey());
+
+                                    channelSectionInfo.youtubeState = Constants.YoutubeState.ITEMCOUNTLOADED;
+                                    loadDataByPage();
+                                    break;
+                                }
                             }
                         } catch (Throwable e) {
                             e.printStackTrace();
                             hideBusyAnimation();
                             _isLoading = false;
                         }
-
                     }
                 });
             }
@@ -871,35 +785,46 @@ public class UserActivityFragment extends Fragment implements
         for (int i = 0; i < _activityListToLoadData.size(); ++i) {
             ChannelSectionInfo channelSectionInfo = _activityListToLoadData
                     .get(i);
-            if (channelSectionInfo.activityType == Constants.UserActivityType.SINGLEPLAYLIST) {
-                if (channelSectionInfo.youtubeState < Constants.YoutubeState.LOADINGIDS) {
-                    YoutubePlaylistInfo playlistInfo = (YoutubePlaylistInfo) channelSectionInfo.dataInfo;
-                    if (playlistInfo.videoCount > 0) {
-                        channelSectionInfo.youtubeState = Constants.YoutubeState.LOADINGIDS;
-                        String url = String
-                                .format(PlayTubeController.getConfigInfo().loadVideosInPlaylistUrl, "",
-                                        ((YoutubePlaylistInfo) channelSectionInfo.dataInfo).id, PAGESIZE);
+            switch (channelSectionInfo.activityType) {
+                case Constants.UserActivityType.SINGLEPLAYLIST: {
+                    if (channelSectionInfo.youtubeState < Constants.YoutubeState.LOADINGIDS) {
+                        YoutubePlaylistInfo playlistInfo = (YoutubePlaylistInfo) channelSectionInfo.dataInfo;
+                        if (playlistInfo.videoCount > 0) {
+                            channelSectionInfo.youtubeState = Constants.YoutubeState.LOADINGIDS;
+                            String url = String
+                                    .format(PlayTubeController.getConfigInfo().loadVideosInPlaylistUrl, "",
+                                            ((YoutubePlaylistInfo) channelSectionInfo.dataInfo).id, PAGESIZE);
 
-                        new CustomHttpOk(url, getDownloadVideosInfoListener(channelSectionInfo)).start();
-                    } else {
-                        channelSectionInfo.youtubeState = Constants.YoutubeState.DONE;
+                            new CustomHttpOk(url, getDownloadVideosInfoListener(channelSectionInfo)).start();
+                        } else {
+                            channelSectionInfo.youtubeState = Constants.YoutubeState.DONE;
+                        }
                     }
+                    break;
                 }
-            } else if (channelSectionInfo.activityType == Constants.UserActivityType.UPLOADS
-                    || channelSectionInfo.activityType == Constants.UserActivityType.RECENTACTIVIY) {
-                channelSectionInfo.youtubeState = Constants.YoutubeState.IDSLOADED;
-            } else if (channelSectionInfo.activityType == Constants.UserActivityType.MULTIPLEPLAYLISTS) {
-                if (channelSectionInfo.youtubeState < Constants.YoutubeState.IDSLOADED) {
+                case Constants.UserActivityType.UPLOADS:
+                case Constants.UserActivityType.RECENTACTIVIY: {
                     channelSectionInfo.youtubeState = Constants.YoutubeState.IDSLOADED;
-                    loadPlaylistsOfMulti(channelSectionInfo);
+                    break;
                 }
-            } else if (channelSectionInfo.activityType == Constants.UserActivityType.MULTIPLECHANNELS) {
-                if (channelSectionInfo.youtubeState < Constants.YoutubeState.IDSLOADED) {
-                    channelSectionInfo.youtubeState = Constants.YoutubeState.IDSLOADED;
-                    loadChannelsOfMulti(channelSectionInfo);
+                case Constants.UserActivityType.MULTIPLEPLAYLISTS: {
+                    if (channelSectionInfo.youtubeState < Constants.YoutubeState.IDSLOADED) {
+                        channelSectionInfo.youtubeState = Constants.YoutubeState.IDSLOADED;
+                        loadPlaylistsOfMulti(channelSectionInfo);
+                    }
+                    break;
                 }
-            } else {
-                channelSectionInfo.youtubeState = Constants.YoutubeState.DONE;
+                case Constants.UserActivityType.MULTIPLECHANNELS: {
+                    if (channelSectionInfo.youtubeState < Constants.YoutubeState.IDSLOADED) {
+                        channelSectionInfo.youtubeState = Constants.YoutubeState.IDSLOADED;
+                        loadChannelsOfMulti(channelSectionInfo);
+                    }
+                    break;
+                }
+                default: {
+                    channelSectionInfo.youtubeState = Constants.YoutubeState.DONE;
+                    break;
+                }
             }
         }
         boolean isCompleted = true;
@@ -952,56 +877,64 @@ public class UserActivityFragment extends Fragment implements
             for (int i = 0; i < _activityListToLoadData.size(); ++i) {
                 ChannelSectionInfo channelSectionInfo = _activityListToLoadData
                         .get(i);
-                if (channelSectionInfo.activityType == Constants.UserActivityType.SINGLEPLAYLIST) {
-                    if (channelSectionInfo.youtubeState == Constants.YoutubeState.IDSLOADED) {
-                        YoutubePlaylistInfo playlistInfo = (YoutubePlaylistInfo) channelSectionInfo.dataInfo;
-                        for (YoutubeInfo videoInfo : playlistInfo.youtubeList) {
-                            if (videoIds == "") {
-                                videoIds = videoInfo.id;
-                            } else {
-                                videoIds = videoIds + "," + videoInfo.id;
+                switch (channelSectionInfo.activityType) {
+                    case Constants.UserActivityType.SINGLEPLAYLIST: {
+                        if (channelSectionInfo.youtubeState == Constants.YoutubeState.IDSLOADED) {
+                            YoutubePlaylistInfo playlistInfo = (YoutubePlaylistInfo) channelSectionInfo.dataInfo;
+                            for (YoutubeInfo y : playlistInfo.youtubeList) {
+                                if (Objects.equals(videoIds, "")) {
+                                    videoIds = y.id;
+                                } else {
+                                    videoIds = videoIds + "," + y.id;
+                                }
+                            }
+                            if (playlistInfo.youtubeList.size() == 0) {
+                                channelSectionInfo.youtubeState = Constants.YoutubeState.DONE;
                             }
                         }
-                        if (playlistInfo.youtubeList.size() == 0) {
-                            channelSectionInfo.youtubeState = Constants.YoutubeState.DONE;
-                        }
+                        break;
                     }
-                } else if (channelSectionInfo.activityType == Constants.UserActivityType.UPLOADS) {
-                    if (channelSectionInfo.youtubeState == Constants.YoutubeState.IDSLOADED) {
-                        ChannelInfo channelInfo = (ChannelInfo) channelSectionInfo.dataInfo;
-                        for (YoutubeInfo videoInfo : channelInfo.youtubeList) {
-                            if (videoIds == "") {
-                                videoIds = videoInfo.id;
-                            } else {
-                                videoIds = videoIds + "," + videoInfo.id;
+                    case Constants.UserActivityType.UPLOADS: {
+                        if (channelSectionInfo.youtubeState == Constants.YoutubeState.IDSLOADED) {
+                            ChannelInfo channelInfo = (ChannelInfo) channelSectionInfo.dataInfo;
+                            for (YoutubeInfo y : channelInfo.youtubeList) {
+                                if (Objects.equals(videoIds, "")) {
+                                    videoIds = y.id;
+                                } else {
+                                    videoIds = videoIds + "," + y.id;
+                                }
+                            }
+                            if (channelInfo.youtubeList.size() == 0) {
+                                channelSectionInfo.youtubeState = Constants.YoutubeState.DONE;
                             }
                         }
-                        if (channelInfo.youtubeList.size() == 0) {
-                            channelSectionInfo.youtubeState = Constants.YoutubeState.DONE;
-                        }
+                        break;
                     }
-                } else if (channelSectionInfo.activityType == Constants.UserActivityType.RECENTACTIVIY) {
-                    if (channelSectionInfo.youtubeState == Constants.YoutubeState.IDSLOADED) {
-                        ChannelInfo channelInfo = (ChannelInfo) channelSectionInfo.dataInfo;
-                        for (PlaylistItemInfo itemInfo : channelInfo.activities) {
-                            if (videoIds == "") {
-                                videoIds = ((YoutubeInfo) itemInfo.dataInfo).id;
-                            } else {
-                                videoIds = videoIds + ","
-                                        + ((YoutubeInfo) itemInfo.dataInfo).id;
+                    case Constants.UserActivityType.RECENTACTIVIY: {
+                        if (channelSectionInfo.youtubeState == Constants.YoutubeState.IDSLOADED) {
+                            ChannelInfo channelInfo = (ChannelInfo) channelSectionInfo.dataInfo;
+                            for (PlaylistItemInfo itemInfo : channelInfo.activities) {
+                                if (videoIds == "") {
+                                    videoIds = ((YoutubeInfo) itemInfo.dataInfo).id;
+                                } else {
+                                    videoIds = videoIds + ","
+                                            + ((YoutubeInfo) itemInfo.dataInfo).id;
+                                }
+                            }
+                            if (channelInfo.activities.size() == 0) {
+                                channelSectionInfo.youtubeState = Constants.YoutubeState.DONE;
                             }
                         }
-                        if (channelInfo.activities.size() == 0) {
-                            channelSectionInfo.youtubeState = Constants.YoutubeState.DONE;
-                        }
+                        break;
                     }
-                } else if (channelSectionInfo.activityType == Constants.UserActivityType.ALLPLAYLISTS) {
-                    channelSectionInfo.youtubeState = Constants.YoutubeState.DONE;
+                    case Constants.UserActivityType.ALLPLAYLISTS: {
+                        channelSectionInfo.youtubeState = Constants.YoutubeState.DONE;
+                        break;
+                    }
                 }
             }
 
             if (Utils.stringIsNullOrEmpty(videoIds)) {
-                // _isDataBinded = false;
                 bindData();
                 return;
             }
@@ -1016,25 +949,7 @@ public class UserActivityFragment extends Fragment implements
     private CustomCallback downloadVideoDetailsCompleted = new CustomCallback() {
         @Override
         public void onFailure(Request request, IOException e) {
-            MainActivity.getInstance().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Utils.showMessage(Utils.getString(R.string.network_error));
-                        hideBusyAnimation();
-                        _isLoading = false;
-                        if (_playlistItemViewInfos.size() == 0) {
-                            initReloadEvent();
-                        } else {
-
-                            _adapter.setIsNetworkError(true);
-                            _adapter.notifyDataSetChanged();
-                        }
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
+            handleLoadingMainSectionFailed();
         }
 
         @Override
@@ -1077,6 +992,7 @@ public class UserActivityFragment extends Fragment implements
                 return;
             }
             hideBusyAnimation();
+            _isLoading = false;
             _isDataBinded = true;
             if (_playlistItemViewInfos.size() > 0
                     && _playlistItemViewInfos.get(_playlistItemViewInfos
@@ -1124,15 +1040,20 @@ public class UserActivityFragment extends Fragment implements
                     || channelSectionInfo.activityType == Constants.UserActivityType.RECENTACTIVIY) {
 
                 ArrayList<YoutubeInfo> activityVideoList;
-                if (channelSectionInfo.activityType == Constants.UserActivityType.RECENTACTIVIY) {
-                    activityVideoList = new ArrayList<>();
-                    ArrayList<PlaylistItemInfo> items = ((ChannelInfo) channelSectionInfo.dataInfo).activities;
-                    for (PlaylistItemInfo item : items) {
-                        activityVideoList.add((YoutubeInfo) item.dataInfo);
+                switch (channelSectionInfo.activityType) {
+                    case Constants.UserActivityType.RECENTACTIVIY: {
+                        activityVideoList = new ArrayList<>();
+                        ArrayList<PlaylistItemInfo> items = ((ChannelInfo) channelSectionInfo.dataInfo).activities;
+                        for (PlaylistItemInfo item : items) {
+                            activityVideoList.add((YoutubeInfo) item.dataInfo);
+                        }
+                        break;
                     }
-                } else {
-                    activityVideoList = channelSectionInfo.activityType == Constants.UserActivityType.SINGLEPLAYLIST ? ((YoutubePlaylistInfo) channelSectionInfo.dataInfo).youtubeList
-                            : ((ChannelInfo) channelSectionInfo.dataInfo).youtubeList;
+                    default: {
+                        activityVideoList = channelSectionInfo.activityType == Constants.UserActivityType.SINGLEPLAYLIST ? ((YoutubePlaylistInfo) channelSectionInfo.dataInfo).youtubeList
+                                : ((ChannelInfo) channelSectionInfo.dataInfo).youtubeList;
+                        break;
+                    }
                 }
                 for (int j = activityVideoList.size() - 1; j >= 0; --j) {
                     YoutubeInfo videoInfo = activityVideoList.get(j);
@@ -1236,19 +1157,6 @@ public class UserActivityFragment extends Fragment implements
         _binding.listView.setOnItemClickListener(this);
         _binding.listView.setOnScrollListener(this);
         _binding.listView.setDividerHeight(0);
-        _binding.listView.setOnTouchListener(new OnTouchListener() {
-            // Setting on Touch Listener for handling the touch inside
-            // ScrollView
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (!_isParentScrollable) {
-                    // Disallow the touch request for parent scroll on touch of
-                    // child view
-                    v.getParent().requestDisallowInterceptTouchEvent(true);
-                }
-                return false;
-            }
-        });
     }
 
     @Override
@@ -1377,171 +1285,182 @@ public class UserActivityFragment extends Fragment implements
 
         for (int i = 0; i < activityList.size(); ++i) {
             ChannelSectionInfo activityInfo = activityList.get(i);
-            if (activityInfo.activityType == Constants.UserActivityType.SINGLEPLAYLIST) {
-                YoutubePlaylistInfo playlistInfo = (YoutubePlaylistInfo) activityInfo.dataInfo;
-                if (playlistInfo.youtubeList.size() > 0) {
-                    PlaylistItemInfo playlistItemViewInfo = new PlaylistItemInfo();
-                    playlistItemViewInfo.dataInfo = playlistInfo.title;
-                    playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.NAME;
-                    results.add(playlistItemViewInfo);
-                    for (int k = 0; k < playlistInfo.youtubeList.size(); ++k) {
-                        playlistItemViewInfo = new PlaylistItemInfo();
-                        playlistItemViewInfo.dataInfo = playlistInfo.youtubeList
-                                .get(k);
-                        playlistItemViewInfo.activityInfo = activityInfo;
-                        playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.YOUTUBE;
+            switch (activityInfo.activityType) {
+                case Constants.UserActivityType.SINGLEPLAYLIST: {
+                    YoutubePlaylistInfo playlistInfo = (YoutubePlaylistInfo) activityInfo.dataInfo;
+                    if (playlistInfo.youtubeList.size() > 0) {
+                        PlaylistItemInfo playlistItemViewInfo = new PlaylistItemInfo();
+                        playlistItemViewInfo.dataInfo = playlistInfo.title;
+                        playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.NAME;
                         results.add(playlistItemViewInfo);
-                    }
-
-                    if (playlistInfo.hasMoreVideos) {
-                        playlistItemViewInfo = new PlaylistItemInfo();
-                        playlistItemViewInfo.dataInfo = playlistInfo;
-                        playlistItemViewInfo.activityInfo = activityInfo;
-                        playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.SHOWMORE;
-                        results.add(playlistItemViewInfo);
-                    } else {
-                        playlistItemViewInfo = new PlaylistItemInfo();
-                        playlistItemViewInfo.dataInfo = null;
-                        playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.DIVIDER;
-                        results.add(playlistItemViewInfo);
-                    }
-                }
-            } else if (activityInfo.activityType == Constants.UserActivityType.UPLOADS
-                    || activityInfo.activityType == Constants.UserActivityType.RECENTACTIVIY) {
-
-                ChannelInfo channelInfo = (ChannelInfo) activityInfo.dataInfo;
-                boolean hasData = activityInfo.activityType == Constants.UserActivityType.UPLOADS ? channelInfo.youtubeList
-                        .size() > 0 : channelInfo.activities.size() > 0;
-                if (hasData) {
-                    PlaylistItemInfo playlistItemViewInfo = new PlaylistItemInfo();
-                    String title = activityInfo.activityType == Constants.UserActivityType.UPLOADS ? (activityInfo.sortBy == Constants.SortBy.MOSTRECENT ? Utils
-                            .getString(R.string.recent_uploads) : Utils
-                            .getString(R.string.popular_uploads))
-                            : Utils.getString(R.string.recent_activities);
-                    playlistItemViewInfo.dataInfo = title;
-                    playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.NAME;
-                    results.add(playlistItemViewInfo);
-                    if (activityInfo.activityType == Constants.UserActivityType.RECENTACTIVIY) {
-                        for (int k = 0; k < channelInfo.activities
-                                .size(); ++k) {
-                            channelInfo.activities.get(k).activityInfo = activityInfo;
-                        }
-                        results.addAll(channelInfo.activities);
-                    } else {
-                        for (int k = 0; k < channelInfo.youtubeList.size(); ++k) {
+                        for (int k = 0; k < playlistInfo.youtubeList.size(); ++k) {
                             playlistItemViewInfo = new PlaylistItemInfo();
-                            playlistItemViewInfo.dataInfo = channelInfo.youtubeList
+                            playlistItemViewInfo.dataInfo = playlistInfo.youtubeList
                                     .get(k);
                             playlistItemViewInfo.activityInfo = activityInfo;
                             playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.YOUTUBE;
                             results.add(playlistItemViewInfo);
                         }
+
+                        if (playlistInfo.hasMoreVideos) {
+                            playlistItemViewInfo = new PlaylistItemInfo();
+                            playlistItemViewInfo.dataInfo = playlistInfo;
+                            playlistItemViewInfo.activityInfo = activityInfo;
+                            playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.SHOWMORE;
+                            results.add(playlistItemViewInfo);
+                        } else {
+                            playlistItemViewInfo = new PlaylistItemInfo();
+                            playlistItemViewInfo.dataInfo = null;
+                            playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.DIVIDER;
+                            results.add(playlistItemViewInfo);
+                        }
                     }
-                    if (channelInfo.hasMoreVideos) {
-                        playlistItemViewInfo = new PlaylistItemInfo();
-                        playlistItemViewInfo.dataInfo = activityInfo;
-                        playlistItemViewInfo.activityInfo = activityInfo;
-                        playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.SHOWMORE;
-                        results.add(playlistItemViewInfo);
-                    } else {
-                        playlistItemViewInfo = new PlaylistItemInfo();
-                        playlistItemViewInfo.dataInfo = null;
-                        playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.DIVIDER;
-                        results.add(playlistItemViewInfo);
-                    }
+                    break;
                 }
-            } else if (activityInfo.activityType == Constants.UserActivityType.ALLPLAYLISTS) {
-                ChannelInfo channelInfo = (ChannelInfo) activityInfo.dataInfo;
+                case Constants.UserActivityType.UPLOADS:
+                case Constants.UserActivityType.RECENTACTIVIY: {
 
-                if (channelInfo.playlists.size() > 0) {
-                    PlaylistItemInfo playlistItemViewInfo = new PlaylistItemInfo();
-                    playlistItemViewInfo.dataInfo = Utils
-                            .getString(R.string.created_playlists);
-                    playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.NAME;
-                    results.add(playlistItemViewInfo);
-                    for (int k = 0; k < channelInfo.playlists.size(); ++k) {
-                        playlistItemViewInfo = new PlaylistItemInfo();
-                        playlistItemViewInfo.dataInfo = channelInfo.playlists
-                                .get(k);
-                        playlistItemViewInfo.activityInfo = activityInfo;
-                        playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.PLAYLIST;
+                    ChannelInfo channelInfo = (ChannelInfo) activityInfo.dataInfo;
+                    boolean hasData = activityInfo.activityType == Constants.UserActivityType.UPLOADS ? channelInfo.youtubeList
+                            .size() > 0 : channelInfo.activities.size() > 0;
+                    if (hasData) {
+                        PlaylistItemInfo playlistItemViewInfo = new PlaylistItemInfo();
+                        String title = activityInfo.activityType == Constants.UserActivityType.UPLOADS ? (activityInfo.sortBy == Constants.SortBy.MOSTRECENT ? Utils
+                                .getString(R.string.recent_uploads) : Utils
+                                .getString(R.string.popular_uploads))
+                                : Utils.getString(R.string.recent_activities);
+                        playlistItemViewInfo.dataInfo = title;
+                        playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.NAME;
                         results.add(playlistItemViewInfo);
+                        if (activityInfo.activityType == Constants.UserActivityType.RECENTACTIVIY) {
+                            for (int k = 0; k < channelInfo.activities
+                                    .size(); ++k) {
+                                channelInfo.activities.get(k).activityInfo = activityInfo;
+                            }
+                            results.addAll(channelInfo.activities);
+                        } else {
+                            for (int k = 0; k < channelInfo.youtubeList.size(); ++k) {
+                                playlistItemViewInfo = new PlaylistItemInfo();
+                                playlistItemViewInfo.dataInfo = channelInfo.youtubeList
+                                        .get(k);
+                                playlistItemViewInfo.activityInfo = activityInfo;
+                                playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.YOUTUBE;
+                                results.add(playlistItemViewInfo);
+                            }
+                        }
+                        if (channelInfo.hasMoreVideos) {
+                            playlistItemViewInfo = new PlaylistItemInfo();
+                            playlistItemViewInfo.dataInfo = activityInfo;
+                            playlistItemViewInfo.activityInfo = activityInfo;
+                            playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.SHOWMORE;
+                            results.add(playlistItemViewInfo);
+                        } else {
+                            playlistItemViewInfo = new PlaylistItemInfo();
+                            playlistItemViewInfo.dataInfo = null;
+                            playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.DIVIDER;
+                            results.add(playlistItemViewInfo);
+                        }
                     }
-
-                    if (channelInfo.hasMoreVideos) {
-                        playlistItemViewInfo = new PlaylistItemInfo();
-                        playlistItemViewInfo.dataInfo = activityInfo;
-                        playlistItemViewInfo.activityInfo = activityInfo;
-                        playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.SHOWMORE;
-                        results.add(playlistItemViewInfo);
-                    } else {
-                        playlistItemViewInfo = new PlaylistItemInfo();
-                        playlistItemViewInfo.dataInfo = null;
-                        playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.DIVIDER;
-                        results.add(playlistItemViewInfo);
-                    }
+                    break;
                 }
-            } else if (activityInfo.activityType == Constants.UserActivityType.MULTIPLEPLAYLISTS) {
-                ArrayList<YoutubePlaylistInfo> playlists = (ArrayList<YoutubePlaylistInfo>) activityInfo.dataInfo;
+                case Constants.UserActivityType.ALLPLAYLISTS: {
+                    ChannelInfo channelInfo = (ChannelInfo) activityInfo.dataInfo;
 
-                if (playlists.size() > 0) {
-                    PlaylistItemInfo playlistItemViewInfo = new PlaylistItemInfo();
-                    playlistItemViewInfo.dataInfo = activityInfo.title;
-                    playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.NAME;
-                    results.add(playlistItemViewInfo);
-                    int videoCount = playlists.size() > PAGESIZE ? PAGESIZE
-                            : playlists.size();
-                    for (int k = 0; k < videoCount; ++k) {
-                        playlistItemViewInfo = new PlaylistItemInfo();
-                        playlistItemViewInfo.dataInfo = playlists.get(k);
-                        playlistItemViewInfo.activityInfo = activityInfo;
-                        playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.PLAYLIST;
+                    if (channelInfo.playlists.size() > 0) {
+                        PlaylistItemInfo playlistItemViewInfo = new PlaylistItemInfo();
+                        playlistItemViewInfo.dataInfo = Utils
+                                .getString(R.string.created_playlists);
+                        playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.NAME;
                         results.add(playlistItemViewInfo);
-                    }
+                        for (int k = 0; k < channelInfo.playlists.size(); ++k) {
+                            playlistItemViewInfo = new PlaylistItemInfo();
+                            playlistItemViewInfo.dataInfo = channelInfo.playlists
+                                    .get(k);
+                            playlistItemViewInfo.activityInfo = activityInfo;
+                            playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.PLAYLIST;
+                            results.add(playlistItemViewInfo);
+                        }
 
-                    if (playlists.size() > PAGESIZE) {
-                        playlistItemViewInfo = new PlaylistItemInfo();
-                        playlistItemViewInfo.dataInfo = activityInfo;
-                        playlistItemViewInfo.activityInfo = activityInfo;
-                        playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.SHOWMORE;
-                        results.add(playlistItemViewInfo);
-                    } else {
-                        playlistItemViewInfo = new PlaylistItemInfo();
-                        playlistItemViewInfo.dataInfo = null;
-                        playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.DIVIDER;
-                        results.add(playlistItemViewInfo);
+                        if (channelInfo.hasMoreVideos) {
+                            playlistItemViewInfo = new PlaylistItemInfo();
+                            playlistItemViewInfo.dataInfo = activityInfo;
+                            playlistItemViewInfo.activityInfo = activityInfo;
+                            playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.SHOWMORE;
+                            results.add(playlistItemViewInfo);
+                        } else {
+                            playlistItemViewInfo = new PlaylistItemInfo();
+                            playlistItemViewInfo.dataInfo = null;
+                            playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.DIVIDER;
+                            results.add(playlistItemViewInfo);
+                        }
                     }
+                    break;
                 }
-            } else if (activityInfo.activityType == Constants.UserActivityType.MULTIPLECHANNELS) {
-                ArrayList<ChannelInfo> channels = (ArrayList<ChannelInfo>) activityInfo.dataInfo;
+                case Constants.UserActivityType.MULTIPLEPLAYLISTS: {
+                    ArrayList<YoutubePlaylistInfo> playlists = (ArrayList<YoutubePlaylistInfo>) activityInfo.dataInfo;
 
-                if (channels.size() > 0) {
-                    PlaylistItemInfo playlistItemViewInfo = new PlaylistItemInfo();
-                    playlistItemViewInfo.dataInfo = activityInfo.title;
-                    playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.NAME;
-                    results.add(playlistItemViewInfo);
-                    int videoCount = channels.size() > PAGESIZE ? PAGESIZE
-                            : channels.size();
-                    for (int k = 0; k < videoCount; ++k) {
-                        playlistItemViewInfo = new PlaylistItemInfo();
-                        playlistItemViewInfo.dataInfo = channels.get(k);
-                        playlistItemViewInfo.activityInfo = activityInfo;
-                        playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.CHANNEL;
+                    if (playlists.size() > 0) {
+                        PlaylistItemInfo playlistItemViewInfo = new PlaylistItemInfo();
+                        playlistItemViewInfo.dataInfo = activityInfo.title;
+                        playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.NAME;
                         results.add(playlistItemViewInfo);
-                    }
+                        int videoCount = playlists.size() > PAGESIZE ? PAGESIZE
+                                : playlists.size();
+                        for (int k = 0; k < videoCount; ++k) {
+                            playlistItemViewInfo = new PlaylistItemInfo();
+                            playlistItemViewInfo.dataInfo = playlists.get(k);
+                            playlistItemViewInfo.activityInfo = activityInfo;
+                            playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.PLAYLIST;
+                            results.add(playlistItemViewInfo);
+                        }
 
-                    if (channels.size() > PAGESIZE) {
-                        playlistItemViewInfo = new PlaylistItemInfo();
-                        playlistItemViewInfo.dataInfo = activityInfo;
-                        playlistItemViewInfo.activityInfo = activityInfo;
-                        playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.SHOWMORE;
-                        results.add(playlistItemViewInfo);
-                    } else {
-                        playlistItemViewInfo = new PlaylistItemInfo();
-                        playlistItemViewInfo.dataInfo = null;
-                        playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.DIVIDER;
-                        results.add(playlistItemViewInfo);
+                        if (playlists.size() > PAGESIZE) {
+                            playlistItemViewInfo = new PlaylistItemInfo();
+                            playlistItemViewInfo.dataInfo = activityInfo;
+                            playlistItemViewInfo.activityInfo = activityInfo;
+                            playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.SHOWMORE;
+                            results.add(playlistItemViewInfo);
+                        } else {
+                            playlistItemViewInfo = new PlaylistItemInfo();
+                            playlistItemViewInfo.dataInfo = null;
+                            playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.DIVIDER;
+                            results.add(playlistItemViewInfo);
+                        }
                     }
+                    break;
+                }
+                case Constants.UserActivityType.MULTIPLECHANNELS: {
+                    ArrayList<ChannelInfo> channels = (ArrayList<ChannelInfo>) activityInfo.dataInfo;
+
+                    if (channels.size() > 0) {
+                        PlaylistItemInfo playlistItemViewInfo = new PlaylistItemInfo();
+                        playlistItemViewInfo.dataInfo = activityInfo.title;
+                        playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.NAME;
+                        results.add(playlistItemViewInfo);
+                        int videoCount = channels.size() > PAGESIZE ? PAGESIZE
+                                : channels.size();
+                        for (int k = 0; k < videoCount; ++k) {
+                            playlistItemViewInfo = new PlaylistItemInfo();
+                            playlistItemViewInfo.dataInfo = channels.get(k);
+                            playlistItemViewInfo.activityInfo = activityInfo;
+                            playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.CHANNEL;
+                            results.add(playlistItemViewInfo);
+                        }
+
+                        if (channels.size() > PAGESIZE) {
+                            playlistItemViewInfo = new PlaylistItemInfo();
+                            playlistItemViewInfo.dataInfo = activityInfo;
+                            playlistItemViewInfo.activityInfo = activityInfo;
+                            playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.SHOWMORE;
+                            results.add(playlistItemViewInfo);
+                        } else {
+                            playlistItemViewInfo = new PlaylistItemInfo();
+                            playlistItemViewInfo.dataInfo = null;
+                            playlistItemViewInfo.playlistItemType = Constants.PlaylistItemType.DIVIDER;
+                            results.add(playlistItemViewInfo);
+                        }
+                    }
+                    break;
                 }
             }
         }
@@ -1552,5 +1471,27 @@ public class UserActivityFragment extends Fragment implements
         if (_adapter != null) {
             _adapter.notifyDataSetChanged();
         }
+    }
+
+    private void handleLoadingMainSectionFailed() {
+        MainActivity.getInstance().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Utils.showMessage(Utils.getString(R.string.network_error));
+                    hideBusyAnimation();
+                    _isLoading = false;
+                    if (_playlistItemViewInfos.size() == 0) {
+                        initReloadEvent();
+                    } else {
+
+                        _adapter.setIsNetworkError(true);
+                        _adapter.notifyDataSetChanged();
+                    }
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 }

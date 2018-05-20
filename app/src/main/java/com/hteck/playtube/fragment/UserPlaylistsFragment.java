@@ -51,6 +51,12 @@ public class UserPlaylistsFragment extends BaseFragment implements OnScrollListe
     private ChannelInfo _channelInfo;
     private ChannelSectionInfo _activityInfo;
 
+    public static UserPlaylistsFragment newInstance(ChannelInfo channelInfo) {
+        UserPlaylistsFragment userVideosFragment = new UserPlaylistsFragment();
+        userVideosFragment._channelInfo = channelInfo;
+        return userVideosFragment;
+    }
+
     public static UserPlaylistsFragment newInstance(ChannelInfo channelInfo, ChannelSectionInfo activityInfo) {
         UserPlaylistsFragment userVideosFragment = new UserPlaylistsFragment();
         userVideosFragment._channelInfo = channelInfo;
@@ -64,10 +70,12 @@ public class UserPlaylistsFragment extends BaseFragment implements OnScrollListe
 
         createView(container);
 
-        if (_activityInfo.activityType == Constants.UserActivityType.MULTIPLEPLAYLISTS) {
-            setDataSource((ArrayList<YoutubePlaylistInfo>) _activityInfo.dataInfo);
-        } else {
-            loadData();
+        if (_activityInfo != null) {
+            if (_activityInfo.activityType == Constants.UserActivityType.MULTIPLEPLAYLISTS) {
+                setDataSource((ArrayList<YoutubePlaylistInfo>) _activityInfo.dataInfo);
+            } else {
+                loadData();
+            }
         }
         return _binding.getRoot();
     }
@@ -91,13 +99,16 @@ public class UserPlaylistsFragment extends BaseFragment implements OnScrollListe
                     if (_adapter.getIsNetworkError()) {
                         _adapter.setIsNetworkError(false);
                         _adapter.notifyDataSetChanged();
-                        loadMore();
+                        if (Utils.isLoadMorePlaylists(_playlists)) {
+                            loadMorePlaylistsInfo();
+                        } else {
+                            loadMore();
+                        }
                     }
                 } else {
                     YoutubePlaylistInfo playlistInfo = _playlists.get(index);
-                    ArrayList<YoutubeInfo> youtubeList = new ArrayList<>();
-
-                    // TODO:
+                    YoutubePlaylistVideosFragment playlistVideosFragment = YoutubePlaylistVideosFragment.newInstance(playlistInfo);
+                    MainActivity.getInstance().addFragment(playlistVideosFragment);
                 }
             }
         });
@@ -105,15 +116,15 @@ public class UserPlaylistsFragment extends BaseFragment implements OnScrollListe
         return _binding.getRoot();
     }
 
-    private void setDataSource(ArrayList<YoutubePlaylistInfo> videoList) {
+    private void setDataSource(ArrayList<YoutubePlaylistInfo> youtubeList) {
         _binding.listView.setEmptyView(_binding.textViewMsg);
-        if (videoList.size() > 0) {
+        if (youtubeList.size() > 0) {
             _binding.textViewMsg.setVisibility(View.GONE);
         } else {
             _binding.textViewMsg.setVisibility(View.VISIBLE);
         }
 
-        _playlists = videoList;
+        _playlists = youtubeList;
         _adapter.setDataSource(_playlists);
     }
 
@@ -192,7 +203,7 @@ public class UserPlaylistsFragment extends BaseFragment implements OnScrollListe
                                 hideProgressBar();
                                 _isLoading = false;
                             } else {
-                                loadPlaylistsInfo(playlists);
+                                loadPlaylistsInfoForChannel(playlists);
                             }
 
                         } catch (Throwable e) {
@@ -212,7 +223,74 @@ public class UserPlaylistsFragment extends BaseFragment implements OnScrollListe
         }
     }
 
+    private void loadMorePlaylistsInfo() {
+        if (_isLoading) {
+            return;
+        }
+        _isLoading = true;
+        ArrayList<YoutubePlaylistInfo> playlists = new ArrayList<>();
+        int count = 0;
+        for (YoutubePlaylistInfo p : _playlists) {
+            if (p != null && Utils.stringIsNullOrEmpty(p.title)) {
+                count++;
+                playlists.add(p);
+                p.isDataLoaded = true;
+                if (count == Constants.PAGE_SIZE) {
+                    break;
+                }
+            }
+        }
+        loadPlaylistsInfo(playlists);
+    }
+
     private void loadPlaylistsInfo(final ArrayList<YoutubePlaylistInfo> playlists) {
+        String playlistIds = Utils.getPlaylistIds(playlists, 0);
+        String url = String
+                .format(PlayTubeController.getConfigInfo().loadPlaylistsDetailsUrl,
+                        playlistIds);
+        _httpOk = new CustomHttpOk(url, new CustomCallback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+                MainActivity.getInstance().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Utils.showMessage(Utils.getString(R.string.network_error));
+                        hideProgressBar();
+                        _isLoading = false;
+                        if (_playlists.size() != 0) {
+                            _adapter.setIsNetworkError(true);
+                            _adapter.notifyDataSetChanged();
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(final Response response) {
+                MainActivity.getInstance().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            String s = response.body().string();
+
+                            YoutubeHelper.fillDataToPlaylists(s, _playlists);
+
+                            setDataSource(_playlists);
+
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                        }
+                        hideProgressBar();
+                        _isLoading = false;
+                    }
+                });
+
+            }
+        });
+        _httpOk.start();
+    }
+
+    private void loadPlaylistsInfoForChannel(final ArrayList<YoutubePlaylistInfo> playlists) {
         String playlistIds = Utils.getPlaylistIds(playlists, 0);
         String url = String
                 .format(PlayTubeController.getConfigInfo().loadPlaylistsDetailsUrl,
@@ -287,10 +365,14 @@ public class UserPlaylistsFragment extends BaseFragment implements OnScrollListe
         if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
             if (_binding.listView.getLastVisiblePosition() == _binding.listView.getAdapter()
                     .getCount() - 1) {
-                if (_playlists.size() > 0
-                        && _playlists.get(_playlists.size() - 1) == null) {
+                if (Utils.isLoadMorePlaylists(_playlists)
+                        || (_playlists.size() > 0 && _playlists.get(_playlists.size() - 1) == null)) {
                     if (!_adapter.getIsNetworkError()) {
-                        loadMore();
+                        if (Utils.isLoadMorePlaylists(_playlists)) {
+                            loadMorePlaylistsInfo();
+                        } else {
+                            loadMore();
+                        }
                     }
                 }
             }

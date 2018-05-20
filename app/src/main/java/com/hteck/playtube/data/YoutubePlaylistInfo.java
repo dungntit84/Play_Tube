@@ -6,8 +6,6 @@ import java.util.ArrayList;
 public class YoutubePlaylistInfo {
     public String id;
 	public String title;
-    public String uploaderId;
-    public String uploaderName;
     public int videoCount;
     public boolean isPublic;
     public String imgeUrl;
@@ -17,4 +15,5 @@ public class YoutubePlaylistInfo {
     	return Utils.formatNumber(videoCount, false) + (videoCount > 1 ? " videos" : " video");
     }
     public boolean isMyPlaylist;
+    public boolean isDataLoaded;
 }

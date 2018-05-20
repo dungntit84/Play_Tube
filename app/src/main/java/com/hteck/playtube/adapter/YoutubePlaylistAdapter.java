@@ -47,7 +47,7 @@ public class YoutubePlaylistAdapter extends BaseAdapter {
         binding.itemPlaylistTitle.setText(playlistInfo.title);
         ViewHelper.displayYoutubeThumb(binding.itemPlaylistImgThumb, playlistInfo.imgeUrl);
         binding.itemPlaylistCount.setText(playlistInfo.getDisplayNumOfVideos());
-
+        binding.itemPlaylistImgAction.setVisibility(View.GONE);
         return binding.getRoot();
     }
 

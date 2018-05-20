@@ -15,8 +15,9 @@ import com.hteck.playtube.data.ChannelInfo;
 import com.hteck.playtube.databinding.TabsSearchViewBinding;
 
 public class UserDetailsFragment extends BaseFragment {
-    private static UserVideosFragment _userVideosFragment;
-    private static UserActivityFragment _userActivityFragment;
+    private UserVideosFragment _userVideosFragment;
+    private UserActivityFragment _userActivityFragment;
+    private UserPlaylistsFragment _userPlaylistsFragment;
     private TabsSearchViewBinding _binding;
     private ChannelInfo _channelInfo;
     private boolean _isPlaylistsTabLoaded;
@@ -49,9 +50,10 @@ public class UserDetailsFragment extends BaseFragment {
 
         _userVideosFragment = UserVideosFragment.newInstance(_channelInfo, Constants.SortBy.MOSTRECENT);
         _userActivityFragment = UserActivityFragment.newInstance(_channelInfo);
-
+        _userPlaylistsFragment = UserPlaylistsFragment.newInstance(_channelInfo);
         pagerAdapter.addFragment(_userVideosFragment, Utils.getString(R.string.video));
         pagerAdapter.addFragment(_userActivityFragment, Utils.getString(R.string.channel));
+        pagerAdapter.addFragment(_userPlaylistsFragment, Utils.getString(R.string.playlist));
         _binding.pager.setAdapter(pagerAdapter);
         _binding.tabs.setupWithViewPager(_binding.pager);
         _binding.tabs.setTabMode(TabLayout.MODE_FIXED);
@@ -78,10 +80,16 @@ public class UserDetailsFragment extends BaseFragment {
 
 
     private void loadData() {
-        if (_binding.pager.getCurrentItem() == 0) {
+        if (_binding.tabs.getSelectedTabPosition() == 0) {
+            if (!_isVideosTabLoaded) {
+                _isVideosTabLoaded = true;
+                _userVideosFragment.loadData();
+            }
+        }
+        else if (_binding.tabs.getSelectedTabPosition() == 2) {
             if (!_isPlaylistsTabLoaded) {
                 _isPlaylistsTabLoaded = true;
-                _userVideosFragment.loadData();
+                _userPlaylistsFragment.loadData();
             }
         }
     }

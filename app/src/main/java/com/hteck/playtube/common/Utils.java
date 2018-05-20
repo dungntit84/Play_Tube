@@ -721,11 +721,15 @@ public class Utils {
         String ids = "";
         int count = 0;
         for (YoutubePlaylistInfo p : playlists) {
+            if (p == null) {
+                continue;
+            }
             if (Objects.equals(ids, "")) {
                 ids = p.id;
             } else {
                 ids = ids + "," + p.id;
             }
+            p.isDataLoaded = true;
             count++;
             if (maxCount > 0 && count == maxCount) {
                 break;
@@ -760,6 +764,7 @@ public class Utils {
             } else {
                 ids = ids + "," + c.id;
             }
+            c.isDataLoaded = true;
             count++;
             if (maxCount > 0 && count == maxCount) {
                 break;
