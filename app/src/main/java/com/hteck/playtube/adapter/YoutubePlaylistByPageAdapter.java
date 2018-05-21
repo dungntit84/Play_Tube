@@ -12,6 +12,7 @@ import com.hteck.playtube.data.ChannelInfo;
 import com.hteck.playtube.data.PlaylistItemInfo;
 import com.hteck.playtube.data.YoutubePlaylistInfo;
 import com.hteck.playtube.databinding.ItemLoadMoreBinding;
+import com.hteck.playtube.databinding.ItemPlaylistBinding;
 import com.hteck.playtube.fragment.UserActivityFragment;
 import com.hteck.playtube.holder.BaseViewHolder;
 
@@ -35,18 +36,42 @@ public class YoutubePlaylistByPageAdapter extends YoutubePlaylistAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup group) {
         BaseViewHolder holder;
-        if (position == getCount() - 1) {
-            if (Utils.isLoadMorePlaylists(_playlists) || (_playlists.size() > 0 && _playlists.get(_playlists.size() - 1) == null)) {
-                if (!_isNetworkError) {
-                    holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.loading_view);
+        switch (getItemViewType(position)) {
+            case 0:
+            case 1: {
+                if (convertView == null) {
+                    if (!_isNetworkError) {
+                        holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.loading_view);
+                    } else {
+                        holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.item_load_more);
+                        ((ItemLoadMoreBinding) holder.binding).itemLoadMoreTvMsg.setText(Utils.getString(R.string.network_error_info));
+                    }
+                    convertView = holder.view;
+                    convertView.setTag(holder);
                 } else {
-                    holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.item_load_more);
-                    ((ItemLoadMoreBinding) holder.binding).itemLoadMoreTvMsg.setText(Utils.getString(R.string.network_error_info));
+                    holder = (BaseViewHolder) convertView.getTag();
                 }
-                return holder.view;
+                break;
+            }
+            default: {
+                if (convertView == null) {
+                    holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.item_playlist);
+
+                    convertView = holder.view;
+                    convertView.setTag(holder);
+                } else {
+                    holder = (BaseViewHolder) convertView.getTag();
+                }
+                ItemPlaylistBinding binding = (ItemPlaylistBinding) holder.binding;
+                YoutubePlaylistInfo playlistInfo = _playlists.get(position);
+                binding.itemPlaylistTitle.setText(playlistInfo.title);
+                ViewHelper.displayYoutubeThumb(binding.itemPlaylistImgThumb, playlistInfo.imgeUrl);
+                binding.itemPlaylistCount.setText(playlistInfo.getDisplayNumOfVideos());
+                binding.itemPlaylistImgAction.setVisibility(View.GONE);
+                break;
             }
         }
-        return super.getView(position, convertView, group);
+        return convertView;
     }
 
     @Override
@@ -63,5 +88,24 @@ public class YoutubePlaylistByPageAdapter extends YoutubePlaylistAdapter {
             return size + 1;
         }
         return _playlists.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position == getCount() - 1) {
+            if (Utils.isLoadMorePlaylists(_playlists) || (_playlists.size() > 0 && _playlists.get(_playlists.size() - 1) == null)) {
+                if (!_isNetworkError) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            }
+        }
+        return 2;
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 3;
     }
 }
