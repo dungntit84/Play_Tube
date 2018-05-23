@@ -90,7 +90,7 @@ public class PopularView extends BaseFragment implements
         _binding = DataBindingUtil.inflate(inflater, R.layout.popular_view, container, false);
         setupSpinner();
 
-        _adapter = new YoutubeByPageAdapter(_youtubeList, Constants.YoutubeListType.Popular);
+        _adapter = new YoutubeByPageAdapter(getContext(), _youtubeList, Constants.YoutubeListType.Popular);
         _binding.popularGridview.setAdapter(_adapter);
         _binding.popularGridview.setColumnWidth(Utils.getYoutubeWidth());
         _binding.popularGridview.setOnItemClickListener(this);

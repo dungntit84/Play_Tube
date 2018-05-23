@@ -58,7 +58,7 @@ public class YoutubePlayerVideosView extends Fragment implements
         _binding = DataBindingUtil.inflate(inflater, R.layout.list_view, container, false);
         _binding.listView.setOnScrollListener(this);
         _binding.listView.setOnItemClickListener(this);
-        _adapter = new YoutubeByPageAdapter(youtubeList);
+        _adapter = new YoutubeByPageAdapter(getContext(), youtubeList);
         _binding.listView.setAdapter(_adapter);
         _binding.textViewMsg.setText(Utils.getString(R.string.no_youtube));
         resetData(this.uploaderId);

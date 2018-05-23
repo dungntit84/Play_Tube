@@ -51,7 +51,7 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
                 .getLayoutInflater(), R.layout.list_view, null, false);
         _binding.textViewMsg.setText(Utils.getString(R.string.no_youtube));
 
-        _adapter = new YoutubeByPageAdapter(_videoList);
+        _adapter = new YoutubeByPageAdapter(getContext(), _videoList);
         _binding.listView.setAdapter(_adapter);
         _binding.listView.setOnScrollListener(this);
         _binding.listView.setOnItemClickListener(new OnItemClickListener() {

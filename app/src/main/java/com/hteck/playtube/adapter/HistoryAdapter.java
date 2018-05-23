@@ -1,5 +1,6 @@
 package com.hteck.playtube.adapter;
 
+import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,8 +20,8 @@ import java.util.ArrayList;
 
 public class HistoryAdapter extends YoutubeAdapter {
 
-    public HistoryAdapter(ArrayList<YoutubeInfo> videoList) {
-        super(videoList, Constants.YoutubeListType.Recent);
+    public HistoryAdapter(Context context, ArrayList<YoutubeInfo> videoList) {
+        super(context,videoList, Constants.YoutubeListType.Recent);
     }
 
     @Override

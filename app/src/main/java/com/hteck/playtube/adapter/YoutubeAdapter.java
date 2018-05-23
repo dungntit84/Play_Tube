@@ -1,5 +1,6 @@
 package com.hteck.playtube.adapter;
 
+import android.content.Context;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.view.View;
@@ -13,11 +14,12 @@ import java.util.ArrayList;
 
 public class YoutubeAdapter extends BaseAdapter {
     ArrayList<YoutubeInfo> _youtubeList;
-    private Constants.YoutubeListType _youtubeListType = Constants.YoutubeListType.Normal;
+    protected Constants.YoutubeListType _youtubeListType = Constants.YoutubeListType.Normal;
     private Object _dataContext;
-
-    public YoutubeAdapter(ArrayList<YoutubeInfo> videoList, Constants.YoutubeListType type) {
+    protected Context _context;
+    public YoutubeAdapter(Context context, ArrayList<YoutubeInfo> videoList, Constants.YoutubeListType type) {
         super();
+        _context = context;
         _youtubeList = videoList;
         _youtubeListType = type;
     }

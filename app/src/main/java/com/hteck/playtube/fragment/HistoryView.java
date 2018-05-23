@@ -40,7 +40,7 @@ public class HistoryView extends BaseFragment implements
         _binding.textViewMsg.setText(Utils.getString(R.string.no_youtube));
         _binding.listView.setOnItemClickListener(this);
         _youtubeList = HistoryService.getAllHistory();
-        _adapter = new HistoryAdapter(_youtubeList);
+        _adapter = new HistoryAdapter(getContext(), _youtubeList);
         _binding.listView.setAdapter(_adapter);
         _binding.textViewMsg.setVisibility(_youtubeList.size() == 0 ? View.VISIBLE : View.GONE);
         MainActivity.getInstance().setHeader();

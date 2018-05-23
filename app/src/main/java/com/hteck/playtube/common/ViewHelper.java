@@ -2,6 +2,7 @@ package com.hteck.playtube.common;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
@@ -14,8 +15,6 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
-import android.widget.TextView;
-
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.data.ChannelInfo;
@@ -23,6 +22,7 @@ import com.hteck.playtube.data.PlaylistInfo;
 import com.hteck.playtube.data.PlaylistItemInfo;
 import com.hteck.playtube.data.YoutubeInfo;
 import com.hteck.playtube.databinding.GridItemYoutubeViewBinding;
+import com.hteck.playtube.databinding.ItemLoadMoreBinding;
 import com.hteck.playtube.databinding.ItemUserActivityBinding;
 import com.hteck.playtube.databinding.ItemYoutubeViewBinding;
 import com.hteck.playtube.holder.BaseViewHolder;
@@ -33,6 +33,8 @@ import com.hteck.playtube.holder.ItemYoutubeViewHolder;
 import com.hteck.playtube.view.PlaylistsDialogView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static com.hteck.playtube.common.Utils.getString;
@@ -41,9 +43,10 @@ public class ViewHelper {
     public static View getYoutubeView(View convertView, ViewGroup group, YoutubeInfo youtubeInfo, View.OnClickListener onClickListener) {
         LayoutInflater inflater = MainActivity.getInstance().getLayoutInflater();
         ItemYoutubeViewHolder holder;
-        if (convertView == null || convertView.getTag() == null || !(convertView.getTag() instanceof ItemYoutubeViewHolder)) {
+        if (convertView == null) {
             ItemYoutubeViewBinding itemBinding = DataBindingUtil.inflate(inflater, R.layout.item_youtube_view, group, false);
             holder = new ItemYoutubeViewHolder(itemBinding);
+            convertView = holder.view;
             holder.view = itemBinding.getRoot();
             holder.view.setTag(holder);
         } else {
@@ -65,7 +68,7 @@ public class ViewHelper {
         } catch (Throwable e) {
             e.printStackTrace();
         }
-        return holder.view;
+        return convertView;
     }
 
     public static View getGridYoutubeView(View convertView, ViewGroup group, YoutubeInfo youtubeInfo, View.OnClickListener onClickListener) {
@@ -168,11 +171,36 @@ public class ViewHelper {
             holder = new BaseViewHolder(binding);
             holder.view.setTag(Constants.CUSTOM_TAG, resId);
             holder.view.setTag(holder);
+            convertView = holder.view;
         } else {
             holder = (BaseViewHolder) convertView.getTag();
         }
 
         return holder;
+    }
+
+    public static View getViewHolder1(LayoutInflater inflater, View convertView, ViewGroup group, int resId) {
+        if (convertView == null) {
+            ViewDataBinding binding = DataBindingUtil.inflate(inflater, resId, group, false);
+            BaseViewHolder holder = new BaseViewHolder(binding);
+            convertView = holder.view;
+            holder.view.setTag(holder);
+        }
+        return convertView;
+    }
+
+    public static View getNetworkErrorView(int viewType, Context context, View convertView, ViewGroup group) {
+
+        if (convertView == null) {
+            if (viewType == 0) {
+                convertView = ViewHelper.getViewHolder1(LayoutInflater.from(context), convertView, group, R.layout.loading_view);
+            } else {
+                convertView = ViewHelper.getViewHolder1(LayoutInflater.from(context), convertView, group, R.layout.item_load_more);
+                BaseViewHolder holder = (BaseViewHolder) convertView.getTag();
+                ((ItemLoadMoreBinding) holder.binding).itemLoadMoreTvMsg.setText(Utils.getString(R.string.network_error_info));
+            }
+        }
+        return convertView;
     }
 
     public static void displayYoutubeThumb(ImageView imageView, String url) {
@@ -412,5 +440,18 @@ public class ViewHelper {
                 return getString(R.string.had_an_action_on);
             }
         }
+    }
+
+    public static int getItemViewType(int position, int count, ArrayList<?> items, boolean isNetworkError) {
+        if (position == count - 1) {
+            if (items.size() > 0 && items.get(items.size() - 1) == null) {
+                if (!isNetworkError) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            }
+        }
+        return 2;
     }
 }

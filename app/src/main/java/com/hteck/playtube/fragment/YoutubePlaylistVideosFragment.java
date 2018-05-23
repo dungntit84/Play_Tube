@@ -70,7 +70,7 @@ public class YoutubePlaylistVideosFragment extends BaseFragment implements OnScr
                 .getLayoutInflater(), R.layout.list_view, container, false);
         _binding.textViewMsg.setText(Utils.getString(R.string.no_youtube));
 
-        _adapter = new YoutubeByPageAdapter(_youtubeList);
+        _adapter = new YoutubeByPageAdapter(getContext(), _youtubeList);
         _binding.listView.setAdapter(_adapter);
         _binding.listView.setOnScrollListener(this);
         _binding.listView.setOnItemClickListener(new OnItemClickListener() {

@@ -37,18 +37,57 @@ public class YoutubePlaylistItemByPageAdapter extends YoutubePlaylistItemAdapter
 
     @Override
     public View getView(int position, View convertView, ViewGroup group) {
-        BaseViewHolder holder;
+        switch (getItemViewType(position)) {
+            case 0:
+            case 1: {
+                return ViewHelper.getNetworkErrorView(getItemViewType(position), _context, convertView, group);
+            }
+            default: {
+                return super.getView(position, convertView, group);
+            }
+        }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
         if (position == getCount() - 1) {
             if (_items.size() > 0 && _items.get(_items.size() - 1) == null) {
                 if (!_isNetworkError) {
-                    holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.loading_view);
+                    return 0;
                 } else {
-                    holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.item_load_more);
-                    ((ItemLoadMoreBinding) holder.binding).itemLoadMoreTvMsg.setText(Utils.getString(R.string.network_error_info));
+                    return 1;
                 }
-                return holder.view;
             }
         }
-        return super.getView(position, convertView, group);
+        if (position == 0) {
+            return 2;
+        }
+        PlaylistItemInfo playlistItemViewInfo = _items.get(position - 1);
+        if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.NAME) {
+            return 3;
+        } else if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.YOUTUBE) {
+            return 4;
+        } else if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.PLAYLIST) {
+            return 5;
+        } else if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.CHANNEL) {
+            return 6;
+        } else if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.SHOWMORE) {
+            return 7;
+        } else if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.UPLOADED
+                || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.COMMENTED
+                || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.UPLOADEDANDPOSTED
+                || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.RECOMMENDED
+                || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.SUBSCRIBED
+                || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.OTHERACTION
+                || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.LIKED) {
+            return 8;
+        } else {
+            return 9;
+        }
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 10;
     }
 }

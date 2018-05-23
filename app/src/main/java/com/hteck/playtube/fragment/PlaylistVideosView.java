@@ -41,7 +41,7 @@ public class PlaylistVideosView extends BaseFragment implements
         _binding.textViewMsg.setText(Utils.getString(R.string.no_youtube));
         _binding.listView.setOnItemClickListener(this);
         _youtubeList = _playlistInfo.youtubeList;
-        _adapter = new YoutubeAdapter(_youtubeList, Constants.YoutubeListType.Playlist);
+        _adapter = new YoutubeAdapter(getContext(), _youtubeList, Constants.YoutubeListType.Playlist);
         _adapter.setDataContext(_playlistInfo);
         _binding.listView.setAdapter(_adapter);
         _binding.listView.setEmptyView(_binding.textViewMsg);

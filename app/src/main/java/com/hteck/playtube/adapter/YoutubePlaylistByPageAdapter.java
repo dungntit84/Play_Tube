@@ -35,43 +35,15 @@ public class YoutubePlaylistByPageAdapter extends YoutubePlaylistAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup group) {
-        BaseViewHolder holder;
         switch (getItemViewType(position)) {
             case 0:
             case 1: {
-                if (convertView == null) {
-                    if (!_isNetworkError) {
-                        holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.loading_view);
-                    } else {
-                        holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.item_load_more);
-                        ((ItemLoadMoreBinding) holder.binding).itemLoadMoreTvMsg.setText(Utils.getString(R.string.network_error_info));
-                    }
-                    convertView = holder.view;
-                    convertView.setTag(holder);
-                } else {
-                    holder = (BaseViewHolder) convertView.getTag();
-                }
-                break;
+                return ViewHelper.getNetworkErrorView(getItemViewType(position), _context, convertView, group);
             }
             default: {
-                if (convertView == null) {
-                    holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.item_playlist);
-
-                    convertView = holder.view;
-                    convertView.setTag(holder);
-                } else {
-                    holder = (BaseViewHolder) convertView.getTag();
-                }
-                ItemPlaylistBinding binding = (ItemPlaylistBinding) holder.binding;
-                YoutubePlaylistInfo playlistInfo = _playlists.get(position);
-                binding.itemPlaylistTitle.setText(playlistInfo.title);
-                ViewHelper.displayYoutubeThumb(binding.itemPlaylistImgThumb, playlistInfo.imgeUrl);
-                binding.itemPlaylistCount.setText(playlistInfo.getDisplayNumOfVideos());
-                binding.itemPlaylistImgAction.setVisibility(View.GONE);
-                break;
+                return super.getView(position, convertView, group);
             }
         }
-        return convertView;
     }
 
     @Override
@@ -79,7 +51,7 @@ public class YoutubePlaylistByPageAdapter extends YoutubePlaylistAdapter {
         if (Utils.isLoadMorePlaylists(_playlists)) {
             int size = 0;
             for (YoutubePlaylistInfo p : _playlists) {
-                if (!Utils.stringIsNullOrEmpty(p.title)) {
+                if (p != null && !Utils.stringIsNullOrEmpty(p.title)) {
                     size++;
                 } else {
                     break;

@@ -74,22 +74,21 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup group) {
-        BaseViewHolder holder;
-        if (position == 0) {
+        int viewType = getItemViewType(position);
+        if (viewType == 2) {
             return getChannelInfoView(convertView, group);
         }
-        int otherPosition = position - 1;
         PlaylistItemInfo playlistItemViewInfo = _items
-                .get(otherPosition);
+                .get(position - 1);
         LayoutInflater inflater = LayoutInflater.from(_context);
-        View v;
-        if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.NAME) {
-            holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.header_template_view);
+        if (viewType == 3) {
+            convertView = ViewHelper.getViewHolder1(LayoutInflater.from(_context), convertView, group, R.layout.header_template_view);
+            BaseViewHolder holder = (BaseViewHolder) convertView.getTag();
             HeaderTemplateViewBinding binding = (HeaderTemplateViewBinding) holder.binding;
             String title = playlistItemViewInfo.dataInfo.toString();
             binding.headerTemplateTextViewTitle.setText(title);
-            v = holder.view;
-        } else if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.YOUTUBE) {
+
+        } else if (viewType == 4) {
             YoutubeInfo youtubeInfo = (YoutubeInfo) playlistItemViewInfo.dataInfo;
             OnClickListener onClickListener = new OnClickListener() {
                 @Override
@@ -99,26 +98,19 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
 
                 }
             };
-            v = ViewHelper.getYoutubeView(convertView, group, youtubeInfo,
+            convertView = ViewHelper.getYoutubeView(convertView, group, youtubeInfo,
                     onClickListener);
-        } else if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.PLAYLIST) {
+        } else if (viewType == 5) {
             YoutubePlaylistInfo playlistInfo = (YoutubePlaylistInfo) playlistItemViewInfo.dataInfo;
 
-            v = YoutubePlaylistAdapter.getDetailsView(inflater, convertView, group, playlistInfo);
-        } else if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.CHANNEL) {
+            convertView = YoutubePlaylistAdapter.getDetailsView(inflater, convertView, group, playlistInfo);
+        } else if (viewType == 6) {
             ChannelInfo channelInfo = (ChannelInfo) playlistItemViewInfo.dataInfo;
 
-            v = ChannelAdapter.getDetailsView(inflater, convertView, group, channelInfo);
-        } else if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.SHOWMORE) {
-            v = inflater.inflate(R.layout.show_all, null);
-            v.setTag(playlistItemViewInfo.dataInfo);
-        } else if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.UPLOADED
-                || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.COMMENTED
-                || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.UPLOADEDANDPOSTED
-                || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.RECOMMENDED
-                || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.SUBSCRIBED
-                || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.OTHERACTION
-                || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.LIKED) {
+            convertView = ChannelAdapter.getDetailsView(inflater, convertView, group, channelInfo);
+        } else if (viewType == 7) {
+            convertView = ViewHelper.getViewHolder1(inflater, convertView, group, R.layout.show_all);
+        } else if (viewType == 8) {
             YoutubeInfo youtubeInfo = (YoutubeInfo) playlistItemViewInfo.dataInfo;
             OnClickListener onClickListener = new OnClickListener() {
                 @SuppressLint("NewApi")
@@ -128,13 +120,13 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
 
                 }
             };
-            v = ViewHelper.getActivityYoutubeView(inflater, convertView, group,
+            convertView = ViewHelper.getActivityYoutubeView(inflater, convertView, group,
                     youtubeInfo, mChannel, playlistItemViewInfo,
                     onClickListener);
         } else {
-            v = inflater.inflate(R.layout.separator_view, null);
+            convertView = ViewHelper.getViewHolder1(inflater, convertView, group, R.layout.separator_view);
         }
-        return v;
+        return convertView;
     }
 
     private View getChannelInfoView(View convertView, ViewGroup group) {

@@ -75,7 +75,7 @@ public class ChannelActivityVideosView extends BaseFragment implements
         _binding = DataBindingUtil.inflate(MainActivity.getInstance()
                 .getLayoutInflater(), R.layout.list_view, container, false);
 
-        _adapter = new YoutubeByPageAdapter(_youtubeList);
+        _adapter = new YoutubeByPageAdapter(getContext(), _youtubeList);
         _binding.listView.setAdapter(_adapter);
         _binding.listView.setOnItemClickListener(this);
         _binding.listView.setOnScrollListener(this);
