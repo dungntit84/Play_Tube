@@ -1,6 +1,7 @@
 package com.hteck.playtube.adapter;
 
 import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,8 +42,7 @@ public class YoutubePlaylistAdapter extends BaseAdapter {
     public static View getDetailsView(LayoutInflater inflater, View convertView, ViewGroup group,
                                       YoutubePlaylistInfo playlistInfo) {
         convertView = ViewHelper.getViewHolder1(inflater, convertView, group, R.layout.item_playlist);
-        BaseViewHolder holder = (BaseViewHolder) convertView.getTag();
-        ItemPlaylistBinding binding = (ItemPlaylistBinding) holder.binding;
+        ItemPlaylistBinding binding = DataBindingUtil.getBinding(convertView);
 
         binding.itemPlaylistTitle.setText(playlistInfo.title);
         ViewHelper.displayYoutubeThumb(binding.itemPlaylistImgThumb, playlistInfo.imgeUrl);

@@ -69,7 +69,7 @@ public class PlayerYoutubeInfoView extends Fragment implements OnScrollListener 
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int index, long arg3) {
                 try {
-                    if (index == _adapterVideoInfo.getCount() - 1 && _adapterVideoInfo.getCommentList().size() > 0 && _adapterVideoInfo.getCommentList().get(index) == null) {
+                    if (index == _adapterVideoInfo.getCount() - 1 && _adapterVideoInfo.getCommentList().size() > 0 && _adapterVideoInfo.getCommentList().get(_adapterVideoInfo.getCommentList().size() - 1) == null) {
                         if (_adapterVideoInfo.getIsNetworkError()) {
                             _adapterVideoInfo.setIsNetworkError(false);
                             _adapterVideoInfo.notifyDataSetChanged();

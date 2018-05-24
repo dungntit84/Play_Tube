@@ -32,19 +32,15 @@ public class ChannelByPageAdapter extends ChannelAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup group) {
-        BaseViewHolder holder;
-        if (position == getCount() - 1) {
-            if (_channelList.get(_channelList.size() - 1) == null || Utils.haveMoreChannels(_channelList)) {
-                if (!_isNetworkError) {
-                    holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.loading_view);
-                } else {
-                    holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.item_load_more);
-                    ((ItemLoadMoreBinding) holder.binding).itemLoadMoreTvMsg.setText(Utils.getString(R.string.network_error_info));
-                }
-                return holder.view;
+        switch (getItemViewType(position)) {
+            case 0:
+            case 1: {
+                return ViewHelper.getNetworkErrorView(getItemViewType(position), _context, convertView, group);
+            }
+            default: {
+                return super.getView(position, convertView, group);
             }
         }
-        return super.getView(position, convertView, group);
     }
 
     @Override
@@ -62,5 +58,24 @@ public class ChannelByPageAdapter extends ChannelAdapter {
             return size + 1;
         }
         return super.getCount();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position == getCount() - 1) {
+            if (Utils.haveMoreChannels(_channelList) || (_channelList.size() > 0 && _channelList.get(_channelList.size() - 1) == null)) {
+                if (!_isNetworkError) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            }
+        }
+        return 2;
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 3;
     }
 }

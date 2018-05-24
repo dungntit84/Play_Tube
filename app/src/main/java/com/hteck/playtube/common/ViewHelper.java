@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
+
 import com.hteck.playtube.R;
 import com.hteck.playtube.activity.MainActivity;
 import com.hteck.playtube.data.ChannelInfo;
@@ -146,39 +147,7 @@ public class ViewHelper {
         });
         return popup;
     }
-
-    public static View getConvertView(View convertView, int resId) {
-        LayoutInflater inflater = MainActivity.getInstance().getLayoutInflater();
-        View v;
-        if (convertView == null) {
-            v = inflater.inflate(resId, null);
-            v.setTag(Constants.CUSTOM_TAG, resId);
-        } else {
-            if (convertView.getTag(Constants.CUSTOM_TAG) == null || !convertView.getTag(Constants.CUSTOM_TAG).equals(resId)) {
-                v = inflater.inflate(resId, null);
-                v.setTag(Constants.CUSTOM_TAG, resId);
-            } else {
-                v = convertView;
-            }
-        }
-        return v;
-    }
-
-    public static BaseViewHolder getViewHolder(LayoutInflater inflater, View convertView, ViewGroup group, int resId) {
-        BaseViewHolder holder;
-        if (convertView == null || convertView.getTag(Constants.CUSTOM_TAG) == null || !convertView.getTag(Constants.CUSTOM_TAG).equals(resId)) {
-            ViewDataBinding binding = DataBindingUtil.inflate(inflater, resId, group, false);
-            holder = new BaseViewHolder(binding);
-            holder.view.setTag(Constants.CUSTOM_TAG, resId);
-            holder.view.setTag(holder);
-            convertView = holder.view;
-        } else {
-            holder = (BaseViewHolder) convertView.getTag();
-        }
-
-        return holder;
-    }
-
+    
     public static View getViewHolder1(LayoutInflater inflater, View convertView, ViewGroup group, int resId) {
         if (convertView == null) {
             ViewDataBinding binding = DataBindingUtil.inflate(inflater, resId, group, false);
@@ -196,8 +165,8 @@ public class ViewHelper {
                 convertView = ViewHelper.getViewHolder1(LayoutInflater.from(context), convertView, group, R.layout.loading_view);
             } else {
                 convertView = ViewHelper.getViewHolder1(LayoutInflater.from(context), convertView, group, R.layout.item_load_more);
-                BaseViewHolder holder = (BaseViewHolder) convertView.getTag();
-                ((ItemLoadMoreBinding) holder.binding).itemLoadMoreTvMsg.setText(Utils.getString(R.string.network_error_info));
+                ItemLoadMoreBinding binding = DataBindingUtil.getBinding(convertView);
+                binding.itemLoadMoreTvMsg.setText(Utils.getString(R.string.network_error_info));
             }
         }
         return convertView;
@@ -393,8 +362,8 @@ public class ViewHelper {
                                               ChannelInfo channelInfo, PlaylistItemInfo itemViewInfo,
                                               View.OnClickListener onClickListener) {
 
-        BaseViewHolder holder = getViewHolder(inflater, convertView, group, R.layout.item_user_activity);
-        ItemUserActivityBinding binding = (ItemUserActivityBinding) holder.binding;
+        convertView = getViewHolder1(inflater, convertView, group, R.layout.item_user_activity);
+        ItemUserActivityBinding binding = DataBindingUtil.getBinding(convertView);
         ImageLoader.getInstance().displayImage(channelInfo.imageUrl,
                 binding.imageViewChannelThumb);
         binding.textViewUploader.setText(channelInfo.title);
@@ -413,7 +382,7 @@ public class ViewHelper {
         binding.included.itemYoutubeImgAction.setTag(youtubeInfo);
         binding.included.itemYoutubeImgAction.setOnClickListener(onClickListener);
 
-        return holder.view;
+        return convertView;
     }
 
     private static String getActionDescription(int actionType) {

@@ -1162,91 +1162,95 @@ public class UserActivityFragment extends Fragment implements
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                             long position) {
-        int index = (int) position - 1;
-        if (index == _playlistItemViewInfos.size() - 1
-                && _playlistItemViewInfos.get(_playlistItemViewInfos.size() - 1) == null) {
-            if (_adapter.getIsNetworkError()) {
-                _adapter.setIsNetworkError(false);
-                _adapter.notifyDataSetChanged();
-                loadMoreData();
-            }
-        } else {
-            if (index >= 0) {
-                PlaylistItemInfo playlistItemViewInfo = _playlistItemViewInfos
-                        .get(index);
-                if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.YOUTUBE) {
+        try {
+            int index = (int) position - 1;
+            if (index == _playlistItemViewInfos.size() - 1
+                    && _playlistItemViewInfos.get(_playlistItemViewInfos.size() - 1) == null) {
+                if (_adapter.getIsNetworkError()) {
+                    _adapter.setIsNetworkError(false);
+                    _adapter.notifyDataSetChanged();
+                    loadMoreData();
+                }
+            } else {
+                if (index >= 0) {
+                    PlaylistItemInfo playlistItemViewInfo = _playlistItemViewInfos
+                            .get(index);
+                    if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.YOUTUBE) {
 
-                    MainActivity.getInstance().playYoutube(
-                            (YoutubeInfo) playlistItemViewInfo.dataInfo,
-                            playlistItemViewInfo.getYoutubeList(), true);
-                } else if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.SHOWMORE) {
-                    ChannelSectionInfo channelSectionInfo = (ChannelSectionInfo) playlistItemViewInfo.activityInfo;
-                    if (channelSectionInfo.activityType == Constants.UserActivityType.SINGLEPLAYLIST) {
+                        MainActivity.getInstance().playYoutube(
+                                (YoutubeInfo) playlistItemViewInfo.dataInfo,
+                                playlistItemViewInfo.getYoutubeList(), true);
+                    } else if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.SHOWMORE) {
+                        ChannelSectionInfo channelSectionInfo = (ChannelSectionInfo) playlistItemViewInfo.activityInfo;
+                        if (channelSectionInfo.activityType == Constants.UserActivityType.SINGLEPLAYLIST) {
+                            YoutubePlaylistVideosFragment youtubePlaylistDetails = YoutubePlaylistVideosFragment
+                                    .newInstance(
+                                            (YoutubePlaylistInfo) channelSectionInfo.dataInfo);
+                            MainActivity.getInstance().addFragment(
+                                    youtubePlaylistDetails);
+                        } else if (channelSectionInfo.activityType == Constants.UserActivityType.UPLOADS) {
+                            UserVideosFragment userVideosView = UserVideosFragment
+                                    .newInstance(_channelInfo, channelSectionInfo.sortBy);
+                            MainActivity.getInstance().addFragment(
+                                    userVideosView);
+                        } else if (channelSectionInfo.activityType == Constants.UserActivityType.RECENTACTIVIY) {
+                            ChannelActivityVideosView channelVideosView = ChannelActivityVideosView
+                                    .newInstance((ChannelInfo) channelSectionInfo.dataInfo);
+                            MainActivity.getInstance().addFragment(
+                                    channelVideosView);
+                        } else if (channelSectionInfo.activityType == Constants.UserActivityType.ALLPLAYLISTS
+                                || channelSectionInfo.activityType == Constants.UserActivityType.MULTIPLEPLAYLISTS) {
+                            UserPlaylistsFragment userPlaylistsView = UserPlaylistsFragment
+                                    .newInstance(_channelInfo, playlistItemViewInfo.activityInfo);
+                            MainActivity.getInstance().addFragment(userPlaylistsView);
+                        } else if (channelSectionInfo.activityType == Constants.UserActivityType.MULTIPLECHANNELS) {
+                            UserChanelsFragment userChanelsFragment = UserChanelsFragment
+                                    .newInstance(_channelInfo.id,
+                                            playlistItemViewInfo.activityInfo);
+                            MainActivity.getInstance().addFragment(userChanelsFragment);
+                        }
+                    } else if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.PLAYLIST) {
+                        YoutubePlaylistInfo playlistInfo = (YoutubePlaylistInfo) playlistItemViewInfo.dataInfo;
                         YoutubePlaylistVideosFragment youtubePlaylistDetails = YoutubePlaylistVideosFragment
-                                .newInstance(
-                                        (YoutubePlaylistInfo) channelSectionInfo.dataInfo);
+                                .newInstance(playlistInfo);
                         MainActivity.getInstance().addFragment(
                                 youtubePlaylistDetails);
-                    } else if (channelSectionInfo.activityType == Constants.UserActivityType.UPLOADS) {
-                        UserVideosFragment userVideosView = UserVideosFragment
-                                .newInstance(_channelInfo, channelSectionInfo.sortBy);
-                        MainActivity.getInstance().addFragment(
-                                userVideosView);
-                    } else if (channelSectionInfo.activityType == Constants.UserActivityType.RECENTACTIVIY) {
-                        ChannelActivityVideosView channelVideosView = ChannelActivityVideosView
-                                .newInstance((ChannelInfo) channelSectionInfo.dataInfo);
-                        MainActivity.getInstance().addFragment(
-                                channelVideosView);
-                    } else if (channelSectionInfo.activityType == Constants.UserActivityType.ALLPLAYLISTS
-                            || channelSectionInfo.activityType == Constants.UserActivityType.MULTIPLEPLAYLISTS) {
-                        UserPlaylistsFragment userPlaylistsView = UserPlaylistsFragment
-                                .newInstance(_channelInfo, playlistItemViewInfo.activityInfo);
-                        MainActivity.getInstance().addFragment(userPlaylistsView);
-                    } else if (channelSectionInfo.activityType == Constants.UserActivityType.MULTIPLECHANNELS) {
-                        UserChanelsFragment userChanelsFragment = UserChanelsFragment
-                                .newInstance(_channelInfo.id,
-                                        playlistItemViewInfo.activityInfo);
-                        MainActivity.getInstance().addFragment(userChanelsFragment);
-                    }
-                } else if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.PLAYLIST) {
-                    YoutubePlaylistInfo playlistInfo = (YoutubePlaylistInfo) playlistItemViewInfo.dataInfo;
-                    YoutubePlaylistVideosFragment youtubePlaylistDetails = YoutubePlaylistVideosFragment
-                            .newInstance(playlistInfo);
-                    MainActivity.getInstance().addFragment(
-                            youtubePlaylistDetails);
-                } else if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.CHANNEL) {
-                    ChannelInfo channelInfo = (ChannelInfo) playlistItemViewInfo.dataInfo;
-                    UserDetailsFragment userDetails = UserDetailsFragment
-                            .newInstance(channelInfo);
-                    MainActivity.getInstance().addFragment(userDetails);
-                } else if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.UPLOADED
-                        || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.COMMENTED
-                        || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.UPLOADEDANDPOSTED
-                        || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.RECOMMENDED
-                        || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.SUBSCRIBED
-                        || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.OTHERACTION
-                        || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.LIKED) {
-                    ArrayList<YoutubeInfo> youtubeList = new ArrayList<YoutubeInfo>();
-                    if (_hasVideoActivityOnly) {
-                        for (PlaylistItemInfo itemViewInfo : _playlistItemViewInfos) {
-                            if (itemViewInfo != null
-                                    && itemViewInfo.dataInfo instanceof YoutubeInfo) {
-                                YoutubeInfo videoInfo = (YoutubeInfo) itemViewInfo.dataInfo;
-                                youtubeList.add(videoInfo);
+                    } else if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.CHANNEL) {
+                        ChannelInfo channelInfo = (ChannelInfo) playlistItemViewInfo.dataInfo;
+                        UserDetailsFragment userDetails = UserDetailsFragment
+                                .newInstance(channelInfo);
+                        MainActivity.getInstance().addFragment(userDetails);
+                    } else if (playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.UPLOADED
+                            || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.COMMENTED
+                            || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.UPLOADEDANDPOSTED
+                            || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.RECOMMENDED
+                            || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.SUBSCRIBED
+                            || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.OTHERACTION
+                            || playlistItemViewInfo.playlistItemType == Constants.PlaylistItemType.LIKED) {
+                        ArrayList<YoutubeInfo> youtubeList = new ArrayList<YoutubeInfo>();
+                        if (_hasVideoActivityOnly) {
+                            for (PlaylistItemInfo itemViewInfo : _playlistItemViewInfos) {
+                                if (itemViewInfo != null
+                                        && itemViewInfo.dataInfo instanceof YoutubeInfo) {
+                                    YoutubeInfo videoInfo = (YoutubeInfo) itemViewInfo.dataInfo;
+                                    youtubeList.add(videoInfo);
+                                }
+                            }
+                        } else {
+                            ArrayList<PlaylistItemInfo> items = ((ChannelInfo) playlistItemViewInfo.activityInfo.dataInfo).activities;
+                            for (PlaylistItemInfo item : items) {
+                                youtubeList.add((YoutubeInfo) item.dataInfo);
                             }
                         }
-                    } else {
-                        ArrayList<PlaylistItemInfo> items = ((ChannelInfo) playlistItemViewInfo.activityInfo.dataInfo).activities;
-                        for (PlaylistItemInfo item : items) {
-                            youtubeList.add((YoutubeInfo) item.dataInfo);
-                        }
-                    }
 
-                    MainActivity.getInstance().playYoutube(
-                            (YoutubeInfo) playlistItemViewInfo.dataInfo,
-                            youtubeList, true);
+                        MainActivity.getInstance().playYoutube(
+                                (YoutubeInfo) playlistItemViewInfo.dataInfo,
+                                youtubeList, true);
+                    }
                 }
             }
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 

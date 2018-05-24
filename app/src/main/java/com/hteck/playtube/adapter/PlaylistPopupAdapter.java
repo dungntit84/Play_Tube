@@ -35,17 +35,16 @@ public class PlaylistPopupAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup group) {
-        BaseViewHolder holder;
         PlaylistInfo playlistInfo = _playlistList.get(position);
         if (playlistInfo.id == null) {
-            holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.item_add_playlist);
-            ((ItemAddPlaylistBinding) holder.binding).itemPlaylistTitle.setText(playlistInfo.title.toUpperCase());
+            convertView = ViewHelper.getViewHolder1(LayoutInflater.from(_context), convertView, group, R.layout.item_add_playlist);
+            ((ItemAddPlaylistBinding) DataBindingUtil.getBinding(convertView)).itemPlaylistTitle.setText(playlistInfo.title.toUpperCase());
         } else {
-            holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.item_popup_playlist);
-            ((ItemPopupPlaylistBinding) holder.binding).itemPlaylistTitle.setText(playlistInfo.title.toUpperCase());
-            ViewHelper.displayYoutubeThumb(((ItemPopupPlaylistBinding) holder.binding).itemPlaylistImgThumb, playlistInfo.imageUrl);
+            convertView = ViewHelper.getViewHolder1(LayoutInflater.from(_context), convertView, group, R.layout.item_popup_playlist);
+            ((ItemPopupPlaylistBinding) DataBindingUtil.getBinding(convertView)).itemPlaylistTitle.setText(playlistInfo.title.toUpperCase());
+            ViewHelper.displayYoutubeThumb(((ItemPopupPlaylistBinding) DataBindingUtil.getBinding(convertView)).itemPlaylistImgThumb, playlistInfo.imageUrl);
         }
-        return holder.view;
+        return convertView;
     }
 
     @Override

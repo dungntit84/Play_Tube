@@ -2,6 +2,7 @@ package com.hteck.playtube.view;
 
 import android.content.Context;
 import android.databinding.DataBindingUtil;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
@@ -39,6 +40,8 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
     private ListViewBinding _binding;
     private CustomHttpOk _httpOk;
     public boolean mIsSearched;
+    private View _viewReload;
+
     public YoutubeListView(Context context) {
         super(context);
         View v = createView();
@@ -144,6 +147,8 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
                         if (_videoList.size() != 0) {
                             _adapter.setIsNetworkError(true);
                             _adapter.notifyDataSetChanged();
+                        } else {
+                            handleNetworkError();
                         }
                     }
                 });
@@ -209,6 +214,8 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
                         if (_videoList.size() != 0) {
                             _adapter.setIsNetworkError(true);
                             _adapter.notifyDataSetChanged();
+                        } else {
+                            handleNetworkError();
                         }
                     }
                 });
@@ -283,5 +290,24 @@ public class YoutubeListView extends FrameLayout implements OnScrollListener {
                 }
             }
         }
+    }
+
+    private void handleNetworkError() {
+        LayoutInflater inflater = MainActivity.getInstance()
+                .getLayoutInflater();
+        if (_viewReload == null) {
+            _viewReload = inflater.inflate(R.layout.retry_view, null);
+            _binding.layoutMain.addView(_viewReload);
+        }
+        _viewReload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (_viewReload != null) {
+                    _binding.layoutMain.removeView(_viewReload);
+                    _viewReload = null;
+                }
+                searchData();
+            }
+        });
     }
 }

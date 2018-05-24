@@ -1,6 +1,7 @@
 package com.hteck.playtube.adapter;
 
 import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,9 +38,8 @@ public class ChannelAdapter extends BaseAdapter {
     }
 
     public static View getDetailsView(LayoutInflater inflater, View convertView, ViewGroup group, ChannelInfo channelInfo) {
-        BaseViewHolder holder;
-        holder = ViewHelper.getViewHolder(inflater, convertView, group, R.layout.item_channel);
-        ItemChannelBinding binding = (ItemChannelBinding) holder.binding;
+        convertView = ViewHelper.getViewHolder1(inflater, convertView, group, R.layout.item_channel);
+        ItemChannelBinding binding = DataBindingUtil.getBinding(convertView);
 
         binding.textViewTitle.setText(channelInfo.title);
         displayChannelThumb(binding.imageViewThumb, channelInfo.imageUrl);
@@ -48,7 +48,7 @@ public class ChannelAdapter extends BaseAdapter {
                 : View.GONE);
         binding.textViewSubscriberCount.setText(channelInfo.getDisplaySubscriberCount());
 
-        return holder.view;
+        return convertView;
     }
 
     @Override

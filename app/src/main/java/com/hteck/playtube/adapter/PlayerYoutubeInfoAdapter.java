@@ -1,6 +1,7 @@
 package com.hteck.playtube.adapter;
 
 import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,27 +60,27 @@ public class PlayerYoutubeInfoAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup group) {
-        BaseViewHolder holder;
-        if (position == 0) {
-            holder = getYoutubeInfoView(convertView, group);
-        } else if (position == 1) {
-            holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.header_template_view);
-        } else if (position - 1 == _commentList.size() && _commentList.get(_commentList.size() - 1) == null) {
-            if (!_isNetworkError) {
-                holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.loading_view);
-            } else {
-                holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.item_load_more);
-                ((ItemLoadMoreBinding) holder.binding).itemLoadMoreTvMsg.setText(Utils.getString(R.string.network_error_info));
+        switch (getItemViewType(position)) {
+            case 0:
+            case 1: {
+                return ViewHelper.getNetworkErrorView(getItemViewType(position), _context, convertView, group);
             }
-        } else {
-            CommentInfo userCommentInfo = _commentList.get(position - 2);
-            holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.item_comment);
-            ItemCommentBinding binding = ((ItemCommentBinding) holder.binding);
-            binding.itemCommentTextViewTitle.setText(userCommentInfo.userName);
-            binding.itemCommentTextViewTime.setText(userCommentInfo.commentedDate);
-            binding.itemCommentTextViewContent.setText(userCommentInfo.details);
+            case 2: {
+                return getYoutubeInfoView(convertView, group);
+            }
+            case 3: {
+                return ViewHelper.getViewHolder1(LayoutInflater.from(_context), convertView, group, R.layout.header_template_view);
+            }
+            default: {
+                CommentInfo userCommentInfo = _commentList.get(position - 2);
+                convertView = ViewHelper.getViewHolder1(LayoutInflater.from(_context), convertView, group, R.layout.item_comment);
+                ItemCommentBinding binding = DataBindingUtil.getBinding(convertView);
+                binding.itemCommentTextViewTitle.setText(userCommentInfo.userName);
+                binding.itemCommentTextViewTime.setText(userCommentInfo.commentedDate);
+                binding.itemCommentTextViewContent.setText(userCommentInfo.details);
+                return convertView;
+            }
         }
-        return holder.view;
     }
 
     @Override
@@ -101,9 +102,33 @@ public class PlayerYoutubeInfoAdapter extends BaseAdapter {
         return position;
     }
 
-    private BaseViewHolder getYoutubeInfoView(View convertView, ViewGroup group) {
-        BaseViewHolder holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.player_info);
-        PlayerInfoBinding binding = (PlayerInfoBinding) holder.binding;
+    @Override
+    public int getItemViewType(int position) {
+        if (position == 0) {
+            return 2;
+        } else if (position == 1) {
+            return 3;
+        } else if (position - 1 == _commentList.size() && _commentList.get(_commentList.size() - 1) == null) {
+            if (!_isNetworkError) {
+                return 0;
+            } else {
+                return 1;
+            }
+        } else {
+            return 4;
+        }
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 5;
+    }
+
+    private View getYoutubeInfoView(View convertView, ViewGroup group) {
+        if (convertView == null) {
+            convertView = ViewHelper.getViewHolder1(LayoutInflater.from(_context), convertView, group, R.layout.player_info);
+        }
+        PlayerInfoBinding binding = DataBindingUtil.getBinding(convertView);
         binding.playerInfoTvTitle.setText(_youtubeInfo.title.toUpperCase());
         ViewHelper.displayYoutubeThumb(binding.playerInfoImgThumb, _youtubeInfo.imageUrl);
         binding.playerInfoTvUploadedDate.setText(_youtubeInfo.uploadedDate);
@@ -115,7 +140,7 @@ public class PlayerYoutubeInfoAdapter extends BaseAdapter {
         binding.playerInfoTextViewDescription.setText(_youtubeInfo.description);
         binding.playerInfoImgAction.setTag(_youtubeInfo);
         binding.playerInfoImgAction.setOnClickListener(onClickListener);
-        return holder;
+        return convertView;
     }
 
     View.OnClickListener onClickListener = new View.OnClickListener() {

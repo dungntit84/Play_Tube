@@ -42,7 +42,7 @@
                 android:layout_height="@dimen/subscribe_height"
                 android:background="@drawable/ic_subscribe"
                 android:clickable="true"
-                android:visibility="invisible"></Button>
+                ></Button>
         </LinearLayout>
 
         <View

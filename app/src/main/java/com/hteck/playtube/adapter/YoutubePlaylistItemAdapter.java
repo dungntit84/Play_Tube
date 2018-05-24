@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.databinding.DataBindingUtil;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -83,8 +84,7 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
         LayoutInflater inflater = LayoutInflater.from(_context);
         if (viewType == 3) {
             convertView = ViewHelper.getViewHolder1(LayoutInflater.from(_context), convertView, group, R.layout.header_template_view);
-            BaseViewHolder holder = (BaseViewHolder) convertView.getTag();
-            HeaderTemplateViewBinding binding = (HeaderTemplateViewBinding) holder.binding;
+            HeaderTemplateViewBinding binding = DataBindingUtil.getBinding(convertView);
             String title = playlistItemViewInfo.dataInfo.toString();
             binding.headerTemplateTextViewTitle.setText(title);
 
@@ -130,8 +130,8 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
     }
 
     private View getChannelInfoView(View convertView, ViewGroup group) {
-        BaseViewHolder holder = ViewHelper.getViewHolder(LayoutInflater.from(_context), convertView, group, R.layout.channel_header);
-        ChannelHeaderBinding binding = (ChannelHeaderBinding) holder.binding;
+        convertView = ViewHelper.getViewHolder1(LayoutInflater.from(_context), convertView, group, R.layout.channel_header);
+        ChannelHeaderBinding binding = DataBindingUtil.getBinding(convertView);
 
         binding.textViewTitle.setText(mChannel.title);
         String ex = mChannel.subscriberCount > 1 ? " subscribers"
@@ -178,7 +178,7 @@ public class YoutubePlaylistItemAdapter extends BaseAdapter {
             }
         });
 
-        return holder.view;
+        return convertView;
     }
 
     public void checkChannelSubscribed(boolean isCheckLogedIn) {
